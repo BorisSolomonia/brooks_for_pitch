@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: ${LISTS_DB_URL:jdbc:postgresql://localhost:5432/lists_db}
+    username: ${LISTS_DB_USER:lists_user}
+    password: ${LISTS_DB_PASSWORD:lists_pass}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  port: ${LISTS_SERVICE_PORT:8083}
+
+auth0:
+  issuer-uri: ${AUTH0_ISSUER_URI}
+  audience: ${AUTH0_AUDIENCE}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# Internal service-to-service authentication
+internal:
+  service:
+    keys: ${INTERNAL_SERVICE_KEYS:pins-service-key-change-in-production,social-service-key-change-in-production}

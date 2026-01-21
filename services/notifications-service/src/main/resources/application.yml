@@ -1,0 +1,13 @@
+server:
+  port: ${NOTIFICATIONS_SERVICE_PORT:8087}
+
+auth0:
+  issuer-uri: ${AUTH0_ISSUER_URI}
+  audience: ${AUTH0_AUDIENCE}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+

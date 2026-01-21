@@ -1,0 +1,89 @@
+spring:
+  datasource:
+    url: ${PINS_DB_URL:jdbc:postgresql://localhost:5432/pins_db}
+    username: ${PINS_DB_USER:pins_user}
+    password: ${PINS_DB_PASSWORD:pins_pass}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  port: ${PINS_SERVICE_PORT:8084}
+
+auth0:
+  issuer-uri: ${AUTH0_ISSUER_URI}
+  audience: ${AUTH0_AUDIENCE}
+
+brooks:
+  social:
+    base-url: ${SOCIAL_SERVICE_URL:http://localhost:8082}
+  lists:
+    base-url: ${LISTS_SERVICE_URL:http://localhost:8083}
+  proximity:
+    bucket-size-deg: ${BROOKS_BUCKET_SIZE_DEG:0.01}
+  cleanup:
+    enabled: ${BROOKS_CLEANUP_ENABLED:true}
+    batch-size: ${BROOKS_CLEANUP_BATCH_SIZE:1000}
+    retention-days: ${BROOKS_CLEANUP_RETENTION_DAYS:7}
+    cron: ${BROOKS_CLEANUP_CRON:0 0 2 * * ?}
+
+# Internal service-to-service authentication
+internal:
+  service:
+    name: pins-service
+    key: ${INTERNAL_SERVICE_KEY:pins-service-key-change-in-production}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+    instances:
+      socialService:
+        baseConfig: default
+        waitDurationInOpenState: 10s
+      listsService:
+        baseConfig: default
+        waitDurationInOpenState: 10s
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+    instances:
+      socialService:
+        baseConfig: default
+      listsService:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 2s
+    instances:
+      socialService:
+        baseConfig: default
+      listsService:
+        baseConfig: default
+
+

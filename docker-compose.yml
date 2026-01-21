@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with PostGIS
+  brooks-db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: brooks-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-brooks}
+      POSTGRES_USER: ${DATABASE_USER:-brooks}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-brooks}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - brooks-db-data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - brooks-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-brooks} -d ${DATABASE_NAME:-brooks}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+
+  # Spring Boot Backend
+  brooks-backend:
+    image: us-central1-docker.pkg.dev/brooks-485009/brooksar/brooks-backend:latest
+    container_name: brooks-backend
+    restart: unless-stopped
+    depends_on:
+      brooks-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      DATABASE_URL: jdbc:postgresql://brooks-db:5432/${DATABASE_NAME:-brooks}
+      DATABASE_USER: ${DATABASE_USER:-brooks}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-brooks}
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+    networks:
+      - brooks-network
+      - web
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.3'
+
+  # React Frontend
+  brooks-frontend:
+    image: us-central1-docker.pkg.dev/brooks-485009/brooksar/brooks-frontend:latest
+    container_name: brooks-frontend
+    restart: unless-stopped
+    depends_on:
+      - brooks-backend
+    networks:
+      - web
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+
+networks:
+  brooks-network:
+    driver: bridge
+  web:
+    external: true
+
+volumes:
+  brooks-db-data:
+    driver: local

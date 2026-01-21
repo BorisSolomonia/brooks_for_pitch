@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_db}
+    username: ${AUTH_DB_USER:auth_user}
+    password: ${AUTH_DB_PASSWORD:auth_pass}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  port: ${AUTH_SERVICE_PORT:8081}
+
+auth0:
+  issuer-uri: ${AUTH0_ISSUER_URI}
+  audience: ${AUTH0_AUDIENCE}
+
+brooks:
+  jwt:
+    issuer: ${BROOKS_JWT_ISSUER:brooks}
+    secret: ${BROOKS_JWT_SECRET:change-me-change-me-change-me-change}
+    access-ttl-seconds: ${BROOKS_JWT_ACCESS_TTL:900}
+    refresh-ttl-seconds: ${BROOKS_JWT_REFRESH_TTL:2592000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+

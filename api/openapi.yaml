@@ -1,0 +1,573 @@
+openapi: 3.0.3
+info:
+  title: Brooks API (Gateway)
+  version: 0.2.0
+servers:
+  - url: https://api.brooks.example.com
+
+tags:
+  - name: Auth
+    description: Authentication and token lifecycle
+  - name: Social
+    description: Follow, friend, block, and relationship preferences
+  - name: Lists
+    description: Friend and follower lists
+  - name: Pins
+    description: Pin creation and proximity discovery
+  - name: Media
+    description: Media upload flows
+  - name: Moderation
+    description: Abuse reports
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and issue tokens
+      security: []
+      x-service: auth-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "user@example.com"
+              password: "password123"
+      responses:
+        '200':
+          description: Tokens issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security: []
+      x-service: auth-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+  /follow/{userId}:
+    post:
+      tags: [Social]
+      summary: Follow a user
+      x-service: social-service
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Follow created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowResponse'
+  /friends/request/{userId}:
+    post:
+      tags: [Social]
+      summary: Send friend request
+      x-service: social-service
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Friend request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendRequestResponse'
+  /friends/accept/{requestId}:
+    post:
+      tags: [Social]
+      summary: Accept friend request
+      x-service: social-service
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Friend request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendshipResponse'
+  /relationships/{userId}/preferences:
+    put:
+      tags: [Social]
+      summary: Update relationship preferences
+      x-service: social-service
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipPreferences'
+      responses:
+        '200':
+          description: Preferences updated
+  /block/{userId}:
+    post:
+      tags: [Social]
+      summary: Block a user
+      x-service: social-service
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User blocked
+  /lists:
+    post:
+      tags: [Lists]
+      summary: Create a list
+      x-service: lists-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCreateRequest'
+      responses:
+        '201':
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+  /lists/{id}/members:
+    post:
+      tags: [Lists]
+      summary: Add members to list
+      x-service: lists-service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListMembersRequest'
+      responses:
+        '200':
+          description: List members updated
+  /pins:
+    post:
+      tags: [Pins]
+      summary: Create a pin
+      x-service: pins-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinCreateRequest'
+      responses:
+        '201':
+          description: Pin created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinResponse'
+  /pins/{id}:
+    delete:
+      tags: [Pins]
+      summary: Delete a pin
+      x-service: pins-service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Pin deleted
+  /pins/map:
+    get:
+      tags: [Pins]
+      summary: Get pins for map rendering
+      x-service: pins-service
+      parameters:
+        - name: bbox
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Bounding box (minLng,minLat,maxLng,maxLat)
+      responses:
+        '200':
+          description: Pins for map
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapPinsResponse'
+  /pins/candidates:
+    get:
+      tags: [Pins]
+      summary: Get candidate pins for geofencing
+      x-service: pins-service
+      parameters:
+        - name: bucket
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Candidate pin zones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinCandidatesResponse'
+  /pins/{id}/check-reveal:
+    post:
+      tags: [Pins]
+      summary: Check reveal eligibility
+      x-service: pins-service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevealCheckRequest'
+      responses:
+        '200':
+          description: Reveal decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevealCheckResponse'
+  /media/upload-url:
+    post:
+      tags: [Media]
+      summary: Request a signed upload URL
+      x-service: media-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+      responses:
+        '200':
+          description: Upload URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaUploadResponse'
+  /reports:
+    post:
+      tags: [Moderation]
+      summary: Report abuse
+      x-service: moderation-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequest'
+      responses:
+        '201':
+          description: Report created
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+    FollowResponse:
+      type: object
+      properties:
+        followId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    FriendRequestResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    FriendshipResponse:
+      type: object
+      properties:
+        friendshipId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    RelationshipPreferences:
+      type: object
+      properties:
+        canSeePins:
+          type: boolean
+        canReceiveProximityNotifications:
+          type: boolean
+    ListCreateRequest:
+      type: object
+      required: [name, listType]
+      properties:
+        name:
+          type: string
+        listType:
+          type: string
+          enum: [FRIEND, FOLLOWER]
+    ListResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        listType:
+          type: string
+    ListMembersRequest:
+      type: object
+      required: [memberIds]
+      properties:
+        memberIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    PinCreateRequest:
+      type: object
+      required: [text, audienceType, expiresAt, revealType, location]
+      properties:
+        text:
+          type: string
+        linkUrl:
+          type: string
+        audienceType:
+          type: string
+          enum: [PRIVATE, FRIENDS, FOLLOWERS, PUBLIC]
+        availableFrom:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        revealType:
+          type: string
+          enum: [VISIBLE_ALWAYS, REACH_TO_REVEAL]
+        revealRadiusM:
+          type: integer
+        mapPrecision:
+          type: string
+          enum: [EXACT, BLURRED]
+        notifyRadiusM:
+          type: integer
+        notifyCooldownSeconds:
+          type: integer
+        notifyRepeatable:
+          type: boolean
+        futureSelf:
+          type: boolean
+        acl:
+          $ref: '#/components/schemas/PinAcl'
+        location:
+          $ref: '#/components/schemas/Location'
+        mysteryPolygon:
+          $ref: '#/components/schemas/Polygon'
+    PinAcl:
+      type: object
+      properties:
+        listIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    Location:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+        altitudeM:
+          type: number
+    Polygon:
+      type: array
+      description: Array of [lng,lat] pairs
+      items:
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          type: number
+    PinResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+    MapPinsResponse:
+      type: object
+      properties:
+        pins:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapPin'
+    MapPin:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        location:
+          $ref: '#/components/schemas/Location'
+        mapPrecision:
+          type: string
+    PinCandidatesResponse:
+      type: object
+      properties:
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PinCandidate'
+    PinCandidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        center:
+          $ref: '#/components/schemas/Location'
+        revealType:
+          type: string
+        revealRadiusM:
+          type: integer
+        mysteryPolygon:
+          $ref: '#/components/schemas/Polygon'
+    RevealCheckRequest:
+      type: object
+      required: [location]
+      properties:
+        location:
+          $ref: '#/components/schemas/Location'
+    RevealCheckResponse:
+      type: object
+      properties:
+        unlocked:
+          type: boolean
+        reason:
+          type: string
+        pin:
+          $ref: '#/components/schemas/PinDetail'
+    PinDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+        linkUrl:
+          type: string
+    MediaUploadRequest:
+      type: object
+      required: [mediaType]
+      properties:
+        mediaType:
+          type: string
+          enum: [IMAGE, AUDIO, VIDEO]
+    MediaUploadResponse:
+      type: object
+      properties:
+        uploadUrl:
+          type: string
+        storageKey:
+          type: string
+    ReportRequest:
+      type: object
+      required: [targetType, targetId, reason]
+      properties:
+        targetType:
+          type: string
+        targetId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+        details:
+          type: string

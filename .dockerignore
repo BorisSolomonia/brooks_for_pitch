@@ -1,0 +1,57 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+DEPLOYMENT.md
+README.md
+QUICKSTART.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+
+# Environment
+.env
+.env.*
+!.env.example
+brooks-env.txt
+
+# Build artifacts
+**/target/
+**/dist/
+**/build/
+*.class
+
+# Tests
+*.test.js
+*.spec.js
+__tests__/
+coverage/
+
+# CI/CD
+.github/
+.circleci/
+.travis.yml
+
+# Docker
+docker-compose*.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+**/*.log

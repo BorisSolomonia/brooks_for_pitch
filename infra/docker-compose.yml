@@ -1,0 +1,164 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: brooks-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: brooks
+      POSTGRES_PASSWORD: brooks
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brooks"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  auth-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/auth-service
+    environment:
+      AUTH_DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres:5432/auth_db}
+      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_JWT_ISSUER: brooks
+      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET:?BROOKS_JWT_SECRET must be set in .env file}
+      BROOKS_JWT_ACCESS_TTL: 900
+      BROOKS_JWT_REFRESH_TTL: 2592000
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+
+  social-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/social-service
+    environment:
+      SOCIAL_DB_URL: ${SOCIAL_DB_URL:-jdbc:postgresql://postgres:5432/social_db}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER:-social_user}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD:?SOCIAL_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8082"
+
+  lists-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/lists-service
+    environment:
+      LISTS_DB_URL: ${LISTS_DB_URL:-jdbc:postgresql://postgres:5432/lists_db}
+      LISTS_DB_USER: ${LISTS_DB_USER:-lists_user}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD:?LISTS_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+
+  pins-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/pins-service
+    environment:
+      PINS_DB_URL: ${PINS_DB_URL:-jdbc:postgresql://postgres:5432/pins_db}
+      PINS_DB_USER: ${PINS_DB_USER:-pins_user}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD:?PINS_DB_PASSWORD must be set in .env file}
+      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL:-http://social-service:8082}
+      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL:-http://lists-service:8083}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+    depends_on:
+      - postgres
+      - social-service
+      - lists-service
+    ports:
+      - "8084:8084"
+
+  media-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/media-service
+    environment:
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: http://localhost:3000
+    ports:
+      - "8085:8085"
+
+  moderation-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/moderation-service
+    environment:
+      MODERATION_DB_URL: ${MODERATION_DB_URL:-jdbc:postgresql://postgres:5432/moderation_db}
+      MODERATION_DB_USER: ${MODERATION_DB_USER:-moderation_user}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD:?MODERATION_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+    depends_on:
+      - postgres
+    ports:
+      - "8086:8086"
+
+  notifications-service:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        SERVICE_DIR: services/notifications-service
+    environment:
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: http://localhost:3000
+    ports:
+      - "8087:8087"
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+      args:
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
+        VITE_AUTH0_REDIRECT_URI: ${VITE_AUTH0_REDIRECT_URI:-}
+        VITE_SOCIAL_API_URL: http://localhost:8082
+        VITE_LISTS_API_URL: http://localhost:8083
+        VITE_PINS_API_URL: http://localhost:8084
+        VITE_MEDIA_API_URL: http://localhost:8085
+        VITE_MODERATION_API_URL: http://localhost:8086
+        VITE_NOTIFICATIONS_API_URL: http://localhost:8087
+        VITE_MAP_PROVIDER: leaflet
+        VITE_GOOGLE_MAPS_KEY: ${VITE_GOOGLE_MAPS_KEY:-}
+        VITE_NOMINATIM_URL: https://nominatim.openstreetmap.org/reverse
+    depends_on:
+      - auth-service
+      - pins-service
+    ports:
+      - "3000:3000"

@@ -1,0 +1,67 @@
+# Brooks App - Main Domain with HTTPS
+brooksweb.uk, www.brooksweb.uk {
+  log {
+    output stdout
+    format console
+    level INFO
+  }
+
+  # Enable gzip and zstd compression
+  encode gzip zstd
+
+  # API routes -> Backend (Spring Boot on port 8080)
+  handle /api/* {
+    reverse_proxy brooks-backend:8080 {
+      # Health check
+      health_uri /actuator/health
+      health_interval 30s
+      health_timeout 10s
+
+      # Timeouts
+      transport http {
+        dial_timeout 10s
+        response_header_timeout 30s
+      }
+    }
+  }
+
+  # Management/Actuator endpoints -> Backend
+  handle /actuator/* {
+    reverse_proxy brooks-backend:8080
+  }
+
+  # All other routes -> Frontend (React app on port 3000)
+  handle {
+    reverse_proxy brooks-frontend:3000 {
+      # Health check
+      health_uri /health
+      health_interval 30s
+      health_timeout 5s
+    }
+  }
+
+  # Security headers
+  header {
+    -Server
+    X-Content-Type-Options nosniff
+    X-Frame-Options SAMEORIGIN
+    X-XSS-Protection "1; mode=block"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "accelerometer=(), camera=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+  }
+}
+
+# Health check endpoint on port 80 (for load balancers)
+:80 {
+  log {
+    output stdout
+    format console
+    level INFO
+  }
+
+  @health path /health
+  respond @health "OK" 200
+
+  # Redirect all other traffic to HTTPS
+  redir https://brooksweb.uk{uri} permanent
+}

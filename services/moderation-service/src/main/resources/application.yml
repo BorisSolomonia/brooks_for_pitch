@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: ${MODERATION_DB_URL:jdbc:postgresql://localhost:5432/moderation_db}
+    username: ${MODERATION_DB_USER:moderation_user}
+    password: ${MODERATION_DB_PASSWORD:moderation_pass}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  port: ${MODERATION_SERVICE_PORT:8086}
+
+auth0:
+  issuer-uri: ${AUTH0_ISSUER_URI}
+  audience: ${AUTH0_AUDIENCE}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+

@@ -1,0 +1,323 @@
+name: 🚀 Deploy Brooks App
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-brooks
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: brooks-485009
+  REGION: us-central1
+  REPOSITORY: brooksar
+  VM_ZONE: us-central1-f
+  VM_NAME: brooks-20260121-095019
+
+jobs:
+  deploy:
+    name: 🏗️ Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🔐 Auth to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: ☁️ Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: 🔍 Verify GCP Configuration
+      run: |
+        echo "🔍 GCP Configuration:"
+        echo "Project: $(gcloud config get-value project)"
+        echo "Account: $(gcloud config get-value account)"
+        echo "Region: ${{ env.REGION }}"
+        echo "Repository: ${{ env.REPOSITORY }}"
+
+    - name: 🐳 Configure Docker for Artifact Registry
+      run: |
+        echo "🐳 Configuring Docker for Artifact Registry..."
+        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+        echo "✅ Docker configured"
+
+    - name: 📦 Fetch Environment Variables from Secret Manager
+      run: |
+        echo "📦 Fetching environment variables from Secret Manager..."
+        gcloud secrets versions access latest \
+          --secret="brooks-env" \
+          --project="${{ env.PROJECT_ID }}" > .env.production
+
+        echo "✅ Environment variables fetched"
+        echo "📊 Variables count: $(wc -l < .env.production)"
+
+    - name: 🏗️ Build & Push Backend Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend"
+
+        echo "🏗️ Building backend Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+        echo "📍 Tags: ${{ github.sha }}, latest"
+
+        docker build \
+          --progress=plain \
+          -f server/Dockerfile \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          server/
+
+        echo "📤 Pushing backend images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Backend images pushed"
+        echo "BACKEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Frontend Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend"
+
+        echo "🏗️ Building frontend Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        # Extract Vite variables for build args
+        echo "📦 Extracting build arguments from .env.production..."
+        VITE_AUTH_API_URL=$(grep "^VITE_AUTH_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_AUTH0_DOMAIN=$(grep "^VITE_AUTH0_DOMAIN=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_AUTH0_CLIENT_ID=$(grep "^VITE_AUTH0_CLIENT_ID=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_AUTH0_AUDIENCE=$(grep "^VITE_AUTH0_AUDIENCE=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_AUTH0_REDIRECT_URI=$(grep "^VITE_AUTH0_REDIRECT_URI=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_MAP_PROVIDER=$(grep "^VITE_MAP_PROVIDER=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_GOOGLE_MAPS_KEY=$(grep "^VITE_GOOGLE_MAPS_KEY=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+
+        # Use defaults if empty
+        VITE_AUTH0_REDIRECT_URI=${VITE_AUTH0_REDIRECT_URI:-"https://brooksweb.uk"}
+        VITE_MAP_PROVIDER=${VITE_MAP_PROVIDER:-"leaflet"}
+
+        docker build \
+          --progress=plain \
+          --build-arg VITE_AUTH_API_URL="${VITE_AUTH_API_URL}" \
+          --build-arg VITE_AUTH0_DOMAIN="${VITE_AUTH0_DOMAIN}" \
+          --build-arg VITE_AUTH0_CLIENT_ID="${VITE_AUTH0_CLIENT_ID}" \
+          --build-arg VITE_AUTH0_AUDIENCE="${VITE_AUTH0_AUDIENCE}" \
+          --build-arg VITE_AUTH0_REDIRECT_URI="${VITE_AUTH0_REDIRECT_URI}" \
+          --build-arg VITE_SOCIAL_API_URL="https://brooksweb.uk/api/social" \
+          --build-arg VITE_LISTS_API_URL="https://brooksweb.uk/api/lists" \
+          --build-arg VITE_PINS_API_URL="https://brooksweb.uk/api/pins" \
+          --build-arg VITE_MEDIA_API_URL="https://brooksweb.uk/api/media" \
+          --build-arg VITE_MODERATION_API_URL="https://brooksweb.uk/api/moderation" \
+          --build-arg VITE_NOTIFICATIONS_API_URL="https://brooksweb.uk/api/notifications" \
+          --build-arg VITE_MAP_PROVIDER="${VITE_MAP_PROVIDER}" \
+          --build-arg VITE_GOOGLE_MAPS_KEY="${VITE_GOOGLE_MAPS_KEY}" \
+          --build-arg VITE_NOMINATIM_URL="https://nominatim.openstreetmap.org" \
+          -f web/Dockerfile \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          web/
+
+        echo "📤 Pushing frontend images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Frontend images pushed"
+        echo "FRONTEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Setup VM Directories
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 30s
+        command_timeout: 60s
+        script: |
+          echo "🏗️ Setting up directories for Brooks..."
+
+          sudo mkdir -p /opt/brooks
+          sudo mkdir -p /opt/brooks/infra/caddy
+          sudo chown -R $USER:$USER /opt/brooks
+
+          echo "✅ VM directories ready"
+
+    - name: 📤 Upload Files to VM
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 30s
+        command_timeout: 60s
+        overwrite: true
+        source: "docker-compose.yml,infra/caddy/Caddyfile,db/schema.sql"
+        target: /opt/brooks/
+
+    - name: 📦 Create .env file on VM from Secret Manager
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 120s
+        command_timeout: 300s
+        script: |
+          set -e
+          PROJECT_ID="${{ env.PROJECT_ID }}"
+
+          echo "📦 Creating .env file from Secret Manager..."
+
+          gcloud secrets versions access latest \
+            --secret="brooks-env" \
+            --project="$PROJECT_ID" > /tmp/raw_env
+
+          echo "🔧 Cleaning .env file format..."
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/raw_env > /opt/brooks/.env || {
+            echo "❌ No valid environment variables found!"
+            exit 1
+          }
+
+          rm -f /tmp/raw_env
+
+          echo "✅ .env file created successfully"
+          echo "📊 Environment variables count: $(wc -l < /opt/brooks/.env)"
+
+    - name: 🚀 Deploy Application
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 300s
+        command_timeout: 600s
+        script: |
+          set -e
+
+          PROJECT_ID="${{ env.PROJECT_ID }}"
+          REGION="${{ env.REGION }}"
+          BACKEND_IMAGE="${{ env.BACKEND_IMAGE }}"
+          FRONTEND_IMAGE="${{ env.FRONTEND_IMAGE }}"
+          COMMIT_SHA="${{ github.sha }}"
+
+          echo "🚀 Deploying Brooks App..."
+          echo "📍 Backend: $BACKEND_IMAGE:$COMMIT_SHA"
+          echo "📍 Frontend: $FRONTEND_IMAGE:$COMMIT_SHA"
+
+          cd /opt/brooks
+
+          # Verify .env file
+          if [ ! -f .env ]; then
+            echo "❌ .env file not found!"
+            exit 1
+          fi
+
+          echo "🔐 Authenticating to Artifact Registry..."
+          gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+
+          echo "🌐 Ensuring Docker network exists..."
+          docker network inspect web >/dev/null 2>&1 || {
+            echo "🆕 Creating web network..."
+            docker network create web
+          }
+
+          echo "📝 Updating compose file with commit SHA..."
+          sed -i "s|brooks-backend:.*|brooks-backend:$COMMIT_SHA|g" docker-compose.yml
+          sed -i "s|brooks-frontend:.*|brooks-frontend:$COMMIT_SHA|g" docker-compose.yml
+
+          echo "📦 Pulling latest images..."
+          docker compose pull
+
+          echo "🔄 Deploying application..."
+          docker compose up -d --force-recreate
+
+          echo "⏳ Waiting for services to be healthy..."
+          sleep 45
+
+          echo "📊 Container status:"
+          docker compose ps
+
+          echo "🔧 Reloading Caddy configuration..."
+          docker exec caddy caddy reload --config /etc/caddy/Caddyfile || {
+            echo "❌ Caddy reload failed, retrying..."
+            sleep 5
+            docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+          }
+
+          echo "✅ Deployment completed successfully!"
+
+    - name: 🔍 Health Check
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 120s
+        command_timeout: 300s
+        script: |
+          set -e
+
+          echo "🔍 Running health checks..."
+
+          sleep 20
+
+          # Backend health check
+          echo "📍 Backend health check:"
+          curl -f -m 10 http://localhost:8080/actuator/health && echo "✅ Backend OK" || echo "❌ Backend FAIL"
+
+          # Frontend health check
+          echo "📍 Frontend health check:"
+          curl -f -m 10 http://localhost:3000/health && echo "✅ Frontend OK" || echo "❌ Frontend FAIL"
+
+          # External check
+          echo "📍 External health check:"
+          curl -f -m 10 http://${{ secrets.VM_HOST }}/ && echo "✅ External OK" || echo "❌ External FAIL"
+
+          echo "📋 Application logs:"
+          echo "=== Backend logs ==="
+          docker logs brooks-backend --tail 20
+          echo "=== Frontend logs ==="
+          docker logs brooks-frontend --tail 20
+
+          echo "🎯 Deployment verification complete!"
+
+    - name: ❌ Rollback on Failure
+      if: failure()
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 120s
+        command_timeout: 300s
+        script: |
+          set -e
+
+          echo "❌ Deployment failed, initiating rollback..."
+
+          cd /opt/brooks
+
+          sed -i "s|:${{ github.sha }}|:latest|g" docker-compose.yml
+
+          echo "📦 Pulling fallback images..."
+          docker compose pull
+
+          echo "🔄 Rolling back to previous version..."
+          docker compose up -d --force-recreate
+
+          echo "🔧 Reloading Caddy..."
+          docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+
+          echo "📊 Rollback status:"
+          docker compose ps
+
+          echo "⚠️ Rollback completed - check logs for issues"
