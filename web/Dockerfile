@@ -3,11 +3,11 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package files
-COPY web/package*.json ./
+COPY package*.json ./
 RUN npm ci --no-audit --no-fund
 
 # Copy source code
-COPY web/ .
+COPY . .
 
 # Build arguments for environment variables
 ARG VITE_AUTH_API_URL
@@ -48,7 +48,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy nginx configuration
-COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder stage
 COPY --from=build /app/dist /usr/share/nginx/html
