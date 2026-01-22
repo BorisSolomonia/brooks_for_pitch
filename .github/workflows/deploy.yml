@@ -178,30 +178,32 @@ jobs:
           docker network inspect web >/dev/null 2>&1 || docker network create web
 
           if [ ! -f /opt/caddy/docker-compose.yml ]; then
-            cat > /tmp/caddy-compose.yml <<'EOF'
-          version: '3.8'
+            sudo python - <<'PY'
+content = """version: '3.8'
 
-          services:
-            caddy:
-              image: caddy:2-alpine
-              container_name: caddy
-              restart: unless-stopped
-              ports:
-                - "80:80"
-                - "443:443"
-                - "443:443/udp"
-              volumes:
-                - /opt/caddy/config:/etc/caddy
-                - /opt/caddy/data:/data
-                - /opt/brooks/infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-              networks:
-                - web
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - /opt/caddy/config:/etc/caddy
+      - /opt/caddy/data:/data
+      - /opt/brooks/infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - web
 
-          networks:
-            web:
-              external: true
-          EOF
-            sudo mv /tmp/caddy-compose.yml /opt/caddy/docker-compose.yml
+networks:
+  web:
+    external: true
+"""
+with open("/opt/caddy/docker-compose.yml", "w", encoding="utf-8") as f:
+    f.write(content)
+PY
           fi
 
           sudo docker compose -f /opt/caddy/docker-compose.yml up -d
