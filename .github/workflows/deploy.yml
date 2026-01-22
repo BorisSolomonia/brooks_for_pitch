@@ -159,6 +159,54 @@ jobs:
         source: "docker-compose.yml,infra/caddy/Caddyfile,db/schema.sql"
         target: /opt/brooks/
 
+    - name: 🔧 Prepare Caddy on VM
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 120s
+        command_timeout: 300s
+        script: |
+          set -e
+
+          echo "🔧 Preparing Caddy..."
+          sudo mkdir -p /opt/caddy/config /opt/caddy/data
+
+          # Ensure shared network exists
+          docker network inspect web >/dev/null 2>&1 || docker network create web
+
+          if [ ! -f /opt/caddy/docker-compose.yml ]; then
+            cat > /tmp/caddy-compose.yml <<'EOF'
+          version: '3.8'
+
+          services:
+            caddy:
+              image: caddy:2-alpine
+              container_name: caddy
+              restart: unless-stopped
+              ports:
+                - "80:80"
+                - "443:443"
+                - "443:443/udp"
+              volumes:
+                - /opt/caddy/config:/etc/caddy
+                - /opt/caddy/data:/data
+                - /opt/brooks/infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+              networks:
+                - web
+
+          networks:
+            web:
+              external: true
+          EOF
+            sudo mv /tmp/caddy-compose.yml /opt/caddy/docker-compose.yml
+          fi
+
+          sudo docker compose -f /opt/caddy/docker-compose.yml up -d
+          echo "✅ Caddy prepared"
+
     - name: 📦 Create .env file on VM from Secret Manager
       uses: appleboy/ssh-action@v1.0.3
       with:
