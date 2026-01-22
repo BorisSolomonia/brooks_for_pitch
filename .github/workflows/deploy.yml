@@ -229,8 +229,8 @@ jobs:
           }
 
           echo "📝 Updating compose file with commit SHA..."
-          sed -i "s|brooks-backend:.*|brooks-backend:$COMMIT_SHA|g" docker-compose.yml
-          sed -i "s|brooks-frontend:.*|brooks-frontend:$COMMIT_SHA|g" docker-compose.yml
+          sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${COMMIT_SHA}|g" docker-compose.yml
+          sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${COMMIT_SHA}|g" docker-compose.yml
 
           echo "📦 Pulling latest images..."
           docker compose pull
