@@ -17,7 +17,7 @@ Internet → Caddy (HTTPS) → Frontend (Nginx:3000) + Backend (Spring Boot:8080
 ## Prerequisites
 
 - [x] GCP project: `brooks-485009`
-- [x] GCP VM: `brooks-20260121-095019` (IP: `34.59.112.7`, Zone: `us-central1-f`)
+- [x] GCP VM: `instance-20260122-071626` (IP: `35.192.65.148`, Zone: `us-central1-c`)
 - [x] Service Account: `brooks-service-account@brooks-485009.iam.gserviceaccount.com`
 - [x] Artifact Registry: `us-central1-docker.pkg.dev/brooks-485009/brooksar`
 - [x] Domain: `brooksweb.uk`

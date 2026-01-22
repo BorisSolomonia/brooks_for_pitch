@@ -13,8 +13,8 @@ env:
   PROJECT_ID: brooks-485009
   REGION: us-central1
   REPOSITORY: brooksar
-  VM_ZONE: us-central1-f
-  VM_NAME: brooks-20260121-095019
+  VM_ZONE: us-central1-c
+  VM_NAME: instance-20260122-071626
 
 jobs:
   deploy:
