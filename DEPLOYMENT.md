@@ -12,7 +12,7 @@ Internet → Caddy (HTTPS) → Frontend (Nginx:3000) + Backend (Spring Boot:8080
 - **Backend**: Spring Boot API on port 8080
 - **Database**: PostgreSQL 16 with PostGIS extension
 - **Reverse Proxy**: Caddy with automatic HTTPS via Let's Encrypt
-- **CI/CD**: GitHub Actions → Artifact Registry → VM deployment
+- **CI/CD**: GitHub Actions → Artifact Registry → VM deployment.
 
 ## Prerequisites
 
