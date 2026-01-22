@@ -245,11 +245,15 @@ jobs:
           docker compose ps
 
           echo "🔧 Reloading Caddy configuration..."
-          docker exec caddy caddy reload --config /etc/caddy/Caddyfile || {
-            echo "❌ Caddy reload failed, retrying..."
-            sleep 5
-            docker exec caddy caddy reload --config /etc/caddy/Caddyfile
-          }
+          if docker ps --format "{{.Names}}" | rg -q "^caddy$"; then
+            docker exec caddy caddy reload --config /etc/caddy/Caddyfile || {
+              echo "❌ Caddy reload failed, retrying..."
+              sleep 5
+              docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+            }
+          else
+            echo "ℹ️ Caddy container not found; skipping reload"
+          fi
 
           echo "✅ Deployment completed successfully!"
 
@@ -306,7 +310,8 @@ jobs:
 
           cd /opt/brooks
 
-          sed -i "s|:${{ github.sha }}|:latest|g" docker-compose.yml
+          sed -i "s|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend:.*|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend:latest|g" docker-compose.yml
+          sed -i "s|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:.*|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest|g" docker-compose.yml
 
           echo "📦 Pulling fallback images..."
           docker compose pull
@@ -315,7 +320,11 @@ jobs:
           docker compose up -d --force-recreate
 
           echo "🔧 Reloading Caddy..."
-          docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+          if docker ps --format "{{.Names}}" | rg -q "^caddy$"; then
+            docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+          else
+            echo "ℹ️ Caddy container not found; skipping reload"
+          fi
 
           echo "📊 Rollback status:"
           docker compose ps

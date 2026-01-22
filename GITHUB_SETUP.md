@@ -130,7 +130,7 @@ This was generated in the VM setup step:
 # SSH to VM first
 gcloud compute ssh brooks-20260121-095019 --zone=us-central1-f --project=brooks-485009
 
-# Display the private key
+# Display the private key.
 cat ~/.ssh/github_actions_brooks
 ```
 
