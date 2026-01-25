@@ -43,7 +43,7 @@ services:
       DATABASE_URL: jdbc:postgresql://brooks-db:5432/${DATABASE_NAME:-brooks}
       DATABASE_USER: ${DATABASE_USER:-brooks}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-brooks}
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${BROOKS_JWT_SECRET}
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
     networks:

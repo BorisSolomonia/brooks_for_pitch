@@ -36,7 +36,7 @@ brooks:
 # Internal service-to-service authentication
 internal:
   service:
-    name: pins-service
+    name: ${INTERNAL_SERVICE_NAME:pins-service}
     key: ${INTERNAL_SERVICE_KEY:pins-service-key-change-in-production}
 
 management:
@@ -85,5 +85,4 @@ resilience4j:
         baseConfig: default
       listsService:
         baseConfig: default
-
 

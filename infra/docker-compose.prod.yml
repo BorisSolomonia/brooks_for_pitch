@@ -1,0 +1,186 @@
+services:
+  caddy:
+    image: caddy:2
+    container_name: brooks-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+      - auth-service
+      - social-service
+      - lists-service
+      - pins-service
+      - media-service
+      - moderation-service
+      - notifications-service
+    networks:
+      - web
+
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: brooks-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-brooks}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-brooks}
+      POSTGRES_DB: ${DATABASE_NAME:-brooks}
+    volumes:
+      - brooks-db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - brooks-network
+
+  auth-service:
+    image: ${BROOKS_AUTH_IMAGE:-brooks-auth-service:latest}
+    container_name: brooks-auth-service
+    restart: unless-stopped
+    environment:
+      AUTH_DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres:5432/auth_db}
+      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_JWT_ISSUER: ${BROOKS_JWT_ISSUER:-brooks}
+      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET}
+      BROOKS_JWT_ACCESS_TTL: ${BROOKS_JWT_ACCESS_TTL:-900}
+      BROOKS_JWT_REFRESH_TTL: ${BROOKS_JWT_REFRESH_TTL:-2592000}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
+    depends_on:
+      - postgres
+    networks:
+      - brooks-network
+      - web
+
+  social-service:
+    image: ${BROOKS_SOCIAL_IMAGE:-brooks-social-service:latest}
+    container_name: brooks-social-service
+    restart: unless-stopped
+    environment:
+      SOCIAL_DB_URL: ${SOCIAL_DB_URL:-jdbc:postgresql://postgres:5432/social_db}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER:-social_user}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
+    depends_on:
+      - postgres
+    networks:
+      - brooks-network
+      - web
+
+  lists-service:
+    image: ${BROOKS_LISTS_IMAGE:-brooks-lists-service:latest}
+    container_name: brooks-lists-service
+    restart: unless-stopped
+    environment:
+      LISTS_DB_URL: ${LISTS_DB_URL:-jdbc:postgresql://postgres:5432/lists_db}
+      LISTS_DB_USER: ${LISTS_DB_USER:-lists_user}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
+    depends_on:
+      - postgres
+    networks:
+      - brooks-network
+      - web
+
+  pins-service:
+    image: ${BROOKS_PINS_IMAGE:-brooks-pins-service:latest}
+    container_name: brooks-pins-service
+    restart: unless-stopped
+    environment:
+      PINS_DB_URL: ${PINS_DB_URL:-jdbc:postgresql://postgres:5432/pins_db}
+      PINS_DB_USER: ${PINS_DB_USER:-pins_user}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD}
+      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL:-http://social-service:8082}
+      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL:-http://lists-service:8083}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME:-pins-service}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - postgres
+      - social-service
+      - lists-service
+    networks:
+      - brooks-network
+      - web
+
+  media-service:
+    image: ${BROOKS_MEDIA_IMAGE:-brooks-media-service:latest}
+    container_name: brooks-media-service
+    restart: unless-stopped
+    environment:
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+    networks:
+      - brooks-network
+      - web
+
+  moderation-service:
+    image: ${BROOKS_MODERATION_IMAGE:-brooks-moderation-service:latest}
+    container_name: brooks-moderation-service
+    restart: unless-stopped
+    environment:
+      MODERATION_DB_URL: ${MODERATION_DB_URL:-jdbc:postgresql://postgres:5432/moderation_db}
+      MODERATION_DB_USER: ${MODERATION_DB_USER:-moderation_user}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+    depends_on:
+      - postgres
+    networks:
+      - brooks-network
+      - web
+
+  notifications-service:
+    image: ${BROOKS_NOTIFICATIONS_IMAGE:-brooks-notifications-service:latest}
+    container_name: brooks-notifications-service
+    restart: unless-stopped
+    environment:
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+    networks:
+      - brooks-network
+      - web
+
+  frontend:
+    image: ${BROOKS_FRONTEND_IMAGE:-brooks-frontend:latest}
+    container_name: brooks-frontend
+    restart: unless-stopped
+    networks:
+      - web
+
+networks:
+  brooks-network:
+    driver: bridge
+  web:
+    driver: bridge
+
+volumes:
+  brooks-db-data:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local

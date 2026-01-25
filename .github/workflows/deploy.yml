@@ -17,9 +17,72 @@ env:
   VM_NAME: instance-20260122-071626
 
 jobs:
+  validate-env:
+    name: ✅ Validate Environment
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🔐 Auth to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: ☁️ Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: 📦 Fetch Environment Variables from Secret Manager
+      run: |
+        gcloud secrets versions access latest \
+          --secret="brooks-env" \
+          --project="${{ env.PROJECT_ID }}" > .env.production
+
+    - name: 🧪 Validate Required Variables
+      run: |
+        set -e
+        REQUIRED_VARS=(
+          "DATABASE_NAME"
+          "DATABASE_USER"
+          "DATABASE_PASSWORD"
+          "BROOKS_JWT_SECRET"
+          "AUTH0_ISSUER_URI"
+          "AUTH0_AUDIENCE"
+          "VITE_AUTH0_DOMAIN"
+          "VITE_AUTH0_CLIENT_ID"
+          "VITE_AUTH0_AUDIENCE"
+          "VITE_AUTH0_REDIRECT_URI"
+          "AUTH_DB_PASSWORD"
+          "SOCIAL_DB_PASSWORD"
+          "LISTS_DB_PASSWORD"
+          "PINS_DB_PASSWORD"
+          "MODERATION_DB_PASSWORD"
+          "INTERNAL_SERVICE_KEY"
+          "INTERNAL_SERVICE_KEYS"
+          "INTERNAL_SERVICE_ALLOWED_NAMES"
+          "INTERNAL_SERVICE_KEY_MAP"
+        )
+
+        missing=0
+        for key in "${REQUIRED_VARS[@]}"; do
+          if ! grep -E "^${key}=" .env.production >/dev/null; then
+            echo "❌ Missing required env var: ${key}"
+            missing=1
+          fi
+        done
+
+        if [ "$missing" -ne 0 ]; then
+          echo "❌ Environment validation failed."
+          exit 1
+        fi
+
+        echo "✅ Environment validation passed."
+
   deploy:
     name: 🏗️ Build & Deploy
     runs-on: ubuntu-latest
+    needs: validate-env
 
     steps:
     - name: 📥 Checkout Code
@@ -57,27 +120,160 @@ jobs:
         echo "✅ Environment variables fetched"
         echo "📊 Variables count: $(wc -l < .env.production)"
 
-    - name: 🏗️ Build & Push Backend Image
+    - name: 🏗️ Build & Push Auth Service Image
       run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend"
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service"
 
-        echo "🏗️ Building backend Docker image..."
+        echo "🏗️ Building auth-service Docker image..."
         echo "📍 Image path: $IMAGE_PATH"
         echo "📍 Tags: ${{ github.sha }}, latest"
 
         docker build \
           --progress=plain \
-          -f server/Dockerfile \
+          --build-arg SERVICE_DIR=services/auth-service \
+          -f infra/docker/Dockerfile.service \
           -t $IMAGE_PATH:${{ github.sha }} \
           -t $IMAGE_PATH:latest \
-          server/
+          .
 
-        echo "📤 Pushing backend images..."
+        echo "📤 Pushing auth-service images..."
         docker push $IMAGE_PATH:${{ github.sha }}
         docker push $IMAGE_PATH:latest
 
-        echo "✅ Backend images pushed"
-        echo "BACKEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+        echo "✅ Auth-service images pushed"
+        echo "BROOKS_AUTH_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Social Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service"
+
+        echo "🏗️ Building social-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/social-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing social-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Social-service images pushed"
+        echo "BROOKS_SOCIAL_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Lists Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service"
+
+        echo "🏗️ Building lists-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/lists-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing lists-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Lists-service images pushed"
+        echo "BROOKS_LISTS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Pins Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service"
+
+        echo "🏗️ Building pins-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/pins-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing pins-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Pins-service images pushed"
+        echo "BROOKS_PINS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Media Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service"
+
+        echo "🏗️ Building media-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/media-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing media-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Media-service images pushed"
+        echo "BROOKS_MEDIA_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Moderation Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service"
+
+        echo "🏗️ Building moderation-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/moderation-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing moderation-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Moderation-service images pushed"
+        echo "BROOKS_MODERATION_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
+
+    - name: 🏗️ Build & Push Notifications Service Image
+      run: |
+        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service"
+
+        echo "🏗️ Building notifications-service Docker image..."
+        echo "📍 Image path: $IMAGE_PATH"
+
+        docker build \
+          --progress=plain \
+          --build-arg SERVICE_DIR=services/notifications-service \
+          -f infra/docker/Dockerfile.service \
+          -t $IMAGE_PATH:${{ github.sha }} \
+          -t $IMAGE_PATH:latest \
+          .
+
+        echo "📤 Pushing notifications-service images..."
+        docker push $IMAGE_PATH:${{ github.sha }}
+        docker push $IMAGE_PATH:latest
+
+        echo "✅ Notifications-service images pushed"
+        echo "BROOKS_NOTIFICATIONS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
 
     - name: 🏗️ Build & Push Frontend Image
       run: |
@@ -156,33 +352,8 @@ jobs:
         timeout: 30s
         command_timeout: 60s
         overwrite: true
-        source: "docker-compose.yml,infra/caddy/Caddyfile,db/schema.sql"
+        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
         target: /opt/brooks/
-
-    - name: 🔧 Prepare Caddy on VM
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 120s
-        command_timeout: 300s
-        script: |
-          set -e
-
-          echo "🔧 Preparing Caddy..."
-          sudo mkdir -p /opt/caddy/config /opt/caddy/data
-
-          # Ensure shared network exists
-          docker network inspect web >/dev/null 2>&1 || docker network create web
-
-          if [ ! -f /opt/caddy/docker-compose.yml ]; then
-            sudo bash -c 'printf "%s\n" "version: \"3.8\"" "" "services:" "  caddy:" "    image: caddy:2-alpine" "    container_name: caddy" "    restart: unless-stopped" "    ports:" "      - \"80:80\"" "      - \"443:443\"" "      - \"443:443/udp\"" "    volumes:" "      - /opt/caddy/config:/etc/caddy" "      - /opt/caddy/data:/data" "      - /opt/brooks/infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro" "    networks:" "      - web" "" "networks:" "  web:" "    external: true" > /opt/caddy/docker-compose.yml'
-          fi
-
-          sudo docker compose -f /opt/caddy/docker-compose.yml up -d
-          echo "✅ Caddy prepared"
 
     - name: 📦 Create .env file on VM from Secret Manager
       uses: appleboy/ssh-action@v1.0.3
@@ -228,12 +399,24 @@ jobs:
 
           PROJECT_ID="${{ env.PROJECT_ID }}"
           REGION="${{ env.REGION }}"
-          BACKEND_IMAGE="${{ env.BACKEND_IMAGE }}"
+          AUTH_IMAGE="${{ env.BROOKS_AUTH_IMAGE }}"
+          SOCIAL_IMAGE="${{ env.BROOKS_SOCIAL_IMAGE }}"
+          LISTS_IMAGE="${{ env.BROOKS_LISTS_IMAGE }}"
+          PINS_IMAGE="${{ env.BROOKS_PINS_IMAGE }}"
+          MEDIA_IMAGE="${{ env.BROOKS_MEDIA_IMAGE }}"
+          MODERATION_IMAGE="${{ env.BROOKS_MODERATION_IMAGE }}"
+          NOTIFICATIONS_IMAGE="${{ env.BROOKS_NOTIFICATIONS_IMAGE }}"
           FRONTEND_IMAGE="${{ env.FRONTEND_IMAGE }}"
           COMMIT_SHA="${{ github.sha }}"
 
           echo "🚀 Deploying Brooks App..."
-          echo "📍 Backend: $BACKEND_IMAGE:$COMMIT_SHA"
+          echo "📍 Auth: $AUTH_IMAGE:$COMMIT_SHA"
+          echo "📍 Social: $SOCIAL_IMAGE:$COMMIT_SHA"
+          echo "📍 Lists: $LISTS_IMAGE:$COMMIT_SHA"
+          echo "📍 Pins: $PINS_IMAGE:$COMMIT_SHA"
+          echo "📍 Media: $MEDIA_IMAGE:$COMMIT_SHA"
+          echo "📍 Moderation: $MODERATION_IMAGE:$COMMIT_SHA"
+          echo "📍 Notifications: $NOTIFICATIONS_IMAGE:$COMMIT_SHA"
           echo "📍 Frontend: $FRONTEND_IMAGE:$COMMIT_SHA"
 
           cd /opt/brooks
@@ -253,28 +436,37 @@ jobs:
             docker network create web
           }
 
-          echo "📝 Updating compose file with commit SHA..."
-          sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${COMMIT_SHA}|g" docker-compose.yml
-          sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${COMMIT_SHA}|g" docker-compose.yml
+          echo "📝 Preparing runtime env file..."
+          cp /opt/brooks/.env /opt/brooks/.env.runtime
+          cat <<EOF >> /opt/brooks/.env.runtime
+BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}
+BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}
+BROOKS_LISTS_IMAGE=${LISTS_IMAGE}:${COMMIT_SHA}
+BROOKS_PINS_IMAGE=${PINS_IMAGE}:${COMMIT_SHA}
+BROOKS_MEDIA_IMAGE=${MEDIA_IMAGE}:${COMMIT_SHA}
+BROOKS_MODERATION_IMAGE=${MODERATION_IMAGE}:${COMMIT_SHA}
+BROOKS_NOTIFICATIONS_IMAGE=${NOTIFICATIONS_IMAGE}:${COMMIT_SHA}
+BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}
+EOF
 
           echo "📦 Pulling latest images..."
-          docker compose pull
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
 
           echo "🔄 Deploying application..."
-          docker compose up -d --force-recreate
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
 
           echo "⏳ Waiting for services to be healthy..."
           sleep 45
 
           echo "📊 Container status:"
-          docker compose ps
+          docker compose -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "🔧 Reloading Caddy configuration..."
-          if docker ps --format "{{.Names}}" | rg -q "^caddy$"; then
-            docker exec caddy caddy reload --config /etc/caddy/Caddyfile || {
+          if docker ps --format "{{.Names}}" | rg -q "^brooks-caddy$"; then
+            docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile || {
               echo "❌ Caddy reload failed, retrying..."
               sleep 5
-              docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+              docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
             }
           else
             echo "ℹ️ Caddy container not found; skipping reload"
@@ -298,9 +490,9 @@ jobs:
 
           sleep 20
 
-          # Backend health check
-          echo "📍 Backend health check:"
-          curl -f -m 10 http://localhost:8080/actuator/health && echo "✅ Backend OK" || echo "❌ Backend FAIL"
+          # Pins service health check
+          echo "📍 Pins health check:"
+          curl -f -m 10 http://localhost:8084/actuator/health && echo "✅ Pins OK" || echo "❌ Pins FAIL"
 
           # Frontend health check
           echo "📍 Frontend health check:"
@@ -311,8 +503,8 @@ jobs:
           curl -f -m 10 http://${{ secrets.VM_HOST }}/ && echo "✅ External OK" || echo "❌ External FAIL"
 
           echo "📋 Application logs:"
-          echo "=== Backend logs ==="
-          docker logs brooks-backend --tail 20
+          echo "=== Pins logs ==="
+          docker logs brooks-pins-service --tail 20
           echo "=== Frontend logs ==="
           docker logs brooks-frontend --tail 20
 
@@ -335,23 +527,33 @@ jobs:
 
           cd /opt/brooks
 
-          sed -i "s|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend:.*|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-backend:latest|g" docker-compose.yml
-          sed -i "s|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:.*|image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest|g" docker-compose.yml
+          echo "📝 Preparing rollback env file..."
+          cp /opt/brooks/.env /opt/brooks/.env.runtime
+          cat <<EOF >> /opt/brooks/.env.runtime
+BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:latest
+BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:latest
+BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:latest
+BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:latest
+BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:latest
+BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:latest
+BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:latest
+BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest
+EOF
 
           echo "📦 Pulling fallback images..."
-          docker compose pull
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
 
           echo "🔄 Rolling back to previous version..."
-          docker compose up -d --force-recreate
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
 
           echo "🔧 Reloading Caddy..."
-          if docker ps --format "{{.Names}}" | rg -q "^caddy$"; then
-            docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+          if docker ps --format "{{.Names}}" | rg -q "^brooks-caddy$"; then
+            docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
           else
             echo "ℹ️ Caddy container not found; skipping reload"
           fi
 
           echo "📊 Rollback status:"
-          docker compose ps
+          docker compose -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "⚠️ Rollback completed - check logs for issues"

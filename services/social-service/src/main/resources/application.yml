@@ -27,3 +27,5 @@ management:
 internal:
   service:
     keys: ${INTERNAL_SERVICE_KEYS:pins-service-key-change-in-production}
+    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES:pins-service}
+    key-map: ${INTERNAL_SERVICE_KEY_MAP:pins-service=pins-service-key-change-in-production}

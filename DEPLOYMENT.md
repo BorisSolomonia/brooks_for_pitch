@@ -1,5 +1,52 @@
 # Brooks App Deployment Guide
 
+## Microservices Deployment (Current)
+
+This project is now deployed as microservices behind Caddy.
+Use the microservices compose file and the updated Caddy config at `infra/caddy/Caddyfile`.
+
+### Architecture Overview (Microservices)
+
+```
+Internet -> Caddy (HTTPS) -> Frontend (Nginx:3000)
+                         -> auth-service (8081)
+                         -> social-service (8082)
+                         -> lists-service (8083)
+                         -> pins-service (8084)
+                         -> media-service (8085)
+                         -> moderation-service (8086)
+                         -> notifications-service (8087)
+                         -> PostgreSQL/PostGIS (5432)
+```
+
+### Microservices Compose (VM)
+
+On the VM, run:
+
+```bash
+docker compose -f infra/docker-compose.prod.yml up -d
+```
+
+Health checks:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:8084/actuator/health
+```
+
+### Caddy Routing (Microservices)
+
+The Caddyfile routes:
+- `/api/auth/*` -> `auth-service:8081`
+- `/api/social/*` -> `social-service:8082`
+- `/api/lists/*` -> `lists-service:8083`
+- `/api/pins/*` -> `pins-service:8084`
+- `/api/media/*` -> `media-service:8085`
+- `/api/moderation/*` -> `moderation-service:8086`
+- `/api/notifications/*` -> `notifications-service:8087`
+
+The rest of this document describes the legacy monolith deployment.
+
 This guide will help you deploy the Brooks app to GCP VM using GitHub Actions, Secrets Manager, and Caddy.
 
 ## Architecture Overview

@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,10 +25,19 @@ public class InternalApiAuthFilter extends OncePerRequestFilter {
   private static final String HEADER_SERVICE_NAME = "X-Service-Name";
 
   private final Set<String> validServiceKeys;
+  private final Map<String, Set<String>> keysByService;
+  private final Set<String> allowedServiceNames;
   private final AuditLogger auditLogger;
 
-  public InternalApiAuthFilter(Set<String> validServiceKeys, String serviceName) {
+  public InternalApiAuthFilter(
+      Set<String> validServiceKeys,
+      Map<String, Set<String>> keysByService,
+      Set<String> allowedServiceNames,
+      String serviceName
+  ) {
     this.validServiceKeys = validServiceKeys;
+    this.keysByService = keysByService;
+    this.allowedServiceNames = allowedServiceNames;
     this.auditLogger = new AuditLogger(serviceName);
   }
 
@@ -54,7 +64,23 @@ public class InternalApiAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-    if (!validServiceKeys.contains(serviceKey)) {
+    if (allowedServiceNames != null && !allowedServiceNames.isEmpty()
+        && !allowedServiceNames.contains(serviceName)) {
+      auditLogger.logAccessDenied(serviceName, request.getRemoteAddr(),
+          "internal_api_call", "Unknown service name");
+      sendUnauthorized(response, "Unknown service name");
+      return;
+    }
+
+    if (keysByService != null && !keysByService.isEmpty()) {
+      Set<String> serviceKeys = keysByService.get(serviceName);
+      if (serviceKeys == null || serviceKeys.isEmpty() || !serviceKeys.contains(serviceKey)) {
+        auditLogger.logAccessDenied(serviceName, request.getRemoteAddr(),
+            "internal_api_call", "Invalid service credentials");
+        sendUnauthorized(response, "Invalid service credentials");
+        return;
+      }
+    } else if (!validServiceKeys.contains(serviceKey)) {
       auditLogger.logAccessDenied(serviceName, request.getRemoteAddr(),
           "internal_api_call", "Invalid service credentials");
       sendUnauthorized(response, "Invalid service credentials");

@@ -3,7 +3,7 @@ info:
   title: Brooks API (Gateway)
   version: 0.2.0
 servers:
-  - url: https://api.brooks.example.com
+  - url: https://brooksweb.uk/api
 
 tags:
   - name: Auth

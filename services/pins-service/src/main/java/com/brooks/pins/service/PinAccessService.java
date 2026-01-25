@@ -214,7 +214,7 @@ public class PinAccessService {
     }
 
     if (viewerLocation == null) {
-      return false; // Location required but not provided
+      return true; // Skip distance checks when location is not provided
     }
 
     LocationRequest pinLocation = new LocationRequest(

@@ -396,6 +396,56 @@ After Auth0 is configured:
 
 ## Additional Resources
 
+## Add user_id Claim via Auth0 Action (Required for Backend UUIDs)
+
+The backend expects a UUID for the current user. Add an Auth0 Action to attach a stable
+UUID-like user id claim to access tokens.
+
+### Create Action
+
+1. Auth0 Dashboard -> Actions -> Flows -> Login
+2. Create a new Action (Custom)
+3. Add the following code:
+
+```js
+/**
+ * Add a stable user_id claim for Brooks services.
+ * Uses the Auth0 user_id string (sub) as input to a deterministic UUID.
+ */
+exports.onExecutePostLogin = async (event, api) => {
+  const crypto = require('crypto');
+  const namespace = 'brooks';
+  const raw = `${namespace}:${event.user.user_id}`;
+  const hash = crypto.createHash('sha256').update(raw).digest();
+
+  // Format as UUID v4-ish (deterministic)
+  hash[6] = (hash[6] & 0x0f) | 0x40;
+  hash[8] = (hash[8] & 0x3f) | 0x80;
+  const hex = hash.toString('hex');
+  const uuid = [
+    hex.substring(0, 8),
+    hex.substring(8, 12),
+    hex.substring(12, 16),
+    hex.substring(16, 20),
+    hex.substring(20, 32)
+  ].join('-');
+
+  api.accessToken.setCustomClaim('https://brooksweb.uk/user_id', uuid);
+};
+```
+
+4. Add the Action to the Login flow and deploy.
+
+### Result
+
+Access tokens will include:
+
+```
+https://brooksweb.uk/user_id: "<uuid>"
+```
+
+This is used by the backend to set `userId` consistently across services.
+
 - [Auth0 Documentation](https://auth0.com/docs)
 - [Auth0 React SDK](https://auth0.com/docs/quickstart/spa/react)
 - [JWT.io - Token Debugger](https://jwt.io)
