@@ -32,8 +32,8 @@ Internet → Caddy (HTTPS) → Frontend (Nginx:3000) + Backend (Spring Boot:8080
 Point your domain to the VM's external IP:
 
 ```
-A Record:     brooksweb.uk      → 34.59.112.7
-A Record:     www.brooksweb.uk  → 34.59.112.7
+A Record:     brooksweb.uk      → 35.192.65.148
+A Record:     www.brooksweb.uk  → 35.192.65.148
 ```
 
 Wait for DNS propagation (use `nslookup brooksweb.uk` to verify).
@@ -43,9 +43,9 @@ Wait for DNS propagation (use `nslookup brooksweb.uk` to verify).
 SSH into your VM and run the setup script:
 
 ```bash
-# SSH to VM
-gcloud compute ssh brooks-20260121-095019 \
-  --zone=us-central1-f \
+# SSH to VM (run this on your local machine, not on the VM)
+gcloud compute ssh instance-20260122-071626 \
+  --zone=us-central1-c \
   --project=brooks-485009
 
 # Download and run setup script (or copy it manually)
@@ -57,6 +57,8 @@ chmod +x setup-vm.sh
 exit
 ```
 
+If your deployment uses Secret Manager on the VM, ensure the VM has `cloud-platform` OAuth scope and the VM service account has `roles/secretmanager.secretAccessor` (see Troubleshooting section).
+
 ### 3. Generate SSH Key for GitHub Actions
 
 On your VM, generate an SSH key for GitHub Actions:
@@ -66,6 +68,8 @@ ssh-keygen -t ed25519 -C "github-actions-brooks" -f ~/.ssh/github_actions_brooks
 
 # Add public key to authorized_keys
 cat ~/.ssh/github_actions_brooks.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
 
 # Display private key (save this for GitHub Secrets)
 cat ~/.ssh/github_actions_brooks
@@ -120,9 +124,11 @@ Add the following secrets to your GitHub repository (`Settings` → `Secrets and
 | Secret Name | Description | How to Get |
 |------------|-------------|-----------|
 | `GCP_SA_KEY` | Service account JSON key | Download from GCP Console → IAM → Service Accounts → Create Key (JSON) |
-| `VM_HOST` | VM external IP | `34.59.112.7` |
+| `VM_HOST` | VM external IP | `35.192.65.148` |
 | `VM_SSH_USER` | SSH username | Your GCP username (usually your email prefix) |
 | `VM_SSH_KEY` | SSH private key | Content of `~/.ssh/github_actions_brooks` from step 3 |
+
+Note: paste `VM_SSH_KEY` with the full header/footer and line breaks intact.
 
 #### Getting the Service Account Key
 
@@ -166,7 +172,7 @@ If you need to manually initialize or update the schema:
 
 ```bash
 # SSH to VM
-gcloud compute ssh brooks-20260121-095019 --zone=us-central1-f --project=brooks-485009
+gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
 
 # Once deployed, exec into the database container
 docker exec -i brooks-db psql -U brooks -d brooks < /docker-entrypoint-initdb.d/01-schema.sql
@@ -200,7 +206,7 @@ After deployment completes:
 
 ```bash
 # Check services are running
-gcloud compute ssh brooks-20260121-095019 --zone=us-central1-f --project=brooks-485009
+gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
 cd /opt/brooks
 docker compose ps
 
@@ -258,6 +264,130 @@ The app currently uses placeholder Auth0 values. To enable authentication:
 - **brooks-backend**: Spring Boot API (port 8080)
 - **brooks-db**: PostgreSQL 16 with PostGIS (port 5432)
 - **caddy**: Reverse proxy with auto-SSL (ports 80, 443)
+
+## Troubleshooting & Common Pitfalls (Lessons Learned)
+
+This section captures real issues seen during setup so the next project avoids them.
+
+### Local Development / Docker Build
+
+- **Docker Desktop not running (Windows)**  
+  Symptom: `open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.`  
+  Fix: Start Docker Desktop and wait for “Engine running”, then retry `docker compose up`.
+
+- **Frontend build fails at `npm ci`**  
+  Symptom: `npm ci` requires `package-lock.json`.  
+  Fix: Ensure `web/package-lock.json` exists and the Dockerfile copies `web/package*.json` (not repo root).
+
+- **`nginx.conf` not found during frontend build**  
+  Symptom: `COPY nginx.conf ... not found`  
+  Fix: In `web/Dockerfile`, use `COPY web/nginx.conf ...` when the build context is repo root.
+
+### Auth0 / CORS
+
+- **CORS error from Auth0**  
+  Symptom: `No 'Access-Control-Allow-Origin' header` when calling `/oauth/token`.  
+  Fix: In Auth0 SPA settings, add the correct origin to:
+  - Allowed Callback URLs
+  - Allowed Logout URLs
+  - Allowed Web Origins
+  - Allowed Origins (CORS)
+  
+  For local dev use `http://localhost:3000`. For production use `https://brooksweb.uk`.  
+  Also ensure `VITE_AUTH0_DOMAIN` has no `https://` prefix.
+
+### SSH / GitHub Actions
+
+- **SSH handshake failed (publickey)**  
+  Causes:
+  - Public key not in `~/.ssh/authorized_keys`
+  - Wrong `VM_SSH_USER`
+  - Private key secret pasted without line breaks
+  
+  Fix:
+  ```bash
+  cat ~/.ssh/github_actions_brooks.pub >> ~/.ssh/authorized_keys
+  chmod 700 ~/.ssh
+  chmod 600 ~/.ssh/authorized_keys
+  ```
+  Re-paste the private key into `VM_SSH_KEY` exactly with header/footer and line breaks.
+
+- **`sudo: a terminal is required` in Actions**  
+  Fix: configure passwordless sudo for the deploy user:
+  ```bash
+  sudo tee /etc/sudoers.d/github-actions-brooks <<'EOF'
+  <VM_USER> ALL=(ALL) NOPASSWD:ALL
+  EOF
+  sudo chmod 440 /etc/sudoers.d/github-actions-brooks
+  # Replace <VM_USER> with your SSH username
+  ```
+
+### GCP / gcloud / Billing
+
+- **Wrong project / billing not enabled**  
+  Symptom: `Billing account ... not found` or API enablement fails.  
+  Fix: set the correct project before running gcloud commands:
+  ```bash
+  gcloud config set project brooks-485009
+  ```
+
+- **OAuth expired / login confusion**  
+  Symptom: `OAuth token has expired` or `/login` doesn’t work.  
+  Fix:
+  ```bash
+  gcloud auth login
+  gcloud config set project brooks-485009
+  ```
+
+- **Static IP attach fails**  
+  Symptom: `Invalid value for field 'resource.natIP': 'brooks-static-ip'`  
+  Fix: use the **actual IP** instead of the name:
+  ```bash
+  gcloud compute instances add-access-config instance-20260122-071626 \
+    --zone us-central1-c \
+    --project brooks-485009 \
+    --access-config-name="External NAT" \
+    --address 35.192.65.148
+  ```
+
+- **`gcloud compute ssh` run on VM fails with scopes error**  
+  Root cause: `gcloud compute ssh` must be run **locally** with proper credentials/scopes.  
+  Fix: run the command from your local machine.
+
+- **Secret Manager access fails on VM**  
+  Symptom: `ACCESS_TOKEN_SCOPE_INSUFFICIENT` on `gcloud secrets versions access`.  
+  Fix: set VM service account scopes to cloud-platform and grant IAM role:
+  ```bash
+  gcloud compute instances stop instance-20260122-071626 --zone us-central1-c --project brooks-485009
+  gcloud compute instances set-service-account instance-20260122-071626 \
+    --zone us-central1-c \
+    --project brooks-485009 \
+    --scopes=https://www.googleapis.com/auth/cloud-platform
+  gcloud compute instances start instance-20260122-071626 --zone us-central1-c --project brooks-485009
+
+  gcloud projects add-iam-policy-binding brooks-485009 \
+    --member="serviceAccount:1074421896445-compute@developer.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
+  ```
+
+### Deployment / Compose
+
+- **`docker compose pull` fails with YAML error**  
+  Root cause: sed replacing `brooks-backend:` or `brooks-frontend:` (service names) corrupts YAML.  
+  Fix: only replace `image:` lines (see `.github/workflows/deploy.yml`).
+
+- **Caddy not running**  
+  Symptom: `docker exec caddy ...` fails with “No such container”.  
+  Fix: ensure Caddy is started (see “Prepare Caddy on VM” step in workflow).
+
+- **Heredoc YAML broken in workflow**  
+  Symptom: invalid workflow syntax.  
+  Fix: avoid indented heredocs; use a single-line `printf` or `bash -c 'cat ...'` that doesn’t leak YAML indentation.
+
+- **Missing environment variables**  
+  Symptom: `JWT_SECRET not set` warnings.  
+  Fix: ensure `brooks-env` contains all required variables:
+  `JWT_SECRET`, `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, and Vite variables.
 
 ### Network Configuration
 
@@ -345,7 +475,7 @@ If GitHub Actions fails and you need to deploy manually:
 
 ```bash
 # SSH to VM
-gcloud compute ssh brooks-20260121-095019 --zone=us-central1-f --project=brooks-485009
+gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
 
 # Navigate to app directory
 cd /opt/brooks

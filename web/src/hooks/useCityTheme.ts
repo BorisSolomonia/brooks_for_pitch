@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { CityResult } from "../lib/types";
 import { CityTheme, resolveTheme } from "../lib/theme";
 
-const NOMINATIM_URL =
-  import.meta.env.VITE_NOMINATIM_URL || "https://nominatim.openstreetmap.org/reverse";
+const rawNominatimUrl =
+  import.meta.env.VITE_NOMINATIM_URL || "https://nominatim.openstreetmap.org";
+const NOMINATIM_URL = rawNominatimUrl.endsWith("/reverse")
+  ? rawNominatimUrl
+  : `${rawNominatimUrl.replace(/\/$/, "")}/reverse`;
 
 type ThemeState = {
   city?: string;
