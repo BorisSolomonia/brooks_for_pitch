@@ -438,16 +438,16 @@ jobs:
 
           echo "📝 Preparing runtime env file..."
           cp /opt/brooks/.env /opt/brooks/.env.runtime
-          cat <<EOF >> /opt/brooks/.env.runtime
-BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}
-BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}
-BROOKS_LISTS_IMAGE=${LISTS_IMAGE}:${COMMIT_SHA}
-BROOKS_PINS_IMAGE=${PINS_IMAGE}:${COMMIT_SHA}
-BROOKS_MEDIA_IMAGE=${MEDIA_IMAGE}:${COMMIT_SHA}
-BROOKS_MODERATION_IMAGE=${MODERATION_IMAGE}:${COMMIT_SHA}
-BROOKS_NOTIFICATIONS_IMAGE=${NOTIFICATIONS_IMAGE}:${COMMIT_SHA}
-BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}
-EOF
+          printf "%s\n" \
+            "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_LISTS_IMAGE=${LISTS_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_PINS_IMAGE=${PINS_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_MEDIA_IMAGE=${MEDIA_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_MODERATION_IMAGE=${MODERATION_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_NOTIFICATIONS_IMAGE=${NOTIFICATIONS_IMAGE}:${COMMIT_SHA}" \
+            "BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}" \
+            >> /opt/brooks/.env.runtime
 
           echo "📦 Pulling latest images..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
@@ -529,16 +529,16 @@ EOF
 
           echo "📝 Preparing rollback env file..."
           cp /opt/brooks/.env /opt/brooks/.env.runtime
-          cat <<EOF >> /opt/brooks/.env.runtime
-BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:latest
-BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:latest
-BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:latest
-BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:latest
-BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:latest
-BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:latest
-BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:latest
-BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest
-EOF
+          printf "%s\n" \
+            "BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:latest" \
+            "BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:latest" \
+            "BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:latest" \
+            "BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:latest" \
+            "BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:latest" \
+            "BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:latest" \
+            "BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:latest" \
+            "BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest" \
+            >> /opt/brooks/.env.runtime
 
           echo "📦 Pulling fallback images..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
