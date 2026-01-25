@@ -338,6 +338,7 @@ jobs:
 
           sudo mkdir -p /opt/brooks
           sudo mkdir -p /opt/brooks/infra/caddy
+          sudo mkdir -p /opt/brooks/infra/db/init
           sudo chown -R $USER:$USER /opt/brooks
 
           echo "✅ VM directories ready"
