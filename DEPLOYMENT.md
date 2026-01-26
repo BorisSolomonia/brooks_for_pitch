@@ -164,7 +164,7 @@ gcloud secrets describe brooks-env --project=brooks-485009
 rm brooks-env.txt
 ```
 
-### 5. Setup GitHub Secrets
+### 5. Setup GitHub Secrets.
 
 Add the following secrets to your GitHub repository (`Settings` → `Secrets and variables` → `Actions`):
 
