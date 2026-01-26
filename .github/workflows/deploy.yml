@@ -450,6 +450,9 @@ jobs:
             "BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}" \
             >> /opt/brooks/.env.runtime
 
+          echo "🧹 Removing legacy containers that may conflict..."
+          docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
+
           echo "📦 Pulling latest images..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
 
@@ -540,6 +543,9 @@ jobs:
             "BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:latest" \
             "BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest" \
             >> /opt/brooks/.env.runtime
+
+          echo "🧹 Removing legacy containers that may conflict..."
+          docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
 
           echo "📦 Pulling fallback images..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
