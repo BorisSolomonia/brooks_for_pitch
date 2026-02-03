@@ -581,10 +581,10 @@ jobs:
           sleep 45
 
           echo "📊 Container status:"
-          docker compose -f /opt/brooks/infra/docker-compose.prod.yml ps
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "🔧 Reloading Caddy configuration..."
-          if docker ps --format "{{.Names}}" | rg -q "^brooks-caddy$"; then
+          if docker ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
             docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile || {
               echo "❌ Caddy reload failed, retrying..."
               sleep 5
@@ -677,13 +677,13 @@ jobs:
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
 
           echo "🔧 Reloading Caddy..."
-          if docker ps --format "{{.Names}}" | rg -q "^brooks-caddy$"; then
+          if docker ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
             docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
           else
             echo "ℹ️ Caddy container not found; skipping reload"
           fi
 
           echo "📊 Rollback status:"
-          docker compose -f /opt/brooks/infra/docker-compose.prod.yml ps
+          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "⚠️ Rollback completed - check logs for issues"
