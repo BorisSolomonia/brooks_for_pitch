@@ -12,7 +12,7 @@
    - **DO NOT** initialize with README, .gitignore, or license (we already have these)
 3. Click "Create repository"
 
-### Option B: Using GitHub CLI.
+### Option B: Using GitHub CLI
 
 ```bash
 # Install GitHub CLI if not already installed
