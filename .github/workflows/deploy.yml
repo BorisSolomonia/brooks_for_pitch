@@ -45,11 +45,16 @@ jobs:
           echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
           exit 1
         fi
-        if [ -z "${{ env.ENV_SECRET_NAME }}" ]; then
-          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME."
+        ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
+        if [ -z "$ENV_SECRET_NAME" ]; then
+          ENV_SECRET_NAME="${{ secrets.ENV_SECRET_NAME }}"
+        fi
+        if [ -z "$ENV_SECRET_NAME" ]; then
+          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME or secret ENV_SECRET_NAME."
           exit 1
         fi
         echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        echo "ENV_SECRET_NAME=$ENV_SECRET_NAME" >> $GITHUB_ENV
 
     - name: 📦 Fetch Environment Variables from Secret Manager
       run: |
@@ -169,11 +174,16 @@ jobs:
           echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
           exit 1
         fi
-        if [ -z "${{ env.ENV_SECRET_NAME }}" ]; then
-          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME."
+        ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
+        if [ -z "$ENV_SECRET_NAME" ]; then
+          ENV_SECRET_NAME="${{ secrets.ENV_SECRET_NAME }}"
+        fi
+        if [ -z "$ENV_SECRET_NAME" ]; then
+          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME or secret ENV_SECRET_NAME."
           exit 1
         fi
         echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        echo "ENV_SECRET_NAME=$ENV_SECRET_NAME" >> $GITHUB_ENV
 
     - name: 🔍 Verify GCP Configuration
       run: |
