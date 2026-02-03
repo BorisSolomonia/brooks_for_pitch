@@ -1,4 +1,14 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: brooks-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD?REDIS_PASSWORD must be set in .env file}
+    volumes:
+      - brooks-redis-data:/data
+
   postgres:
     image: postgis/postgis:16-3.4
     container_name: brooks-postgres
@@ -52,6 +62,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
+      - redis
     ports:
       - "8081:8081"
 
@@ -73,6 +84,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
+      - redis
     ports:
       - "8082:8082"
 
@@ -94,6 +106,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
+      - redis
     ports:
       - "8083:8083"
 
@@ -119,10 +132,15 @@ services:
       BROOKS_CLEANUP_BATCH_SIZE: ${BROOKS_CLEANUP_BATCH_SIZE?BROOKS_CLEANUP_BATCH_SIZE must be set in .env file}
       BROOKS_CLEANUP_RETENTION_DAYS: ${BROOKS_CLEANUP_RETENTION_DAYS?BROOKS_CLEANUP_RETENTION_DAYS must be set in .env file}
       BROOKS_CLEANUP_CRON: ${BROOKS_CLEANUP_CRON?BROOKS_CLEANUP_CRON must be set in .env file}
+      REDIS_HOST: ${REDIS_HOST?REDIS_HOST must be set in .env file}
+      REDIS_PORT: ${REDIS_PORT?REDIS_PORT must be set in .env file}
+      REDIS_PASSWORD: ${REDIS_PASSWORD?REDIS_PASSWORD must be set in .env file}
+      REDIS_CACHE_TTL_SECONDS: ${REDIS_CACHE_TTL_SECONDS?REDIS_CACHE_TTL_SECONDS must be set in .env file}
     depends_on:
       - postgres
       - social-service
       - lists-service
+      - redis
     ports:
       - "8084:8084"
 
@@ -155,6 +173,7 @@ services:
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
       - postgres
+      - redis
     ports:
       - "8086:8086"
 
@@ -170,6 +189,8 @@ services:
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     ports:
       - "8087:8087"
+    depends_on:
+      - redis
 
   frontend:
     build:
@@ -199,3 +220,7 @@ services:
       - pins-service
     ports:
       - "3000:3000"
+
+volumes:
+  brooks-redis-data:
+    driver: local

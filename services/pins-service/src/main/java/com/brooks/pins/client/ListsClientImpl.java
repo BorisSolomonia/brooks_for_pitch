@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,10 @@ public class ListsClientImpl implements ListsClient {
   }
 
   @Override
+  @Cacheable(
+      cacheNames = "listsMembership",
+      key = "#userId.toString() + '|' + T(java.lang.String).join(',', #listIds)"
+  )
   @CircuitBreaker(name = "listsService", fallbackMethod = "isUserInAnyListFallback")
   @Retry(name = "listsService")
   @TimeLimiter(name = "listsService")

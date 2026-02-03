@@ -10,11 +10,12 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROJECT_ID: brooks-485009
-  REGION: us-central1
-  REPOSITORY: brooksar
-  VM_ZONE: us-central1-c
-  VM_NAME: instance-20260122-071626
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION }}
+  REPOSITORY: ${{ vars.GCP_ARTIFACT_REPOSITORY }}
+  VM_ZONE: ${{ vars.GCP_VM_ZONE }}
+  VM_NAME: ${{ vars.GCP_VM_NAME }}
+  ENV_SECRET_NAME: ${{ vars.GCP_ENV_SECRET_NAME }}
 
 jobs:
   validate-env:
@@ -36,32 +37,76 @@ jobs:
     - name: 📦 Fetch Environment Variables from Secret Manager
       run: |
         gcloud secrets versions access latest \
-          --secret="brooks-env" \
+          --secret="${{ env.ENV_SECRET_NAME }}" \
           --project="${{ env.PROJECT_ID }}" > .env.production
 
     - name: 🧪 Validate Required Variables
       run: |
         set -e
         REQUIRED_VARS=(
-          "DATABASE_NAME"
-          "DATABASE_USER"
-          "DATABASE_PASSWORD"
-          "BROOKS_JWT_SECRET"
-          "AUTH0_ISSUER_URI"
-          "AUTH0_AUDIENCE"
-          "VITE_AUTH0_DOMAIN"
-          "VITE_AUTH0_CLIENT_ID"
-          "VITE_AUTH0_AUDIENCE"
-          "VITE_AUTH0_REDIRECT_URI"
+          "POSTGRES_USER"
+          "POSTGRES_PASSWORD"
+          "AUTH_DB_URL"
+          "SOCIAL_DB_URL"
+          "LISTS_DB_URL"
+          "PINS_DB_URL"
+          "MODERATION_DB_URL"
+          "AUTH_DB_USER"
+          "SOCIAL_DB_USER"
+          "LISTS_DB_USER"
+          "PINS_DB_USER"
+          "MODERATION_DB_USER"
           "AUTH_DB_PASSWORD"
           "SOCIAL_DB_PASSWORD"
           "LISTS_DB_PASSWORD"
           "PINS_DB_PASSWORD"
           "MODERATION_DB_PASSWORD"
+          "AUTH_DB_NAME"
+          "SOCIAL_DB_NAME"
+          "LISTS_DB_NAME"
+          "PINS_DB_NAME"
+          "MODERATION_DB_NAME"
+          "BROOKS_JWT_SECRET"
+          "BROOKS_JWT_ISSUER"
+          "BROOKS_JWT_ACCESS_TTL"
+          "BROOKS_JWT_REFRESH_TTL"
+          "AUTH0_ISSUER_URI"
+          "AUTH0_AUDIENCE"
+          "BROOKS_WEB_ORIGINS"
           "INTERNAL_SERVICE_KEY"
           "INTERNAL_SERVICE_KEYS"
           "INTERNAL_SERVICE_ALLOWED_NAMES"
           "INTERNAL_SERVICE_KEY_MAP"
+          "INTERNAL_SERVICE_NAME"
+          "SOCIAL_SERVICE_URL"
+          "LISTS_SERVICE_URL"
+          "BROOKS_BUCKET_SIZE_DEG"
+          "BROOKS_CLEANUP_ENABLED"
+          "BROOKS_CLEANUP_BATCH_SIZE"
+          "BROOKS_CLEANUP_RETENTION_DAYS"
+          "BROOKS_CLEANUP_CRON"
+          "MEDIA_UPLOAD_BASE_URL"
+          "VITE_AUTH_API_URL"
+          "VITE_AUTH0_DOMAIN"
+          "VITE_AUTH0_CLIENT_ID"
+          "VITE_AUTH0_AUDIENCE"
+          "VITE_AUTH0_REDIRECT_URI"
+          "VITE_SOCIAL_API_URL"
+          "VITE_LISTS_API_URL"
+          "VITE_PINS_API_URL"
+          "VITE_MEDIA_API_URL"
+          "VITE_MODERATION_API_URL"
+          "VITE_NOTIFICATIONS_API_URL"
+          "VITE_MAP_PROVIDER"
+          "VITE_NOMINATIM_URL"
+          "VITE_LEAFLET_TILE_URL"
+          "VITE_LEAFLET_ATTRIBUTION"
+          "VITE_DEFAULT_CENTER_LAT"
+          "VITE_DEFAULT_CENTER_LNG"
+          "REDIS_HOST"
+          "REDIS_PORT"
+          "REDIS_PASSWORD"
+          "REDIS_CACHE_TTL_SECONDS"
         )
 
         missing=0
@@ -289,12 +334,19 @@ jobs:
         VITE_AUTH0_CLIENT_ID=$(grep "^VITE_AUTH0_CLIENT_ID=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
         VITE_AUTH0_AUDIENCE=$(grep "^VITE_AUTH0_AUDIENCE=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
         VITE_AUTH0_REDIRECT_URI=$(grep "^VITE_AUTH0_REDIRECT_URI=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_SOCIAL_API_URL=$(grep "^VITE_SOCIAL_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_LISTS_API_URL=$(grep "^VITE_LISTS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_PINS_API_URL=$(grep "^VITE_PINS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_MEDIA_API_URL=$(grep "^VITE_MEDIA_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_MODERATION_API_URL=$(grep "^VITE_MODERATION_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_NOTIFICATIONS_API_URL=$(grep "^VITE_NOTIFICATIONS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
         VITE_MAP_PROVIDER=$(grep "^VITE_MAP_PROVIDER=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
         VITE_GOOGLE_MAPS_KEY=$(grep "^VITE_GOOGLE_MAPS_KEY=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-
-        # Use defaults if empty
-        VITE_AUTH0_REDIRECT_URI=${VITE_AUTH0_REDIRECT_URI:-"https://brooksweb.uk"}
-        VITE_MAP_PROVIDER=${VITE_MAP_PROVIDER:-"leaflet"}
+        VITE_NOMINATIM_URL=$(grep "^VITE_NOMINATIM_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_LEAFLET_TILE_URL=$(grep "^VITE_LEAFLET_TILE_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_LEAFLET_ATTRIBUTION=$(grep "^VITE_LEAFLET_ATTRIBUTION=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_DEFAULT_CENTER_LAT=$(grep "^VITE_DEFAULT_CENTER_LAT=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        VITE_DEFAULT_CENTER_LNG=$(grep "^VITE_DEFAULT_CENTER_LNG=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
 
         docker build \
           --progress=plain \
@@ -303,15 +355,19 @@ jobs:
           --build-arg VITE_AUTH0_CLIENT_ID="${VITE_AUTH0_CLIENT_ID}" \
           --build-arg VITE_AUTH0_AUDIENCE="${VITE_AUTH0_AUDIENCE}" \
           --build-arg VITE_AUTH0_REDIRECT_URI="${VITE_AUTH0_REDIRECT_URI}" \
-          --build-arg VITE_SOCIAL_API_URL="https://brooksweb.uk/api/social" \
-          --build-arg VITE_LISTS_API_URL="https://brooksweb.uk/api/lists" \
-          --build-arg VITE_PINS_API_URL="https://brooksweb.uk/api/pins" \
-          --build-arg VITE_MEDIA_API_URL="https://brooksweb.uk/api/media" \
-          --build-arg VITE_MODERATION_API_URL="https://brooksweb.uk/api/moderation" \
-          --build-arg VITE_NOTIFICATIONS_API_URL="https://brooksweb.uk/api/notifications" \
+          --build-arg VITE_SOCIAL_API_URL="${VITE_SOCIAL_API_URL}" \
+          --build-arg VITE_LISTS_API_URL="${VITE_LISTS_API_URL}" \
+          --build-arg VITE_PINS_API_URL="${VITE_PINS_API_URL}" \
+          --build-arg VITE_MEDIA_API_URL="${VITE_MEDIA_API_URL}" \
+          --build-arg VITE_MODERATION_API_URL="${VITE_MODERATION_API_URL}" \
+          --build-arg VITE_NOTIFICATIONS_API_URL="${VITE_NOTIFICATIONS_API_URL}" \
           --build-arg VITE_MAP_PROVIDER="${VITE_MAP_PROVIDER}" \
           --build-arg VITE_GOOGLE_MAPS_KEY="${VITE_GOOGLE_MAPS_KEY}" \
-          --build-arg VITE_NOMINATIM_URL="https://nominatim.openstreetmap.org" \
+          --build-arg VITE_NOMINATIM_URL="${VITE_NOMINATIM_URL}" \
+          --build-arg VITE_LEAFLET_TILE_URL="${VITE_LEAFLET_TILE_URL}" \
+          --build-arg VITE_LEAFLET_ATTRIBUTION="${VITE_LEAFLET_ATTRIBUTION}" \
+          --build-arg VITE_DEFAULT_CENTER_LAT="${VITE_DEFAULT_CENTER_LAT}" \
+          --build-arg VITE_DEFAULT_CENTER_LNG="${VITE_DEFAULT_CENTER_LNG}" \
           -f web/Dockerfile \
           -t $IMAGE_PATH:${{ github.sha }} \
           -t $IMAGE_PATH:latest \
@@ -372,7 +428,7 @@ jobs:
           echo "📦 Creating .env file from Secret Manager..."
 
           gcloud secrets versions access latest \
-            --secret="brooks-env" \
+            --secret="${{ env.ENV_SECRET_NAME }}" \
             --project="$PROJECT_ID" > /tmp/raw_env
 
           echo "🔧 Cleaning .env file format..."

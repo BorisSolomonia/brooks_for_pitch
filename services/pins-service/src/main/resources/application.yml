@@ -3,6 +3,11 @@ spring:
     url: ${PINS_DB_URL}
     username: ${PINS_DB_USER}
     password: ${PINS_DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -21,6 +26,8 @@ auth0:
   audience: ${AUTH0_AUDIENCE}
 
 brooks:
+  cache:
+    ttl-seconds: ${REDIS_CACHE_TTL_SECONDS}
   social:
     base-url: ${SOCIAL_SERVICE_URL}
   lists:

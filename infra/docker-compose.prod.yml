@@ -1,4 +1,43 @@
 services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: brooks-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER?POSTGRES_USER must be set in .env file}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?POSTGRES_PASSWORD must be set in .env file}
+      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH_DB_NAME: ${AUTH_DB_NAME?AUTH_DB_NAME must be set in .env file}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
+      SOCIAL_DB_NAME: ${SOCIAL_DB_NAME?SOCIAL_DB_NAME must be set in .env file}
+      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
+      LISTS_DB_NAME: ${LISTS_DB_NAME?LISTS_DB_NAME must be set in .env file}
+      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
+      PINS_DB_NAME: ${PINS_DB_NAME?PINS_DB_NAME must be set in .env file}
+      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
+      MODERATION_DB_NAME: ${MODERATION_DB_NAME?MODERATION_DB_NAME must be set in .env file}
+    volumes:
+      - brooks-db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - brooks-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: brooks-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD?REDIS_PASSWORD must be set in .env file}
+    volumes:
+      - brooks-redis-data:/data
+    networks:
+      - brooks-network
   caddy:
     image: caddy:2
     container_name: brooks-caddy
@@ -22,35 +61,6 @@ services:
     networks:
       - web
 
-  postgres:
-    image: postgis/postgis:16-3.4-alpine
-    container_name: brooks-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DATABASE_USER?DATABASE_USER must be set in .env file}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD?DATABASE_PASSWORD must be set in .env file}
-      POSTGRES_DB: ${DATABASE_NAME?DATABASE_NAME must be set in .env file}
-      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
-      AUTH_DB_NAME: ${AUTH_DB_NAME?AUTH_DB_NAME must be set in .env file}
-      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
-      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
-      SOCIAL_DB_NAME: ${SOCIAL_DB_NAME?SOCIAL_DB_NAME must be set in .env file}
-      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
-      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
-      LISTS_DB_NAME: ${LISTS_DB_NAME?LISTS_DB_NAME must be set in .env file}
-      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
-      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
-      PINS_DB_NAME: ${PINS_DB_NAME?PINS_DB_NAME must be set in .env file}
-      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
-      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
-      MODERATION_DB_NAME: ${MODERATION_DB_NAME?MODERATION_DB_NAME must be set in .env file}
-    volumes:
-      - brooks-db-data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
-    networks:
-      - brooks-network
-
   auth-service:
     image: ${BROOKS_AUTH_IMAGE?BROOKS_AUTH_IMAGE must be set in .env file}
     container_name: brooks-auth-service
@@ -71,6 +81,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
       - postgres
+      - redis
     networks:
       - brooks-network
       - web
@@ -91,6 +102,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
       - postgres
+      - redis
     networks:
       - brooks-network
       - web
@@ -111,6 +123,7 @@ services:
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
       - postgres
+      - redis
     networks:
       - brooks-network
       - web
@@ -135,10 +148,15 @@ services:
       BROOKS_CLEANUP_BATCH_SIZE: ${BROOKS_CLEANUP_BATCH_SIZE?BROOKS_CLEANUP_BATCH_SIZE must be set in .env file}
       BROOKS_CLEANUP_RETENTION_DAYS: ${BROOKS_CLEANUP_RETENTION_DAYS?BROOKS_CLEANUP_RETENTION_DAYS must be set in .env file}
       BROOKS_CLEANUP_CRON: ${BROOKS_CLEANUP_CRON?BROOKS_CLEANUP_CRON must be set in .env file}
+      REDIS_HOST: ${REDIS_HOST?REDIS_HOST must be set in .env file}
+      REDIS_PORT: ${REDIS_PORT?REDIS_PORT must be set in .env file}
+      REDIS_PASSWORD: ${REDIS_PASSWORD?REDIS_PASSWORD must be set in .env file}
+      REDIS_CACHE_TTL_SECONDS: ${REDIS_CACHE_TTL_SECONDS?REDIS_CACHE_TTL_SECONDS must be set in .env file}
     depends_on:
       - postgres
       - social-service
       - lists-service
+      - redis
     networks:
       - brooks-network
       - web
@@ -169,6 +187,7 @@ services:
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
       - postgres
+      - redis
     networks:
       - brooks-network
       - web
@@ -181,6 +200,8 @@ services:
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+    depends_on:
+      - redis
     networks:
       - brooks-network
       - web
@@ -200,6 +221,8 @@ networks:
 
 volumes:
   brooks-db-data:
+    driver: local
+  brooks-redis-data:
     driver: local
   caddy-data:
     driver: local

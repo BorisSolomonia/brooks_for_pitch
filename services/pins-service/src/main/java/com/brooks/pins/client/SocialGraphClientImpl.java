@@ -8,6 +8,7 @@ import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +42,10 @@ public class SocialGraphClientImpl implements SocialGraphClient {
   }
 
   @Override
+  @Cacheable(
+      cacheNames = "socialGraphView",
+      key = "#viewerId.toString() + '|' + #subjectId.toString()"
+  )
   @CircuitBreaker(name = "socialService", fallbackMethod = "fetchGraphViewFallback")
   @Retry(name = "socialService")
   @TimeLimiter(name = "socialService")
