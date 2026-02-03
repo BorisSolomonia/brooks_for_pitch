@@ -34,6 +34,23 @@ jobs:
     - name: ☁️ Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
+    - name: 🧭 Resolve required runtime variables
+      run: |
+        set -euo pipefail
+        PROJECT_ID="${{ env.PROJECT_ID }}"
+        if [ -z "$PROJECT_ID" ]; then
+          PROJECT_ID="${CLOUDSDK_CORE_PROJECT:-}"
+        fi
+        if [ -z "$PROJECT_ID" ]; then
+          echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
+          exit 1
+        fi
+        if [ -z "${{ env.ENV_SECRET_NAME }}" ]; then
+          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME."
+          exit 1
+        fi
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+
     - name: 📦 Fetch Environment Variables from Secret Manager
       run: |
         gcloud secrets versions access latest \
@@ -140,6 +157,23 @@ jobs:
 
     - name: ☁️ Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
+
+    - name: 🧭 Resolve required runtime variables
+      run: |
+        set -euo pipefail
+        PROJECT_ID="${{ env.PROJECT_ID }}"
+        if [ -z "$PROJECT_ID" ]; then
+          PROJECT_ID="${CLOUDSDK_CORE_PROJECT:-}"
+        fi
+        if [ -z "$PROJECT_ID" ]; then
+          echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
+          exit 1
+        fi
+        if [ -z "${{ env.ENV_SECRET_NAME }}" ]; then
+          echo "❌ ENV_SECRET_NAME is empty. Set repo variable GCP_ENV_SECRET_NAME."
+          exit 1
+        fi
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
 
     - name: 🔍 Verify GCP Configuration
       run: |
