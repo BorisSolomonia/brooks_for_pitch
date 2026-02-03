@@ -1,9 +1,10 @@
 import type { Coordinates, MapPin, PinForm } from "./types";
 
-const PINS_API_URL = import.meta.env.VITE_PINS_API_URL as string | undefined;
-if (!PINS_API_URL) {
+const rawPinsApiUrl = import.meta.env.VITE_PINS_API_URL as string | undefined;
+if (!rawPinsApiUrl) {
   throw new Error("VITE_PINS_API_URL is required");
 }
+const PINS_API_URL = rawPinsApiUrl.replace(/\/pins\/?$/, "");
 
 type MapPinsResponse = {
   pins: MapPin[];

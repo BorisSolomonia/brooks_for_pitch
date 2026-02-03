@@ -612,17 +612,22 @@ jobs:
 
           sleep 20
 
-          # Pins service health check
-          echo "📍 Pins health check:"
-          curl -f -m 10 http://localhost:8084/actuator/health && echo "✅ Pins OK" || echo "❌ Pins FAIL"
+          healthcheck() {
+            local name="$1"
+            local url="$2"
+            echo "📍 ${name} health check: ${url}"
+            curl -f -m 10 "$url" >/dev/null && echo "✅ ${name} OK" || echo "❌ ${name} FAIL"
+          }
 
-          # Frontend health check
-          echo "📍 Frontend health check:"
-          curl -f -m 10 http://localhost:3000/health && echo "✅ Frontend OK" || echo "❌ Frontend FAIL"
-
-          # External check
-          echo "📍 External health check:"
-          curl -f -m 10 http://${{ secrets.VM_HOST }}/ && echo "✅ External OK" || echo "❌ External FAIL"
+          healthcheck "Auth" "http://localhost:8081/actuator/health"
+          healthcheck "Social" "http://localhost:8082/actuator/health"
+          healthcheck "Lists" "http://localhost:8083/actuator/health"
+          healthcheck "Pins" "http://localhost:8084/actuator/health"
+          healthcheck "Media" "http://localhost:8085/actuator/health"
+          healthcheck "Moderation" "http://localhost:8086/actuator/health"
+          healthcheck "Notifications" "http://localhost:8087/actuator/health"
+          healthcheck "Frontend" "http://localhost:3000/health"
+          healthcheck "External" "http://${{ secrets.VM_HOST }}/"
 
           echo "📋 Application logs:"
           echo "=== Pins logs ==="
