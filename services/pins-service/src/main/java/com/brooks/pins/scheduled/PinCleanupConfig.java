@@ -1,5 +1,6 @@
 package com.brooks.pins.scheduled;
 
+import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,30 +15,30 @@ public class PinCleanupConfig {
    * Whether the cleanup job is enabled.
    * Set to false in development or to disable cleanup.
    */
-  private boolean enabled = true;
+  private Boolean enabled;
 
   /**
    * Number of pins to delete in each batch.
    * Smaller batches reduce lock contention but take longer.
    */
-  private int batchSize = 1000;
+  private Integer batchSize;
 
   /**
    * Number of days to keep expired pins before deletion.
    * Provides a grace period for debugging or recovery.
    * Default: 7 days
    */
-  private int retentionDays = 7;
+  private Integer retentionDays;
 
   /**
    * Cron expression for scheduling the cleanup job.
    * Default: "0 0 2 * * ?" (2 AM daily)
    */
-  private String cron = "0 0 2 * * ?";
+  private String cron;
 
   // Getters and setters
   public boolean isEnabled() {
-    return enabled;
+    return Objects.requireNonNull(enabled, "brooks.cleanup.enabled is required");
   }
 
   public void setEnabled(boolean enabled) {
@@ -45,7 +46,7 @@ public class PinCleanupConfig {
   }
 
   public int getBatchSize() {
-    return batchSize;
+    return Objects.requireNonNull(batchSize, "brooks.cleanup.batch-size is required");
   }
 
   public void setBatchSize(int batchSize) {
@@ -53,7 +54,7 @@ public class PinCleanupConfig {
   }
 
   public int getRetentionDays() {
-    return retentionDays;
+    return Objects.requireNonNull(retentionDays, "brooks.cleanup.retention-days is required");
   }
 
   public void setRetentionDays(int retentionDays) {
@@ -61,7 +62,7 @@ public class PinCleanupConfig {
   }
 
   public String getCron() {
-    return cron;
+    return Objects.requireNonNull(cron, "brooks.cleanup.cron is required");
   }
 
   public void setCron(String cron) {

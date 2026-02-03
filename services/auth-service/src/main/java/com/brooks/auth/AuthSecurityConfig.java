@@ -72,7 +72,7 @@ public class AuthSecurityConfig {
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource(
-      @Value("${brooks.web.origins:http://localhost:3000,http://localhost:5173}") String origins
+      @Value("${brooks.web.origins}") String origins
   ) {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(List.of(origins.split(",")));

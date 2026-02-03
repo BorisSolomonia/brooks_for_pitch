@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://brooks-db:5432/brooks}
-    username: ${DATABASE_USER:brooks}
-    password: ${DATABASE_PASSWORD:brooks}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -26,8 +26,11 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+media:
+  upload-base-url: ${MEDIA_UPLOAD_BASE_URL}
+
 server:
-  port: 8080
+  port: ${SERVER_PORT}
   compression:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
@@ -58,10 +61,10 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
 jwt:
-  secret: ${JWT_SECRET:changeme-this-is-not-secure}
-  access-token-expiration: 900000
-  refresh-token-expiration: 2592000000
+  secret: ${JWT_SECRET}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
 
 auth0:
-  domain: ${AUTH0_DOMAIN:your-tenant.auth0.com}
-  audience: ${AUTH0_AUDIENCE:https://your-api-audience}
+  domain: ${AUTH0_DOMAIN}
+  audience: ${AUTH0_AUDIENCE}

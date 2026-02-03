@@ -29,7 +29,7 @@ public class AuthService {
       PasswordEncoder passwordEncoder,
       JwtService jwtService,
       @Value("${brooks.jwt.access-ttl-seconds}") long accessTtlSeconds,
-      @Value("${brooks.jwt.refresh-ttl-seconds:2592000}") long refreshTtlSeconds
+      @Value("${brooks.jwt.refresh-ttl-seconds}") long refreshTtlSeconds
   ) {
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;

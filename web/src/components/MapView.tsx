@@ -15,7 +15,9 @@ type MapViewProps = {
   pins: MapPin[];
 };
 
-const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || "";
+const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
+const LEAFLET_TILE_URL = import.meta.env.VITE_LEAFLET_TILE_URL as string | undefined;
+const LEAFLET_ATTRIBUTION = import.meta.env.VITE_LEAFLET_ATTRIBUTION as string | undefined;
 
 delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -33,6 +35,20 @@ function Recenter({ center }: { center: Coordinates }) {
 }
 
 function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
+  if (!LEAFLET_TILE_URL || !LEAFLET_ATTRIBUTION) {
+    return (
+      <div className="map-google-fallback">
+        <p>Leaflet map tiles are not configured.</p>
+        <p>
+          Add <span className="mono">VITE_LEAFLET_TILE_URL</span> and{" "}
+          <span className="mono">VITE_LEAFLET_ATTRIBUTION</span> to enable it.
+        </p>
+      </div>
+    );
+  }
+  const leafletTileUrl = LEAFLET_TILE_URL!;
+  const leafletAttribution = LEAFLET_ATTRIBUTION!;
+
   return (
     <MapContainer
       center={[center.lat, center.lng]}
@@ -41,8 +57,8 @@ function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
       className="map-canvas"
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={leafletAttribution}
+        url={leafletTileUrl}
       />
       <Recenter center={center} />
       {pins.map(pin => (
@@ -56,10 +72,13 @@ function GoogleMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
-  const loader = useMemo(() => new Loader({ apiKey: GOOGLE_MAPS_KEY }), []);
+  const loader = useMemo(
+    () => (GOOGLE_MAPS_KEY ? new Loader({ apiKey: GOOGLE_MAPS_KEY }) : null),
+    []
+  );
 
   useEffect(() => {
-    if (!GOOGLE_MAPS_KEY || !containerRef.current || mapRef.current) {
+    if (!GOOGLE_MAPS_KEY || !containerRef.current || mapRef.current || !loader) {
       return;
     }
     loader.load().then(() => {

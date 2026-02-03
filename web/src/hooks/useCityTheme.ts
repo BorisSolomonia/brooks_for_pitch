@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { CityResult } from "../lib/types";
 import { CityTheme, resolveTheme } from "../lib/theme";
 
-const rawNominatimUrl =
-  import.meta.env.VITE_NOMINATIM_URL || "https://nominatim.openstreetmap.org";
+const rawNominatimUrl = import.meta.env.VITE_NOMINATIM_URL as string | undefined;
+if (!rawNominatimUrl) {
+  throw new Error("VITE_NOMINATIM_URL is required");
+}
 const NOMINATIM_URL = rawNominatimUrl.endsWith("/reverse")
   ? rawNominatimUrl
   : `${rawNominatimUrl.replace(/\/$/, "")}/reverse`;

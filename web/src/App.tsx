@@ -9,11 +9,19 @@ import { applyTheme, CITY_THEMES, CityTheme } from "./lib/theme";
 import { createPin, fetchMapPins } from "./lib/api";
 import type { Coordinates, MapPin, PinForm as PinFormState } from "./lib/types";
 
-const DEFAULT_CENTER: Coordinates = { lat: 41.9028, lng: 12.4964 };
-
 type MapProvider = "leaflet" | "google";
 
-const DEFAULT_PROVIDER = (import.meta.env.VITE_MAP_PROVIDER || "leaflet") as MapProvider;
+const DEFAULT_PROVIDER = import.meta.env.VITE_MAP_PROVIDER as MapProvider | undefined;
+if (!DEFAULT_PROVIDER) {
+  throw new Error("VITE_MAP_PROVIDER is required");
+}
+const RESOLVED_PROVIDER: MapProvider = DEFAULT_PROVIDER;
+const defaultCenterLat = Number(import.meta.env.VITE_DEFAULT_CENTER_LAT);
+const defaultCenterLng = Number(import.meta.env.VITE_DEFAULT_CENTER_LNG);
+if (Number.isNaN(defaultCenterLat) || Number.isNaN(defaultCenterLng)) {
+  throw new Error("VITE_DEFAULT_CENTER_LAT and VITE_DEFAULT_CENTER_LNG are required");
+}
+const DEFAULT_CENTER: Coordinates = { lat: defaultCenterLat, lng: defaultCenterLng };
 const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE as string | undefined;
 
 function bboxFromCenter(center: Coordinates, delta = 0.04) {
@@ -34,7 +42,7 @@ export default function App() {
     logout,
     getAccessTokenSilently
   } = useAuth0();
-  const [mapProvider, setMapProvider] = useState<MapProvider>(DEFAULT_PROVIDER);
+  const [mapProvider, setMapProvider] = useState<MapProvider>(RESOLVED_PROVIDER);
   const [pins, setPins] = useState<MapPin[]>([]);
   const [pinsLoading, setPinsLoading] = useState(false);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("brooks.token"));

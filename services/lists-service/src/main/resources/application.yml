@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${LISTS_DB_URL:jdbc:postgresql://localhost:5432/lists_db}
-    username: ${LISTS_DB_USER:lists_user}
-    password: ${LISTS_DB_PASSWORD:lists_pass}
+    url: ${LISTS_DB_URL}
+    username: ${LISTS_DB_USER}
+    password: ${LISTS_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -11,7 +11,7 @@ spring:
     locations: classpath:db/migration
 
 server:
-  port: ${LISTS_SERVICE_PORT:8083}
+  port: ${LISTS_SERVICE_PORT}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}
@@ -23,9 +23,13 @@ management:
       exposure:
         include: health,info,metrics
 
+brooks:
+  web:
+    origins: ${BROOKS_WEB_ORIGINS}
+
 # Internal service-to-service authentication
 internal:
   service:
-    keys: ${INTERNAL_SERVICE_KEYS:pins-service-key-change-in-production,social-service-key-change-in-production}
-    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES:pins-service,social-service}
-    key-map: ${INTERNAL_SERVICE_KEY_MAP:pins-service=pins-service-key-change-in-production,social-service=social-service-key-change-in-production}
+    keys: ${INTERNAL_SERVICE_KEYS}
+    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES}
+    key-map: ${INTERNAL_SERVICE_KEY_MAP}

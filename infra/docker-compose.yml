@@ -5,12 +5,27 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: brooks
-      POSTGRES_PASSWORD: brooks
+      POSTGRES_USER: ${POSTGRES_USER?POSTGRES_USER must be set in .env file}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?POSTGRES_PASSWORD must be set in .env file}
+      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH_DB_NAME: ${AUTH_DB_NAME?AUTH_DB_NAME must be set in .env file}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
+      SOCIAL_DB_NAME: ${SOCIAL_DB_NAME?SOCIAL_DB_NAME must be set in .env file}
+      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
+      LISTS_DB_NAME: ${LISTS_DB_NAME?LISTS_DB_NAME must be set in .env file}
+      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
+      PINS_DB_NAME: ${PINS_DB_NAME?PINS_DB_NAME must be set in .env file}
+      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
+      MODERATION_DB_NAME: ${MODERATION_DB_NAME?MODERATION_DB_NAME must be set in .env file}
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U brooks"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -22,19 +37,19 @@ services:
       args:
         SERVICE_DIR: services/auth-service
     environment:
-      AUTH_DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres:5432/auth_db}
-      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?AUTH_DB_PASSWORD must be set in .env file}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_JWT_ISSUER: brooks
-      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET:?BROOKS_JWT_SECRET must be set in .env file}
-      BROOKS_JWT_ACCESS_TTL: 900
-      BROOKS_JWT_REFRESH_TTL: 2592000
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
-      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS:-pins-service-key-change-in-production}
-      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES:-pins-service}
-      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP:-pins-service=pins-service-key-change-in-production}
+      AUTH_DB_URL: ${AUTH_DB_URL?AUTH_DB_URL must be set in .env file}
+      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_JWT_ISSUER: ${BROOKS_JWT_ISSUER?BROOKS_JWT_ISSUER must be set in .env file}
+      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET?BROOKS_JWT_SECRET must be set in .env file}
+      BROOKS_JWT_ACCESS_TTL: ${BROOKS_JWT_ACCESS_TTL?BROOKS_JWT_ACCESS_TTL must be set in .env file}
+      BROOKS_JWT_REFRESH_TTL: ${BROOKS_JWT_REFRESH_TTL?BROOKS_JWT_REFRESH_TTL must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS?INTERNAL_SERVICE_KEYS must be set in .env file}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES?INTERNAL_SERVICE_ALLOWED_NAMES must be set in .env file}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
     ports:
@@ -47,15 +62,15 @@ services:
       args:
         SERVICE_DIR: services/social-service
     environment:
-      SOCIAL_DB_URL: ${SOCIAL_DB_URL:-jdbc:postgresql://postgres:5432/social_db}
-      SOCIAL_DB_USER: ${SOCIAL_DB_USER:-social_user}
-      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD:?SOCIAL_DB_PASSWORD must be set in .env file}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
-      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS:-pins-service-key-change-in-production}
-      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES:-pins-service}
-      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP:-pins-service=pins-service-key-change-in-production}
+      SOCIAL_DB_URL: ${SOCIAL_DB_URL?SOCIAL_DB_URL must be set in .env file}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS?INTERNAL_SERVICE_KEYS must be set in .env file}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES?INTERNAL_SERVICE_ALLOWED_NAMES must be set in .env file}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
     ports:
@@ -68,15 +83,15 @@ services:
       args:
         SERVICE_DIR: services/lists-service
     environment:
-      LISTS_DB_URL: ${LISTS_DB_URL:-jdbc:postgresql://postgres:5432/lists_db}
-      LISTS_DB_USER: ${LISTS_DB_USER:-lists_user}
-      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD:?LISTS_DB_PASSWORD must be set in .env file}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
-      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS:-pins-service-key-change-in-production,social-service-key-change-in-production}
-      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES:-pins-service,social-service}
-      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP:-pins-service=pins-service-key-change-in-production,social-service=social-service-key-change-in-production}
+      LISTS_DB_URL: ${LISTS_DB_URL?LISTS_DB_URL must be set in .env file}
+      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS?INTERNAL_SERVICE_KEYS must be set in .env file}
+      INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES?INTERNAL_SERVICE_ALLOWED_NAMES must be set in .env file}
+      INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP?INTERNAL_SERVICE_KEY_MAP must be set in .env file}
     depends_on:
       - postgres
     ports:
@@ -89,16 +104,21 @@ services:
       args:
         SERVICE_DIR: services/pins-service
     environment:
-      PINS_DB_URL: ${PINS_DB_URL:-jdbc:postgresql://postgres:5432/pins_db}
-      PINS_DB_USER: ${PINS_DB_USER:-pins_user}
-      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD:?PINS_DB_PASSWORD must be set in .env file}
-      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL:-http://social-service:8082}
-      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL:-http://lists-service:8083}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY:-pins-service-key-change-in-production}
-      INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME:-pins-service}
+      PINS_DB_URL: ${PINS_DB_URL?PINS_DB_URL must be set in .env file}
+      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
+      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL?SOCIAL_SERVICE_URL must be set in .env file}
+      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL?LISTS_SERVICE_URL must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY?INTERNAL_SERVICE_KEY must be set in .env file}
+      INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME?INTERNAL_SERVICE_NAME must be set in .env file}
+      BROOKS_BUCKET_SIZE_DEG: ${BROOKS_BUCKET_SIZE_DEG?BROOKS_BUCKET_SIZE_DEG must be set in .env file}
+      BROOKS_CLEANUP_ENABLED: ${BROOKS_CLEANUP_ENABLED?BROOKS_CLEANUP_ENABLED must be set in .env file}
+      BROOKS_CLEANUP_BATCH_SIZE: ${BROOKS_CLEANUP_BATCH_SIZE?BROOKS_CLEANUP_BATCH_SIZE must be set in .env file}
+      BROOKS_CLEANUP_RETENTION_DAYS: ${BROOKS_CLEANUP_RETENTION_DAYS?BROOKS_CLEANUP_RETENTION_DAYS must be set in .env file}
+      BROOKS_CLEANUP_CRON: ${BROOKS_CLEANUP_CRON?BROOKS_CLEANUP_CRON must be set in .env file}
     depends_on:
       - postgres
       - social-service
@@ -113,9 +133,10 @@ services:
       args:
         SERVICE_DIR: services/media-service
     environment:
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      MEDIA_UPLOAD_BASE_URL: ${MEDIA_UPLOAD_BASE_URL?MEDIA_UPLOAD_BASE_URL must be set in .env file}
     ports:
       - "8085:8085"
 
@@ -126,12 +147,12 @@ services:
       args:
         SERVICE_DIR: services/moderation-service
     environment:
-      MODERATION_DB_URL: ${MODERATION_DB_URL:-jdbc:postgresql://postgres:5432/moderation_db}
-      MODERATION_DB_USER: ${MODERATION_DB_USER:-moderation_user}
-      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD:?MODERATION_DB_PASSWORD must be set in .env file}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+      MODERATION_DB_URL: ${MODERATION_DB_URL?MODERATION_DB_URL must be set in .env file}
+      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
       - postgres
     ports:
@@ -144,9 +165,9 @@ services:
       args:
         SERVICE_DIR: services/notifications-service
     environment:
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-http://localhost:3000}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     ports:
       - "8087:8087"
 
@@ -155,19 +176,24 @@ services:
       context: ../web
       dockerfile: Dockerfile
       args:
-        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
-        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
-        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
-        VITE_AUTH0_REDIRECT_URI: ${VITE_AUTH0_REDIRECT_URI:-}
-        VITE_SOCIAL_API_URL: ${VITE_SOCIAL_API_URL:-http://localhost:8082}
-        VITE_LISTS_API_URL: ${VITE_LISTS_API_URL:-http://localhost:8083}
-        VITE_PINS_API_URL: ${VITE_PINS_API_URL:-http://localhost:8084}
-        VITE_MEDIA_API_URL: ${VITE_MEDIA_API_URL:-http://localhost:8085}
-        VITE_MODERATION_API_URL: ${VITE_MODERATION_API_URL:-http://localhost:8086}
-        VITE_NOTIFICATIONS_API_URL: ${VITE_NOTIFICATIONS_API_URL:-http://localhost:8087}
-        VITE_MAP_PROVIDER: leaflet
-        VITE_GOOGLE_MAPS_KEY: ${VITE_GOOGLE_MAPS_KEY:-}
-        VITE_NOMINATIM_URL: https://nominatim.openstreetmap.org/reverse
+        VITE_AUTH_API_URL: ${VITE_AUTH_API_URL?VITE_AUTH_API_URL must be set in .env file}
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN?VITE_AUTH0_DOMAIN must be set in .env file}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID?VITE_AUTH0_CLIENT_ID must be set in .env file}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE?VITE_AUTH0_AUDIENCE must be set in .env file}
+        VITE_AUTH0_REDIRECT_URI: ${VITE_AUTH0_REDIRECT_URI?VITE_AUTH0_REDIRECT_URI must be set in .env file}
+        VITE_SOCIAL_API_URL: ${VITE_SOCIAL_API_URL?VITE_SOCIAL_API_URL must be set in .env file}
+        VITE_LISTS_API_URL: ${VITE_LISTS_API_URL?VITE_LISTS_API_URL must be set in .env file}
+        VITE_PINS_API_URL: ${VITE_PINS_API_URL?VITE_PINS_API_URL must be set in .env file}
+        VITE_MEDIA_API_URL: ${VITE_MEDIA_API_URL?VITE_MEDIA_API_URL must be set in .env file}
+        VITE_MODERATION_API_URL: ${VITE_MODERATION_API_URL?VITE_MODERATION_API_URL must be set in .env file}
+        VITE_NOTIFICATIONS_API_URL: ${VITE_NOTIFICATIONS_API_URL?VITE_NOTIFICATIONS_API_URL must be set in .env file}
+        VITE_MAP_PROVIDER: ${VITE_MAP_PROVIDER?VITE_MAP_PROVIDER must be set in .env file}
+        VITE_GOOGLE_MAPS_KEY: ${VITE_GOOGLE_MAPS_KEY}
+        VITE_NOMINATIM_URL: ${VITE_NOMINATIM_URL?VITE_NOMINATIM_URL must be set in .env file}
+        VITE_LEAFLET_TILE_URL: ${VITE_LEAFLET_TILE_URL?VITE_LEAFLET_TILE_URL must be set in .env file}
+        VITE_LEAFLET_ATTRIBUTION: ${VITE_LEAFLET_ATTRIBUTION?VITE_LEAFLET_ATTRIBUTION must be set in .env file}
+        VITE_DEFAULT_CENTER_LAT: ${VITE_DEFAULT_CENTER_LAT?VITE_DEFAULT_CENTER_LAT must be set in .env file}
+        VITE_DEFAULT_CENTER_LNG: ${VITE_DEFAULT_CENTER_LNG?VITE_DEFAULT_CENTER_LNG must be set in .env file}
     depends_on:
       - auth-service
       - pins-service

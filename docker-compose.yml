@@ -7,9 +7,9 @@ services:
     container_name: brooks-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DATABASE_NAME:-brooks}
-      POSTGRES_USER: ${DATABASE_USER:-brooks}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-brooks}
+      POSTGRES_DB: ${DATABASE_NAME?DATABASE_NAME must be set in .env file}
+      POSTGRES_USER: ${DATABASE_USER?DATABASE_USER must be set in .env file}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD?DATABASE_PASSWORD must be set in .env file}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     volumes:
       - brooks-db-data:/var/lib/postgresql/data
@@ -17,7 +17,7 @@ services:
     networks:
       - brooks-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-brooks} -d ${DATABASE_NAME:-brooks}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,12 +40,16 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: production
-      DATABASE_URL: jdbc:postgresql://brooks-db:5432/${DATABASE_NAME:-brooks}
-      DATABASE_USER: ${DATABASE_USER:-brooks}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-brooks}
-      JWT_SECRET: ${BROOKS_JWT_SECRET}
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      SERVER_PORT: ${SERVER_PORT?SERVER_PORT must be set in .env file}
+      DATABASE_URL: ${DATABASE_URL?DATABASE_URL must be set in .env file}
+      DATABASE_USER: ${DATABASE_USER?DATABASE_USER must be set in .env file}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD?DATABASE_PASSWORD must be set in .env file}
+      JWT_SECRET: ${BROOKS_JWT_SECRET?BROOKS_JWT_SECRET must be set in .env file}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION?JWT_ACCESS_TOKEN_EXPIRATION must be set in .env file}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION?JWT_REFRESH_TOKEN_EXPIRATION must be set in .env file}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN?AUTH0_DOMAIN must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      MEDIA_UPLOAD_BASE_URL: ${MEDIA_UPLOAD_BASE_URL?MEDIA_UPLOAD_BASE_URL must be set in .env file}
     networks:
       - brooks-network
       - web

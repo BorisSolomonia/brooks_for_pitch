@@ -1,5 +1,5 @@
 server:
-  port: ${NOTIFICATIONS_SERVICE_PORT:8087}
+  port: ${NOTIFICATIONS_SERVICE_PORT}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}
@@ -10,4 +10,8 @@ management:
     web:
       exposure:
         include: health,info,metrics
+
+brooks:
+  web:
+    origins: ${BROOKS_WEB_ORIGINS}
 

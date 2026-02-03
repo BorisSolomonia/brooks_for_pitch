@@ -40,7 +40,7 @@ public class PinExpirationCleanupJob {
    * Scheduled cleanup job that runs daily at 2 AM server time.
    * Uses cron expression: "0 0 2 * * ?" (second minute hour day month weekday)
    */
-  @Scheduled(cron = "${brooks.cleanup.cron:0 0 2 * * ?}")
+  @Scheduled(cron = "${brooks.cleanup.cron}")
   @Transactional
   public void cleanupExpiredPins() {
     if (!config.isEnabled()) {

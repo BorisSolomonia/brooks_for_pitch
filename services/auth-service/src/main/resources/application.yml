@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_db}
-    username: ${AUTH_DB_USER:auth_user}
-    password: ${AUTH_DB_PASSWORD:auth_pass}
+    url: ${AUTH_DB_URL}
+    username: ${AUTH_DB_USER}
+    password: ${AUTH_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -11,7 +11,7 @@ spring:
     locations: classpath:db/migration
 
 server:
-  port: ${AUTH_SERVICE_PORT:8081}
+  port: ${AUTH_SERVICE_PORT}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}
@@ -19,10 +19,12 @@ auth0:
 
 brooks:
   jwt:
-    issuer: ${BROOKS_JWT_ISSUER:brooks}
-    secret: ${BROOKS_JWT_SECRET:change-me-change-me-change-me-change}
-    access-ttl-seconds: ${BROOKS_JWT_ACCESS_TTL:900}
-    refresh-ttl-seconds: ${BROOKS_JWT_REFRESH_TTL:2592000}
+    issuer: ${BROOKS_JWT_ISSUER}
+    secret: ${BROOKS_JWT_SECRET}
+    access-ttl-seconds: ${BROOKS_JWT_ACCESS_TTL}
+    refresh-ttl-seconds: ${BROOKS_JWT_REFRESH_TTL}
+  web:
+    origins: ${BROOKS_WEB_ORIGINS}
 
 management:
   endpoints:

@@ -1,15 +1,19 @@
 server:
-  port: ${MEDIA_SERVICE_PORT:8085}
+  port: ${MEDIA_SERVICE_PORT}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}
   audience: ${AUTH0_AUDIENCE}
-  media:
-    upload-base-url: ${MEDIA_UPLOAD_BASE_URL:https://upload.example.com}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
+
+brooks:
+  media:
+    upload-base-url: ${MEDIA_UPLOAD_BASE_URL}
+  web:
+    origins: ${BROOKS_WEB_ORIGINS}
 

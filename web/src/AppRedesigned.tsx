@@ -23,11 +23,19 @@ export default function AppRedesigned() {
     error: authError,
   } = useAuth0();
   const [token, setToken] = useState<AuthTokens | null>(null);
-  const [center, setCenter] = useState<Coordinates>({ lat: 41.9028, lng: 12.4964 }); // Default: Rome
+  const defaultCenterLat = Number(import.meta.env.VITE_DEFAULT_CENTER_LAT);
+  const defaultCenterLng = Number(import.meta.env.VITE_DEFAULT_CENTER_LNG);
+  if (Number.isNaN(defaultCenterLat) || Number.isNaN(defaultCenterLng)) {
+    throw new Error('VITE_DEFAULT_CENTER_LAT and VITE_DEFAULT_CENTER_LNG are required');
+  }
+  const [center, setCenter] = useState<Coordinates>({ lat: defaultCenterLat, lng: defaultCenterLng });
   const [pins, setPins] = useState<MapPin[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const mapProvider = (import.meta.env.VITE_MAP_PROVIDER as 'leaflet' | 'google') || 'leaflet';
+  const mapProvider = import.meta.env.VITE_MAP_PROVIDER as 'leaflet' | 'google' | undefined;
+  if (!mapProvider) {
+    throw new Error('VITE_MAP_PROVIDER is required');
+  }
 
   const { location, theme, setOverride, override } = useCityTheme();
   const currentTheme = (override || theme || 'default') as CityTheme;

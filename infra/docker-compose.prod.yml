@@ -27,9 +27,24 @@ services:
     container_name: brooks-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DATABASE_USER:-brooks}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-brooks}
-      POSTGRES_DB: ${DATABASE_NAME:-brooks}
+      POSTGRES_USER: ${DATABASE_USER?DATABASE_USER must be set in .env file}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD?DATABASE_PASSWORD must be set in .env file}
+      POSTGRES_DB: ${DATABASE_NAME?DATABASE_NAME must be set in .env file}
+      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH_DB_NAME: ${AUTH_DB_NAME?AUTH_DB_NAME must be set in .env file}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
+      SOCIAL_DB_NAME: ${SOCIAL_DB_NAME?SOCIAL_DB_NAME must be set in .env file}
+      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
+      LISTS_DB_NAME: ${LISTS_DB_NAME?LISTS_DB_NAME must be set in .env file}
+      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
+      PINS_DB_NAME: ${PINS_DB_NAME?PINS_DB_NAME must be set in .env file}
+      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
+      MODERATION_DB_NAME: ${MODERATION_DB_NAME?MODERATION_DB_NAME must be set in .env file}
     volumes:
       - brooks-db-data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
@@ -37,20 +52,20 @@ services:
       - brooks-network
 
   auth-service:
-    image: ${BROOKS_AUTH_IMAGE:-brooks-auth-service:latest}
+    image: ${BROOKS_AUTH_IMAGE?BROOKS_AUTH_IMAGE must be set in .env file}
     container_name: brooks-auth-service
     restart: unless-stopped
     environment:
-      AUTH_DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres:5432/auth_db}
-      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_JWT_ISSUER: ${BROOKS_JWT_ISSUER:-brooks}
-      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET}
-      BROOKS_JWT_ACCESS_TTL: ${BROOKS_JWT_ACCESS_TTL:-900}
-      BROOKS_JWT_REFRESH_TTL: ${BROOKS_JWT_REFRESH_TTL:-2592000}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      AUTH_DB_URL: ${AUTH_DB_URL?AUTH_DB_URL must be set in .env file}
+      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_JWT_ISSUER: ${BROOKS_JWT_ISSUER?BROOKS_JWT_ISSUER must be set in .env file}
+      BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET?BROOKS_JWT_SECRET must be set in .env file}
+      BROOKS_JWT_ACCESS_TTL: ${BROOKS_JWT_ACCESS_TTL?BROOKS_JWT_ACCESS_TTL must be set in .env file}
+      BROOKS_JWT_REFRESH_TTL: ${BROOKS_JWT_REFRESH_TTL?BROOKS_JWT_REFRESH_TTL must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
@@ -61,16 +76,16 @@ services:
       - web
 
   social-service:
-    image: ${BROOKS_SOCIAL_IMAGE:-brooks-social-service:latest}
+    image: ${BROOKS_SOCIAL_IMAGE?BROOKS_SOCIAL_IMAGE must be set in .env file}
     container_name: brooks-social-service
     restart: unless-stopped
     environment:
-      SOCIAL_DB_URL: ${SOCIAL_DB_URL:-jdbc:postgresql://postgres:5432/social_db}
-      SOCIAL_DB_USER: ${SOCIAL_DB_USER:-social_user}
-      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      SOCIAL_DB_URL: ${SOCIAL_DB_URL?SOCIAL_DB_URL must be set in .env file}
+      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
+      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
@@ -81,16 +96,16 @@ services:
       - web
 
   lists-service:
-    image: ${BROOKS_LISTS_IMAGE:-brooks-lists-service:latest}
+    image: ${BROOKS_LISTS_IMAGE?BROOKS_LISTS_IMAGE must be set in .env file}
     container_name: brooks-lists-service
     restart: unless-stopped
     environment:
-      LISTS_DB_URL: ${LISTS_DB_URL:-jdbc:postgresql://postgres:5432/lists_db}
-      LISTS_DB_USER: ${LISTS_DB_USER:-lists_user}
-      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      LISTS_DB_URL: ${LISTS_DB_URL?LISTS_DB_URL must be set in .env file}
+      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
+      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS}
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
@@ -101,20 +116,25 @@ services:
       - web
 
   pins-service:
-    image: ${BROOKS_PINS_IMAGE:-brooks-pins-service:latest}
+    image: ${BROOKS_PINS_IMAGE?BROOKS_PINS_IMAGE must be set in .env file}
     container_name: brooks-pins-service
     restart: unless-stopped
     environment:
-      PINS_DB_URL: ${PINS_DB_URL:-jdbc:postgresql://postgres:5432/pins_db}
-      PINS_DB_USER: ${PINS_DB_USER:-pins_user}
-      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD}
-      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL:-http://social-service:8082}
-      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL:-http://lists-service:8083}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
-      INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME:-pins-service}
-      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      PINS_DB_URL: ${PINS_DB_URL?PINS_DB_URL must be set in .env file}
+      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
+      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
+      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL?SOCIAL_SERVICE_URL must be set in .env file}
+      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL?LISTS_SERVICE_URL must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME?INTERNAL_SERVICE_NAME must be set in .env file}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY?INTERNAL_SERVICE_KEY must be set in .env file}
+      BROOKS_BUCKET_SIZE_DEG: ${BROOKS_BUCKET_SIZE_DEG?BROOKS_BUCKET_SIZE_DEG must be set in .env file}
+      BROOKS_CLEANUP_ENABLED: ${BROOKS_CLEANUP_ENABLED?BROOKS_CLEANUP_ENABLED must be set in .env file}
+      BROOKS_CLEANUP_BATCH_SIZE: ${BROOKS_CLEANUP_BATCH_SIZE?BROOKS_CLEANUP_BATCH_SIZE must be set in .env file}
+      BROOKS_CLEANUP_RETENTION_DAYS: ${BROOKS_CLEANUP_RETENTION_DAYS?BROOKS_CLEANUP_RETENTION_DAYS must be set in .env file}
+      BROOKS_CLEANUP_CRON: ${BROOKS_CLEANUP_CRON?BROOKS_CLEANUP_CRON must be set in .env file}
     depends_on:
       - postgres
       - social-service
@@ -124,28 +144,29 @@ services:
       - web
 
   media-service:
-    image: ${BROOKS_MEDIA_IMAGE:-brooks-media-service:latest}
+    image: ${BROOKS_MEDIA_IMAGE?BROOKS_MEDIA_IMAGE must be set in .env file}
     container_name: brooks-media-service
     restart: unless-stopped
     environment:
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
+      MEDIA_UPLOAD_BASE_URL: ${MEDIA_UPLOAD_BASE_URL?MEDIA_UPLOAD_BASE_URL must be set in .env file}
     networks:
       - brooks-network
       - web
 
   moderation-service:
-    image: ${BROOKS_MODERATION_IMAGE:-brooks-moderation-service:latest}
+    image: ${BROOKS_MODERATION_IMAGE?BROOKS_MODERATION_IMAGE must be set in .env file}
     container_name: brooks-moderation-service
     restart: unless-stopped
     environment:
-      MODERATION_DB_URL: ${MODERATION_DB_URL:-jdbc:postgresql://postgres:5432/moderation_db}
-      MODERATION_DB_USER: ${MODERATION_DB_USER:-moderation_user}
-      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD}
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      MODERATION_DB_URL: ${MODERATION_DB_URL?MODERATION_DB_URL must be set in .env file}
+      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
+      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
       - postgres
     networks:
@@ -153,19 +174,19 @@ services:
       - web
 
   notifications-service:
-    image: ${BROOKS_NOTIFICATIONS_IMAGE:-brooks-notifications-service:latest}
+    image: ${BROOKS_NOTIFICATIONS_IMAGE?BROOKS_NOTIFICATIONS_IMAGE must be set in .env file}
     container_name: brooks-notifications-service
     restart: unless-stopped
     environment:
-      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS:-https://brooksweb.uk}
+      AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     networks:
       - brooks-network
       - web
 
   frontend:
-    image: ${BROOKS_FRONTEND_IMAGE:-brooks-frontend:latest}
+    image: ${BROOKS_FRONTEND_IMAGE?BROOKS_FRONTEND_IMAGE must be set in .env file}
     container_name: brooks-frontend
     restart: unless-stopped
     networks:
