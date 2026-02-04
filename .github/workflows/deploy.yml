@@ -571,6 +571,12 @@ jobs:
           echo "🧹 Removing legacy containers that may conflict..."
           docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
 
+          echo "🧹 Reclaiming disk space..."
+          docker system prune -af >/dev/null 2>&1 || true
+          docker volume prune -f >/dev/null 2>&1 || true
+          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
+          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
+
           echo "📦 Pulling latest images..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
 
@@ -653,6 +659,12 @@ jobs:
           echo "❌ Deployment failed, initiating rollback..."
 
           cd /opt/brooks
+
+          echo "🧹 Reclaiming disk space..."
+          docker system prune -af >/dev/null 2>&1 || true
+          docker volume prune -f >/dev/null 2>&1 || true
+          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
+          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
 
           if [ -z "${{ env.REGION }}" ] || [ -z "${{ env.PROJECT_ID }}" ] || [ -z "${{ env.REPOSITORY }}" ]; then
             echo "❌ REGION/PROJECT_ID/REPOSITORY missing. Set GCP_REGION, GCP_PROJECT_ID, GCP_ARTIFACT_REPOSITORY."
