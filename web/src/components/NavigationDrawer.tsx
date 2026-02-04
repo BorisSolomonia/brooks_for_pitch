@@ -6,6 +6,8 @@ interface NavigationDrawerProps {
   onClose: () => void;
   currentTheme: string;
   onThemeChange: (theme: string) => void;
+  currentMapProvider: 'leaflet' | 'google';
+  onMapProviderChange: (provider: 'leaflet' | 'google') => void;
   onSignOut: () => void;
 }
 
@@ -14,6 +16,8 @@ export function NavigationDrawer({
   onClose,
   currentTheme,
   onThemeChange,
+  currentMapProvider,
+  onMapProviderChange,
   onSignOut,
 }: NavigationDrawerProps) {
   useEffect(() => {
@@ -104,6 +108,38 @@ export function NavigationDrawer({
                 )}
               </button>
             ))}
+          </div>
+
+          <div className="drawer-section">
+            <h3 className="drawer-section-title">Map Provider</h3>
+            <button
+              className={`drawer-item theme-item ${
+                currentMapProvider === 'leaflet' ? 'active' : ''
+              }`}
+              onClick={() => onMapProviderChange('leaflet')}
+            >
+              <span className="theme-icon">LF</span>
+              Leaflet
+              {currentMapProvider === 'leaflet' && (
+                <svg className="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </button>
+            <button
+              className={`drawer-item theme-item ${
+                currentMapProvider === 'google' ? 'active' : ''
+              }`}
+              onClick={() => onMapProviderChange('google')}
+            >
+              <span className="theme-icon">GM</span>
+              Google Maps
+              {currentMapProvider === 'google' && (
+                <svg className="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </button>
           </div>
 
           <div className="drawer-section">

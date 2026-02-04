@@ -32,10 +32,11 @@ export default function AppRedesigned() {
   const [pins, setPins] = useState<MapPin[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const mapProvider = import.meta.env.VITE_MAP_PROVIDER as 'leaflet' | 'google' | undefined;
-  if (!mapProvider) {
+  const mapProviderEnv = import.meta.env.VITE_MAP_PROVIDER as 'leaflet' | 'google' | undefined;
+  if (!mapProviderEnv) {
     throw new Error('VITE_MAP_PROVIDER is required');
   }
+  const [mapProvider, setMapProvider] = useState<'leaflet' | 'google'>(mapProviderEnv);
 
   const { location, theme, setOverride, override } = useCityTheme();
   const currentTheme = (override || theme || 'default') as CityTheme;
@@ -176,6 +177,10 @@ export default function AppRedesigned() {
           provider={mapProvider}
           center={center}
           pins={pins}
+          onDoubleClick={(coords) => {
+            setCenter(coords);
+            setIsModalOpen(true);
+          }}
         />
       </main>
 
@@ -186,6 +191,11 @@ export default function AppRedesigned() {
         onClose={() => setIsDrawerOpen(false)}
         currentTheme={currentTheme}
         onThemeChange={handleThemeChange}
+        currentMapProvider={mapProvider}
+        onMapProviderChange={(provider) => {
+          setMapProvider(provider);
+          setTimeout(() => setIsDrawerOpen(false), 300);
+        }}
         onSignOut={handleSignOut}
       />
 

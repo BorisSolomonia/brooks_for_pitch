@@ -21,6 +21,10 @@ export type PinForm = {
   revealType: "VISIBLE_ALWAYS" | "REACH_TO_REVEAL";
   mapPrecision: "EXACT" | "BLURRED";
   expiresInHours: number;
+  timeCapsule?: boolean;
+  mediaType?: "NONE" | "PHOTO" | "VIDEO" | "AUDIO" | "LINK";
+  recipientIds?: string[];
+  externalRecipients?: string[];
 };
 
 export type CityResult = {

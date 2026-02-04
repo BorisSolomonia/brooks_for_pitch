@@ -42,12 +42,17 @@ export async function createPin(
   location: Coordinates
 ): Promise<void> {
   const expiresAt = new Date(Date.now() + form.expiresInHours * 60 * 60 * 1000).toISOString();
+  const acl = form.recipientIds && form.recipientIds.length
+    ? { userIds: form.recipientIds }
+    : undefined;
   const payload = {
     text: form.text,
     audienceType: form.audienceType,
     expiresAt,
     revealType: form.revealType,
     mapPrecision: form.mapPrecision,
+    futureSelf: form.timeCapsule ?? false,
+    acl,
     location: {
       lat: location.lat,
       lng: location.lng,

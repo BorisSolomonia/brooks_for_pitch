@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { Coordinates, MapPin } from "../lib/types";
 import { Loader } from "@googlemaps/js-api-loader";
 import L from "leaflet";
@@ -13,6 +13,7 @@ type MapViewProps = {
   provider: MapProvider;
   center: Coordinates;
   pins: MapPin[];
+  onDoubleClick?: (coords: Coordinates) => void;
 };
 
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
@@ -34,7 +35,15 @@ function Recenter({ center }: { center: Coordinates }) {
   return null;
 }
 
-function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
+function LeafletMap({
+  center,
+  pins,
+  onDoubleClick
+}: {
+  center: Coordinates;
+  pins: MapPin[];
+  onDoubleClick?: (coords: Coordinates) => void;
+}) {
   if (!LEAFLET_TILE_URL || !LEAFLET_ATTRIBUTION) {
     return (
       <div className="map-google-fallback">
@@ -54,6 +63,7 @@ function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
       center={[center.lat, center.lng]}
       zoom={13}
       scrollWheelZoom={false}
+      doubleClickZoom={false}
       className="map-canvas"
     >
       <TileLayer
@@ -61,6 +71,9 @@ function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
         url={leafletTileUrl}
       />
       <Recenter center={center} />
+      {onDoubleClick ? (
+        <MapDoubleClickHandler onDoubleClick={onDoubleClick} />
+      ) : null}
       {pins.map(pin => (
         <Marker key={pin.id} position={[pin.location.lat, pin.location.lng]} />
       ))}
@@ -68,7 +81,28 @@ function LeafletMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
   );
 }
 
-function GoogleMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
+function MapDoubleClickHandler({
+  onDoubleClick
+}: {
+  onDoubleClick: (coords: Coordinates) => void;
+}) {
+  useMapEvents({
+    dblclick: event => {
+      onDoubleClick({ lat: event.latlng.lat, lng: event.latlng.lng });
+    }
+  });
+  return null;
+}
+
+function GoogleMap({
+  center,
+  pins,
+  onDoubleClick
+}: {
+  center: Coordinates;
+  pins: MapPin[];
+  onDoubleClick?: (coords: Coordinates) => void;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -86,10 +120,26 @@ function GoogleMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
         center: { lat: center.lat, lng: center.lng },
         zoom: 13,
         disableDefaultUI: true,
-        clickableIcons: false
+        clickableIcons: false,
+        disableDoubleClickZoom: true
       });
     });
   }, [center.lat, center.lng, loader]);
+
+  useEffect(() => {
+    if (!mapRef.current || !onDoubleClick) {
+      return;
+    }
+    const listener = mapRef.current.addListener("dblclick", event => {
+      if (!event.latLng) {
+        return;
+      }
+      onDoubleClick({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+    });
+    return () => {
+      listener.remove();
+    };
+  }, [onDoubleClick]);
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -118,9 +168,9 @@ function GoogleMap({ center, pins }: { center: Coordinates; pins: MapPin[] }) {
   return <div ref={containerRef} className="map-canvas" />;
 }
 
-export default function MapView({ provider, center, pins }: MapViewProps) {
+export default function MapView({ provider, center, pins, onDoubleClick }: MapViewProps) {
   if (provider === "google") {
-    return <GoogleMap center={center} pins={pins} />;
+    return <GoogleMap center={center} pins={pins} onDoubleClick={onDoubleClick} />;
   }
-  return <LeafletMap center={center} pins={pins} />;
+  return <LeafletMap center={center} pins={pins} onDoubleClick={onDoubleClick} />;
 }

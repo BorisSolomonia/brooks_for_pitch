@@ -199,6 +199,72 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-bottom: 12px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(15, 106, 99, 0.12);
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.form-error {
+  font-size: 12px;
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.08);
+  border: 1px solid rgba(180, 35, 24, 0.2);
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.capsule-group {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.capsule-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.capsule-toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+.capsule-options {
+  display: grid;
+  gap: 12px;
+}
+
+.capsule-recipients {
+  display: grid;
+  gap: 8px;
+}
+
 .form-select:focus {
   outline: none;
   border-color: var(--accent);
