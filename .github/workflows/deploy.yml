@@ -512,7 +512,7 @@ jobs:
         key: ${{ secrets.VM_SSH_KEY }}
         port: 22
         timeout: 300s
-        command_timeout: 600s
+        command_timeout: 900s
         script: |
           set -e
 
@@ -577,8 +577,14 @@ jobs:
           sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
           sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
 
-          echo "📦 Pulling latest images..."
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
+          echo "📦 Pulling latest images (with retries)..."
+          for i in 1 2 3; do
+            if docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
+              break
+            fi
+            echo "⚠️ Pull attempt $i failed; retrying in 10s..."
+            sleep 10
+          done
 
           echo "🔄 Deploying application..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
@@ -652,7 +658,7 @@ jobs:
         key: ${{ secrets.VM_SSH_KEY }}
         port: 22
         timeout: 120s
-        command_timeout: 300s
+        command_timeout: 900s
         script: |
           set -e
 
@@ -687,8 +693,14 @@ jobs:
           echo "🧹 Removing legacy containers that may conflict..."
           docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
 
-          echo "📦 Pulling fallback images..."
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
+          echo "📦 Pulling fallback images (with retries)..."
+          for i in 1 2 3; do
+            if docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
+              break
+            fi
+            echo "⚠️ Pull attempt $i failed; retrying in 10s..."
+            sleep 10
+          done
 
           echo "🔄 Rolling back to previous version..."
           docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
