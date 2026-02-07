@@ -75,8 +75,6 @@ jobs:
       run: |
         set -e
         REQUIRED_VARS=(
-          "POSTGRES_USER"
-          "POSTGRES_PASSWORD"
           "AUTH_DB_URL"
           "SOCIAL_DB_URL"
           "LISTS_DB_URL"
@@ -221,7 +219,7 @@ jobs:
       run: |
         echo "📦 Fetching environment variables from Secret Manager..."
         gcloud secrets versions access latest \
-          --secret="brooks-env" \
+          --secret="${{ env.ENV_SECRET_NAME }}" \
           --project="${{ env.PROJECT_ID }}" > .env.production
 
         echo "✅ Environment variables fetched"
@@ -457,6 +455,7 @@ jobs:
           sudo mkdir -p /opt/brooks
           sudo mkdir -p /opt/brooks/infra/caddy
           sudo mkdir -p /opt/brooks/infra/db/init
+          sudo mkdir -p /opt/brooks/certs
           sudo chown -R $USER:$USER /opt/brooks
 
           echo "✅ VM directories ready"
@@ -471,7 +470,7 @@ jobs:
         timeout: 30s
         command_timeout: 60s
         overwrite: true
-        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
+        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*,prod-ca-2021.crt"
         target: /opt/brooks/
 
     - name: 📦 Create .env file on VM from Secret Manager

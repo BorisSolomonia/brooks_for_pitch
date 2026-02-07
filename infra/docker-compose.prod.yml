@@ -1,32 +1,4 @@
 services:
-  postgres:
-    image: postgis/postgis:16-3.4-alpine
-    container_name: brooks-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER?POSTGRES_USER must be set in .env file}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?POSTGRES_PASSWORD must be set in .env file}
-      AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
-      AUTH_DB_NAME: ${AUTH_DB_NAME?AUTH_DB_NAME must be set in .env file}
-      SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
-      SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
-      SOCIAL_DB_NAME: ${SOCIAL_DB_NAME?SOCIAL_DB_NAME must be set in .env file}
-      LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
-      LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
-      LISTS_DB_NAME: ${LISTS_DB_NAME?LISTS_DB_NAME must be set in .env file}
-      PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
-      PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
-      PINS_DB_NAME: ${PINS_DB_NAME?PINS_DB_NAME must be set in .env file}
-      MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
-      MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
-      MODERATION_DB_NAME: ${MODERATION_DB_NAME?MODERATION_DB_NAME must be set in .env file}
-    volumes:
-      - brooks-db-data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
-    networks:
-      - brooks-network
-
   redis:
     image: redis:7-alpine
     container_name: brooks-redis
@@ -80,11 +52,12 @@ services:
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
-      - postgres
       - redis
     networks:
       - brooks-network
       - web
+    volumes:
+      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   social-service:
     image: ${BROOKS_SOCIAL_IMAGE?BROOKS_SOCIAL_IMAGE must be set in .env file}
@@ -101,11 +74,12 @@ services:
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
-      - postgres
       - redis
     networks:
       - brooks-network
       - web
+    volumes:
+      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   lists-service:
     image: ${BROOKS_LISTS_IMAGE?BROOKS_LISTS_IMAGE must be set in .env file}
@@ -122,11 +96,12 @@ services:
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES}
       INTERNAL_SERVICE_KEY_MAP: ${INTERNAL_SERVICE_KEY_MAP}
     depends_on:
-      - postgres
       - redis
     networks:
       - brooks-network
       - web
+    volumes:
+      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   pins-service:
     image: ${BROOKS_PINS_IMAGE?BROOKS_PINS_IMAGE must be set in .env file}
@@ -153,13 +128,14 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD?REDIS_PASSWORD must be set in .env file}
       REDIS_CACHE_TTL_SECONDS: ${REDIS_CACHE_TTL_SECONDS?REDIS_CACHE_TTL_SECONDS must be set in .env file}
     depends_on:
-      - postgres
       - social-service
       - lists-service
       - redis
     networks:
       - brooks-network
       - web
+    volumes:
+      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   media-service:
     image: ${BROOKS_MEDIA_IMAGE?BROOKS_MEDIA_IMAGE must be set in .env file}
@@ -186,11 +162,12 @@ services:
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
-      - postgres
       - redis
     networks:
       - brooks-network
       - web
+    volumes:
+      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   notifications-service:
     image: ${BROOKS_NOTIFICATIONS_IMAGE?BROOKS_NOTIFICATIONS_IMAGE must be set in .env file}
@@ -220,8 +197,6 @@ networks:
     driver: bridge
 
 volumes:
-  brooks-db-data:
-    driver: local
   brooks-redis-data:
     driver: local
   caddy-data:
