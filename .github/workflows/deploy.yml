@@ -663,6 +663,15 @@ jobs:
 
           echo "❌ Deployment failed, initiating rollback..."
 
+          PROJECT_ID="${{ env.PROJECT_ID }}"
+          ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
+          if [ ! -f /opt/brooks/.env ]; then
+            echo "???? .env missing, fetching from Secret Manager..."
+            gcloud secrets versions access latest \
+              --secret="$ENV_SECRET_NAME" \
+              --project="$PROJECT_ID" > /opt/brooks/.env
+          fi
+
           cd /opt/brooks
 
           echo "🧹 Reclaiming disk space..."
