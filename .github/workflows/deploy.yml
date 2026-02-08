@@ -440,6 +440,89 @@ jobs:
         echo "✅ Frontend images pushed"
         echo "FRONTEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
 
+    - name: 🔧 Install VM Prerequisites (Docker, gcloud, etc.)
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 600s
+        command_timeout: 600s
+        script: |
+          set -e
+          echo "🔍 Checking VM prerequisites..."
+
+          # Check if Docker is installed
+          if ! command -v docker &> /dev/null; then
+            echo "🐳 Docker not found. Installing Docker..."
+
+            # Update and install prerequisites
+            sudo apt-get update
+            sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+            # Add Docker's official GPG key
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+            # Set up Docker repository
+            echo \
+              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+              $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+            # Install Docker Engine
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+            # Add user to docker group
+            sudo usermod -aG docker $USER
+
+            # Start and enable Docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            echo "✅ Docker installed successfully"
+          else
+            echo "✅ Docker already installed: $(docker --version)"
+          fi
+
+          # Check if gcloud is installed
+          if ! command -v gcloud &> /dev/null; then
+            echo "☁️ gcloud CLI not found. Installing..."
+
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+              sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+              sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+
+            sudo apt-get update
+            sudo apt-get install -y google-cloud-cli
+
+            echo "✅ gcloud CLI installed successfully"
+          else
+            echo "✅ gcloud CLI already installed: $(gcloud --version | head -1)"
+          fi
+
+          # Create Docker network if it doesn't exist
+          if ! sudo docker network inspect web &> /dev/null; then
+            echo "🌐 Creating Docker network 'web'..."
+            sudo docker network create web
+            echo "✅ Docker network 'web' created"
+          else
+            echo "✅ Docker network 'web' already exists"
+          fi
+
+          # Verify Docker can run without sudo (if user was just added to group)
+          if ! docker ps &> /dev/null; then
+            echo "⚠️ User needs to be in docker group. Using sudo for this deployment."
+            echo "Note: Future deployments will work without sudo after user re-login"
+          else
+            echo "✅ Docker group permissions working"
+          fi
+
+          echo "✅ All prerequisites checked and installed"
+
     - name: 🏗️ Setup VM Directories
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -527,6 +610,15 @@ jobs:
           FRONTEND_IMAGE="${{ env.FRONTEND_IMAGE }}"
           COMMIT_SHA="${{ github.sha }}"
 
+          # Determine if we need sudo for docker commands
+          if docker ps &> /dev/null; then
+            DOCKER="docker"
+            echo "✅ Docker permissions working without sudo"
+          else
+            DOCKER="sudo docker"
+            echo "⚠️ Using sudo for docker commands (user in docker group but session not refreshed)"
+          fi
+
           echo "🚀 Deploying Brooks App..."
           echo "📍 Auth: $AUTH_IMAGE:$COMMIT_SHA"
           echo "📍 Social: $SOCIAL_IMAGE:$COMMIT_SHA"
@@ -549,9 +641,9 @@ jobs:
           gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
           echo "🌐 Ensuring Docker network exists..."
-          docker network inspect web >/dev/null 2>&1 || {
+          $DOCKER network inspect web >/dev/null 2>&1 || {
             echo "🆕 Creating web network..."
-            docker network create web
+            $DOCKER network create web
           }
 
           echo "📝 Preparing runtime env file..."
@@ -568,17 +660,17 @@ jobs:
             >> /opt/brooks/.env.runtime
 
           echo "🧹 Removing legacy containers that may conflict..."
-          docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
+          $DOCKER rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
 
           echo "🧹 Reclaiming disk space..."
-          docker system prune -af >/dev/null 2>&1 || true
-          docker volume prune -f >/dev/null 2>&1 || true
+          $DOCKER system prune -af >/dev/null 2>&1 || true
+          $DOCKER volume prune -f >/dev/null 2>&1 || true
           sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
           sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
 
           echo "📦 Pulling latest images (with retries)..."
           for i in 1 2 3; do
-            if docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
+            if $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
               break
             fi
             echo "⚠️ Pull attempt $i failed; retrying in 10s..."
@@ -586,20 +678,20 @@ jobs:
           done
 
           echo "🔄 Deploying application..."
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
+          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
 
           echo "⏳ Waiting for services to be healthy..."
           sleep 45
 
           echo "📊 Container status:"
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
+          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "🔧 Reloading Caddy configuration..."
-          if docker ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
-            docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile || {
+          if $DOCKER ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
+            $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile || {
               echo "❌ Caddy reload failed, retrying..."
               sleep 5
-              docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
+              $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
             }
           else
             echo "ℹ️ Caddy container not found; skipping reload"
@@ -618,6 +710,13 @@ jobs:
         command_timeout: 300s
         script: |
           set -e
+
+          # Determine docker command
+          if docker ps &> /dev/null; then
+            DOCKER="docker"
+          else
+            DOCKER="sudo docker"
+          fi
 
           echo "🔍 Running health checks..."
 
@@ -642,9 +741,9 @@ jobs:
 
           echo "📋 Application logs:"
           echo "=== Pins logs ==="
-          docker logs brooks-pins-service --tail 20
+          $DOCKER logs brooks-pins-service --tail 20
           echo "=== Frontend logs ==="
-          docker logs brooks-frontend --tail 20
+          $DOCKER logs brooks-frontend --tail 20
 
           echo "🎯 Deployment verification complete!"
 
@@ -663,6 +762,13 @@ jobs:
 
           echo "❌ Deployment failed, initiating rollback..."
 
+          # Determine docker command
+          if docker ps &> /dev/null; then
+            DOCKER="docker"
+          else
+            DOCKER="sudo docker"
+          fi
+
           PROJECT_ID="${{ env.PROJECT_ID }}"
           ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
           if [ ! -f /opt/brooks/.env ]; then
@@ -675,8 +781,8 @@ jobs:
           cd /opt/brooks
 
           echo "🧹 Reclaiming disk space..."
-          docker system prune -af >/dev/null 2>&1 || true
-          docker volume prune -f >/dev/null 2>&1 || true
+          $DOCKER system prune -af >/dev/null 2>&1 || true
+          $DOCKER volume prune -f >/dev/null 2>&1 || true
           sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
           sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
 
@@ -699,11 +805,11 @@ jobs:
             >> /opt/brooks/.env.runtime
 
           echo "🧹 Removing legacy containers that may conflict..."
-          docker rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
+          $DOCKER rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
 
           echo "📦 Pulling fallback images (with retries)..."
           for i in 1 2 3; do
-            if docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
+            if $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
               break
             fi
             echo "⚠️ Pull attempt $i failed; retrying in 10s..."
@@ -711,16 +817,16 @@ jobs:
           done
 
           echo "🔄 Rolling back to previous version..."
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
+          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
 
           echo "🔧 Reloading Caddy..."
-          if docker ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
-            docker exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
+          if $DOCKER ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
+            $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
           else
             echo "ℹ️ Caddy container not found; skipping reload"
           fi
 
           echo "📊 Rollback status:"
-          docker compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
+          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
 
           echo "⚠️ Rollback completed - check logs for issues"
