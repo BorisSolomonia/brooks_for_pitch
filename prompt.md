@@ -8,7 +8,7 @@ Your output must include:
 - API contracts
 - proximity notification algorithm
 - security & privacy model
-- deployment & DevOps
+- deployment & DevOps.
 - observability & testing
 - MVP → V1 roadmap
 
