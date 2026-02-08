@@ -210,7 +210,7 @@ networks:
   brooks-network:
     driver: bridge
   web:
-    external: true
+    driver: bridge
 
 volumes:
   brooks-redis-data:
