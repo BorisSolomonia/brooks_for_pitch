@@ -40,6 +40,7 @@ services:
     expose:
       - "8081"
     environment:
+      SERVER_PORT: "8081"
       AUTH_DB_URL: ${AUTH_DB_URL?AUTH_DB_URL must be set in .env file}
       AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
@@ -68,6 +69,7 @@ services:
     expose:
       - "8082"
     environment:
+      SERVER_PORT: "8082"
       SOCIAL_DB_URL: ${SOCIAL_DB_URL?SOCIAL_DB_URL must be set in .env file}
       SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
       SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
@@ -92,6 +94,7 @@ services:
     expose:
       - "8083"
     environment:
+      SERVER_PORT: "8083"
       LISTS_DB_URL: ${LISTS_DB_URL?LISTS_DB_URL must be set in .env file}
       LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
       LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
@@ -116,6 +119,7 @@ services:
     expose:
       - "8084"
     environment:
+      SERVER_PORT: "8084"
       PINS_DB_URL: ${PINS_DB_URL?PINS_DB_URL must be set in .env file}
       PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
       PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
@@ -152,6 +156,7 @@ services:
     expose:
       - "8085"
     environment:
+      SERVER_PORT: "8085"
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
@@ -167,6 +172,7 @@ services:
     expose:
       - "8086"
     environment:
+      SERVER_PORT: "8086"
       MODERATION_DB_URL: ${MODERATION_DB_URL?MODERATION_DB_URL must be set in .env file}
       MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
       MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
@@ -188,6 +194,7 @@ services:
     expose:
       - "8087"
     environment:
+      SERVER_PORT: "8087"
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
