@@ -130,7 +130,7 @@ function GoogleMap({
     if (!mapRef.current || !onDoubleClick) {
       return;
     }
-    const listener = mapRef.current.addListener("dblclick", event => {
+    const listener = mapRef.current.addListener("dblclick", (event: google.maps.MapMouseEvent) => {
       if (!event.latLng) {
         return;
       }
