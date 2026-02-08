@@ -6,7 +6,18 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gcloud compute instances describe:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(gcloud compute instances list:*)",
+      "Bash(gcloud projects get-iam-policy:*)",
+      "Bash(gcloud compute instances stop:*)",
+      "Bash(gcloud compute instances set-service-account:*)",
+      "Bash(gcloud compute instances start:*)",
+      "Bash(gcloud compute addresses create:*)",
+      "Bash(gcloud compute addresses describe:*)",
+      "Bash(gcloud compute instances delete-access-config:*)",
+      "Bash(gcloud compute instances add-access-config:*)",
+      "Bash(ssh:*)",
+      "Bash(ssh-keygen:*)"
     ]
   }
 }
