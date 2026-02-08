@@ -9,7 +9,7 @@ Your output must include:
 - proximity notification algorithm
 - security & privacy model
 - deployment & DevOps.
-- observability & testing.
+- observability & testing
 - MVP → V1 roadmap
 
 Think deeply. Optimize for correctness, privacy, scalability, and long-term maintainability.
