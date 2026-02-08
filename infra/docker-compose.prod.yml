@@ -37,6 +37,8 @@ services:
     image: ${BROOKS_AUTH_IMAGE?BROOKS_AUTH_IMAGE must be set in .env file}
     container_name: brooks-auth-service
     restart: unless-stopped
+    expose:
+      - "8081"
     environment:
       AUTH_DB_URL: ${AUTH_DB_URL?AUTH_DB_URL must be set in .env file}
       AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
@@ -63,6 +65,8 @@ services:
     image: ${BROOKS_SOCIAL_IMAGE?BROOKS_SOCIAL_IMAGE must be set in .env file}
     container_name: brooks-social-service
     restart: unless-stopped
+    expose:
+      - "8082"
     environment:
       SOCIAL_DB_URL: ${SOCIAL_DB_URL?SOCIAL_DB_URL must be set in .env file}
       SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
@@ -85,6 +89,8 @@ services:
     image: ${BROOKS_LISTS_IMAGE?BROOKS_LISTS_IMAGE must be set in .env file}
     container_name: brooks-lists-service
     restart: unless-stopped
+    expose:
+      - "8083"
     environment:
       LISTS_DB_URL: ${LISTS_DB_URL?LISTS_DB_URL must be set in .env file}
       LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
@@ -107,6 +113,8 @@ services:
     image: ${BROOKS_PINS_IMAGE?BROOKS_PINS_IMAGE must be set in .env file}
     container_name: brooks-pins-service
     restart: unless-stopped
+    expose:
+      - "8084"
     environment:
       PINS_DB_URL: ${PINS_DB_URL?PINS_DB_URL must be set in .env file}
       PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
@@ -141,6 +149,8 @@ services:
     image: ${BROOKS_MEDIA_IMAGE?BROOKS_MEDIA_IMAGE must be set in .env file}
     container_name: brooks-media-service
     restart: unless-stopped
+    expose:
+      - "8085"
     environment:
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
@@ -154,6 +164,8 @@ services:
     image: ${BROOKS_MODERATION_IMAGE?BROOKS_MODERATION_IMAGE must be set in .env file}
     container_name: brooks-moderation-service
     restart: unless-stopped
+    expose:
+      - "8086"
     environment:
       MODERATION_DB_URL: ${MODERATION_DB_URL?MODERATION_DB_URL must be set in .env file}
       MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
@@ -173,6 +185,8 @@ services:
     image: ${BROOKS_NOTIFICATIONS_IMAGE?BROOKS_NOTIFICATIONS_IMAGE must be set in .env file}
     container_name: brooks-notifications-service
     restart: unless-stopped
+    expose:
+      - "8087"
     environment:
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
@@ -187,6 +201,8 @@ services:
     image: ${BROOKS_FRONTEND_IMAGE?BROOKS_FRONTEND_IMAGE must be set in .env file}
     container_name: brooks-frontend
     restart: unless-stopped
+    expose:
+      - "3000"
     networks:
       - web
 
@@ -194,7 +210,7 @@ networks:
   brooks-network:
     driver: bridge
   web:
-    driver: bridge
+    external: true
 
 volumes:
   brooks-redis-data:
