@@ -159,6 +159,21 @@ jobs:
     needs: validate-env
 
     steps:
+    - name: 🤝 Fail-Fast SSH Handshake Check
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 15s
+        command_timeout: 10s
+        script: |
+          echo "✅ SSH handshake successful"
+          echo "Host: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Date: $(date -u)"
+
     - name: 📥 Checkout Code
       uses: actions/checkout@v4
 
@@ -619,7 +634,7 @@ jobs:
             echo "⚠️ Using sudo for docker commands (user in docker group but session not refreshed)"
           fi
 
-          echo "🚀 Deploying Brooks App..."
+          echo "🚀 Deploying Brooks App (CLEAN DEPLOYMENT)..."
           echo "📍 Auth: $AUTH_IMAGE:$COMMIT_SHA"
           echo "📍 Social: $SOCIAL_IMAGE:$COMMIT_SHA"
           echo "📍 Lists: $LISTS_IMAGE:$COMMIT_SHA"
@@ -640,11 +655,45 @@ jobs:
           echo "🔐 Authenticating to Artifact Registry..."
           gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
-          echo "🌐 Ensuring Docker network exists..."
-          $DOCKER network inspect web >/dev/null 2>&1 || {
-            echo "🆕 Creating web network..."
-            $DOCKER network create web
-          }
+          # ============================================
+          # FULL CLEAN DEPLOYMENT - Remove ALL old parts
+          # ============================================
+
+          echo "🧹 STEP 1: Stopping ALL running containers..."
+          $DOCKER compose -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+          # Also stop any standalone containers that might exist outside compose
+          $DOCKER stop $($DOCKER ps -aq) 2>/dev/null || true
+          $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
+
+          echo "🧹 STEP 2: Removing ALL Docker images (clean slate)..."
+          $DOCKER rmi -f $($DOCKER images -aq) 2>/dev/null || true
+
+          echo "🧹 STEP 3: Removing ALL Docker volumes (except named persistent data)..."
+          $DOCKER volume rm $($DOCKER volume ls -q) 2>/dev/null || true
+
+          echo "🧹 STEP 4: Removing ALL Docker networks (except default)..."
+          $DOCKER network prune -f 2>/dev/null || true
+
+          echo "🧹 STEP 5: Full Docker system prune (build cache, dangling objects)..."
+          $DOCKER system prune -af --volumes 2>/dev/null || true
+
+          echo "🧹 STEP 6: Cleaning up old logs and disk space..."
+          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
+          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
+
+          echo "✅ Clean slate achieved. All old Docker artifacts removed."
+          echo "📊 Docker status after cleanup:"
+          echo "  Images: $($DOCKER images -q | wc -l)"
+          echo "  Containers: $($DOCKER ps -aq | wc -l)"
+          echo "  Volumes: $($DOCKER volume ls -q | wc -l)"
+
+          # ============================================
+          # FRESH DEPLOYMENT
+          # ============================================
+
+          echo "🌐 Creating Docker networks..."
+          $DOCKER network create web 2>/dev/null || true
+          $DOCKER network create brooks-network 2>/dev/null || true
 
           echo "📝 Preparing runtime env file..."
           cp /opt/brooks/.env /opt/brooks/.env.runtime
@@ -659,29 +708,21 @@ jobs:
             "BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}" \
             >> /opt/brooks/.env.runtime
 
-          echo "🧹 Removing legacy containers that may conflict..."
-          $DOCKER rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
-
-          echo "🧹 Reclaiming disk space..."
-          $DOCKER system prune -af >/dev/null 2>&1 || true
-          $DOCKER volume prune -f >/dev/null 2>&1 || true
-          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
-          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
-
-          echo "📦 Pulling latest images (with retries)..."
+          echo "📦 Pulling fresh images (with retries)..."
           for i in 1 2 3; do
             if $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
+              echo "✅ All images pulled successfully on attempt $i"
               break
             fi
             echo "⚠️ Pull attempt $i failed; retrying in 10s..."
             sleep 10
           done
 
-          echo "🔄 Deploying application..."
-          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
+          echo "🔄 Starting fresh deployment..."
+          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d
 
-          echo "⏳ Waiting for services to be healthy..."
-          sleep 45
+          echo "⏳ Waiting for services to start (60s)..."
+          sleep 60
 
           echo "📊 Container status:"
           $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
@@ -697,7 +738,7 @@ jobs:
             echo "ℹ️ Caddy container not found; skipping reload"
           fi
 
-          echo "✅ Deployment completed successfully!"
+          echo "✅ Clean deployment completed successfully!"
 
     - name: 🔍 Health Check
       uses: appleboy/ssh-action@v1.0.3
