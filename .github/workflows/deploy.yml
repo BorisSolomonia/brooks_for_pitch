@@ -86,6 +86,22 @@ jobs:
           --secret="${{ env.ENV_SECRET_NAME }}" \
           --project="${{ env.PROJECT_ID }}" > .env.production
 
+    - name: Normalize DB SSL Parameters (CI)
+      run: |
+        set -euo pipefail
+        sed -E -i '/^[A-Z_]+_DB_URL=/{
+          s#sslmode=verify-full#sslmode=require#g;
+          s#([?&])sslrootcert=[^&]*##g;
+          s#\?&+#?#g;
+          s#&&+#\&#g;
+          s#[?&]$##g;
+        }' .env.production
+        if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' .env.production >/dev/null; then
+          echo "ERROR: sslrootcert still present in *_DB_URL after normalization"
+          exit 1
+        fi
+        echo "DB URLs normalized for runtime compatibility"
+
     - name: 🧪 Validate Required Variables
       run: |
         set -e
@@ -288,6 +304,19 @@ jobs:
             exit 1
           }
 
+          echo "Normalizing DB SSL parameters on VM..."
+          sed -E -i '/^[A-Z_]+_DB_URL=/{
+            s#sslmode=verify-full#sslmode=require#g;
+            s#([?&])sslrootcert=[^&]*##g;
+            s#\?&+#?#g;
+            s#&&+#\&#g;
+            s#[?&]$##g;
+          }' /opt/brooks/.env
+          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env >/dev/null; then
+            echo "ERROR: sslrootcert still present in *_DB_URL on VM after normalization"
+            exit 1
+          fi
+
           rm -f /tmp/raw_env
 
           echo "✅ .env file created successfully"
@@ -361,6 +390,22 @@ jobs:
         gcloud secrets versions access latest \
           --secret="${{ env.ENV_SECRET_NAME }}" \
           --project="${{ env.PROJECT_ID }}" > .env.production
+
+    - name: Normalize DB SSL Parameters (Build/Deploy Job)
+      run: |
+        set -euo pipefail
+        sed -E -i '/^[A-Z_]+_DB_URL=/{
+          s#sslmode=verify-full#sslmode=require#g;
+          s#([?&])sslrootcert=[^&]*##g;
+          s#\?&+#?#g;
+          s#&&+#\&#g;
+          s#[?&]$##g;
+        }' .env.production
+        if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' .env.production >/dev/null; then
+          echo "ERROR: sslrootcert still present in *_DB_URL after normalization"
+          exit 1
+        fi
+        echo "DB URLs normalized for image build/deploy flow"
 
         echo "✅ Environment variables fetched"
         echo "📊 Variables count: $(wc -l < .env.production)"
@@ -590,7 +635,7 @@ jobs:
         timeout: 30s
         command_timeout: 60s
         overwrite: true
-        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*,prod-ca-2021.crt"
+        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
         target: /opt/brooks/
 
     - name: 🚀 Deploy Application
@@ -689,6 +734,17 @@ jobs:
 
           echo "📝 Preparing runtime env file..."
           cp /opt/brooks/.env /opt/brooks/.env.runtime
+          sed -E -i '/^[A-Z_]+_DB_URL=/{
+            s#sslmode=verify-full#sslmode=require#g;
+            s#([?&])sslrootcert=[^&]*##g;
+            s#\?&+#?#g;
+            s#&&+#\&#g;
+            s#[?&]$##g;
+          }' /opt/brooks/.env.runtime
+          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env.runtime >/dev/null; then
+            echo "ERROR: sslrootcert still present in runtime env; aborting deploy"
+            exit 1
+          fi
           printf "%s\n" \
             "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}" \
             "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}" \
@@ -826,6 +882,17 @@ jobs:
 
           echo "📝 Preparing rollback env file..."
           cp /opt/brooks/.env /opt/brooks/.env.runtime
+          sed -E -i '/^[A-Z_]+_DB_URL=/{
+            s#sslmode=verify-full#sslmode=require#g;
+            s#([?&])sslrootcert=[^&]*##g;
+            s#\?&+#?#g;
+            s#&&+#\&#g;
+            s#[?&]$##g;
+          }' /opt/brooks/.env.runtime
+          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env.runtime >/dev/null; then
+            echo "ERROR: sslrootcert still present in rollback runtime env; aborting rollback"
+            exit 1
+          fi
           printf "%s\n" \
             "BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:latest" \
             "BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:latest" \
