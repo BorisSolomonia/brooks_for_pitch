@@ -17,7 +17,9 @@
       "Bash(gcloud compute instances delete-access-config:*)",
       "Bash(gcloud compute instances add-access-config:*)",
       "Bash(ssh:*)",
-      "Bash(ssh-keygen:*)"
+      "Bash(ssh-keygen:*)",
+      "Bash(gcloud compute ssh:*)",
+      "Bash(gcloud compute instances add-metadata:*)"
     ]
   }
 }
