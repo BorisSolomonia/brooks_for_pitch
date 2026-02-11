@@ -59,8 +59,6 @@ services:
     networks:
       - brooks-network
       - web
-    volumes:
-      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   social-service:
     image: ${BROOKS_SOCIAL_IMAGE?BROOKS_SOCIAL_IMAGE must be set in .env file}
@@ -84,8 +82,6 @@ services:
     networks:
       - brooks-network
       - web
-    volumes:
-      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   lists-service:
     image: ${BROOKS_LISTS_IMAGE?BROOKS_LISTS_IMAGE must be set in .env file}
@@ -109,8 +105,6 @@ services:
     networks:
       - brooks-network
       - web
-    volumes:
-      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   pins-service:
     image: ${BROOKS_PINS_IMAGE?BROOKS_PINS_IMAGE must be set in .env file}
@@ -146,8 +140,6 @@ services:
     networks:
       - brooks-network
       - web
-    volumes:
-      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   media-service:
     image: ${BROOKS_MEDIA_IMAGE?BROOKS_MEDIA_IMAGE must be set in .env file}
@@ -184,8 +176,6 @@ services:
     networks:
       - brooks-network
       - web
-    volumes:
-      - /opt/brooks/certs/prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   notifications-service:
     image: ${BROOKS_NOTIFICATIONS_IMAGE?BROOKS_NOTIFICATIONS_IMAGE must be set in .env file}

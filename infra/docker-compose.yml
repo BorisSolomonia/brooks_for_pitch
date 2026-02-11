@@ -33,8 +33,6 @@ services:
       - redis
     ports:
       - "8081:8081"
-    volumes:
-      - ../prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   social-service:
     build:
@@ -56,8 +54,6 @@ services:
       - redis
     ports:
       - "8082:8082"
-    volumes:
-      - ../prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   lists-service:
     build:
@@ -79,8 +75,6 @@ services:
       - redis
     ports:
       - "8083:8083"
-    volumes:
-      - ../prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   pins-service:
     build:
@@ -114,8 +108,6 @@ services:
       - redis
     ports:
       - "8084:8084"
-    volumes:
-      - ../prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   media-service:
     build:
@@ -148,8 +140,6 @@ services:
       - redis
     ports:
       - "8086:8086"
-    volumes:
-      - ../prod-ca-2021.crt:/etc/ssl/certs/supabase-ca.crt:ro
 
   notifications-service:
     build:

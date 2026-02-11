@@ -18,13 +18,28 @@ env:
   ENV_SECRET_NAME: ${{ secrets.GCP_ENV_SECRET_NAME }}
 
 jobs:
-  validate-env:
-    name: ✅ Validate Environment
+  validate-and-prepare:
+    name: 🔍 Validate & Prepare VM
     runs-on: ubuntu-latest
 
     steps:
     - name: 📥 Checkout Code
       uses: actions/checkout@v4
+
+    - name: 🤝 Fail-Fast SSH Handshake Check
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 15s
+        command_timeout: 10s
+        script: |
+          echo "✅ SSH handshake successful"
+          echo "Host: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Date: $(date -u)"
 
     - name: 🔐 Auth to Google Cloud
       uses: google-github-actions/auth@v2
@@ -153,27 +168,137 @@ jobs:
 
         echo "✅ Environment validation passed."
 
-  deploy:
-    name: 🏗️ Build & Deploy
-    runs-on: ubuntu-latest
-    needs: validate-env
-
-    steps:
-    - name: 🤝 Fail-Fast SSH Handshake Check
+    - name: 🔧 Install VM Prerequisites (Docker, gcloud, etc.)
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.VM_HOST }}
         username: ${{ secrets.VM_SSH_USER }}
         key: ${{ secrets.VM_SSH_KEY }}
         port: 22
-        timeout: 15s
-        command_timeout: 10s
+        timeout: 600s
+        command_timeout: 600s
         script: |
-          echo "✅ SSH handshake successful"
-          echo "Host: $(hostname)"
-          echo "User: $(whoami)"
-          echo "Date: $(date -u)"
+          set -e
+          echo "🔍 Checking VM prerequisites..."
 
+          # Check if Docker is installed
+          if ! command -v docker &> /dev/null; then
+            echo "🐳 Docker not found. Installing Docker..."
+
+            # Update and install prerequisites
+            sudo apt-get update
+            sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+            # Add Docker's official GPG key
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+            # Set up Docker repository
+            echo \
+              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+              $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+            # Install Docker Engine
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+            # Add user to docker group
+            sudo usermod -aG docker $USER
+
+            # Start and enable Docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            echo "✅ Docker installed successfully"
+          else
+            echo "✅ Docker already installed: $(docker --version)"
+          fi
+
+          # Check if gcloud is installed
+          if ! command -v gcloud &> /dev/null; then
+            echo "☁️ gcloud CLI not found. Installing..."
+
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+              sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+              sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+
+            sudo apt-get update
+            sudo apt-get install -y google-cloud-cli
+
+            echo "✅ gcloud CLI installed successfully"
+          else
+            echo "✅ gcloud CLI already installed: $(gcloud --version | head -1)"
+          fi
+
+          # Create Docker network if it doesn't exist
+          if ! sudo docker network inspect web &> /dev/null; then
+            echo "🌐 Creating Docker network 'web'..."
+            sudo docker network create web
+            echo "✅ Docker network 'web' created"
+          else
+            echo "✅ Docker network 'web' already exists"
+          fi
+
+          echo "✅ All prerequisites checked and installed"
+
+    - name: 🏗️ Setup VM Directories
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 30s
+        command_timeout: 60s
+        script: |
+          echo "🏗️ Setting up directories for Brooks..."
+
+          sudo mkdir -p /opt/brooks
+          sudo mkdir -p /opt/brooks/infra/caddy
+          sudo mkdir -p /opt/brooks/infra/db/init
+          sudo mkdir -p /opt/brooks/certs
+          sudo chown -R $USER:$USER /opt/brooks
+
+          echo "✅ VM directories ready"
+
+    - name: 📦 Create .env file on VM from Secret Manager
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_SSH_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: 22
+        timeout: 120s
+        command_timeout: 300s
+        script: |
+          set -e
+          PROJECT_ID="${{ env.PROJECT_ID }}"
+
+          echo "📦 Creating .env file from Secret Manager..."
+
+          gcloud secrets versions access latest \
+            --secret="${{ env.ENV_SECRET_NAME }}" \
+            --project="$PROJECT_ID" > /tmp/raw_env
+
+          echo "🔧 Cleaning .env file format..."
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/raw_env > /opt/brooks/.env || {
+            echo "❌ No valid environment variables found!"
+            exit 1
+          }
+
+          rm -f /tmp/raw_env
+
+          echo "✅ .env file created successfully"
+          echo "📊 Environment variables count: $(wc -l < /opt/brooks/.env)"
+
+  deploy:
+    name: 🏗️ Build & Deploy
+    runs-on: ubuntu-latest
+    needs: validate-and-prepare
+
+    steps:
     - name: 📥 Checkout Code
       uses: actions/checkout@v4
 
@@ -455,109 +580,6 @@ jobs:
         echo "✅ Frontend images pushed"
         echo "FRONTEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
 
-    - name: 🔧 Install VM Prerequisites (Docker, gcloud, etc.)
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 600s
-        command_timeout: 600s
-        script: |
-          set -e
-          echo "🔍 Checking VM prerequisites..."
-
-          # Check if Docker is installed
-          if ! command -v docker &> /dev/null; then
-            echo "🐳 Docker not found. Installing Docker..."
-
-            # Update and install prerequisites
-            sudo apt-get update
-            sudo apt-get install -y ca-certificates curl gnupg lsb-release
-
-            # Add Docker's official GPG key
-            sudo mkdir -p /etc/apt/keyrings
-            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-            # Set up Docker repository
-            echo \
-              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-              $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-            # Install Docker Engine
-            sudo apt-get update
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-            # Add user to docker group
-            sudo usermod -aG docker $USER
-
-            # Start and enable Docker
-            sudo systemctl start docker
-            sudo systemctl enable docker
-
-            echo "✅ Docker installed successfully"
-          else
-            echo "✅ Docker already installed: $(docker --version)"
-          fi
-
-          # Check if gcloud is installed
-          if ! command -v gcloud &> /dev/null; then
-            echo "☁️ gcloud CLI not found. Installing..."
-
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
-              sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-              sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-
-            sudo apt-get update
-            sudo apt-get install -y google-cloud-cli
-
-            echo "✅ gcloud CLI installed successfully"
-          else
-            echo "✅ gcloud CLI already installed: $(gcloud --version | head -1)"
-          fi
-
-          # Create Docker network if it doesn't exist
-          if ! sudo docker network inspect web &> /dev/null; then
-            echo "🌐 Creating Docker network 'web'..."
-            sudo docker network create web
-            echo "✅ Docker network 'web' created"
-          else
-            echo "✅ Docker network 'web' already exists"
-          fi
-
-          # Verify Docker can run without sudo (if user was just added to group)
-          if ! docker ps &> /dev/null; then
-            echo "⚠️ User needs to be in docker group. Using sudo for this deployment."
-            echo "Note: Future deployments will work without sudo after user re-login"
-          else
-            echo "✅ Docker group permissions working"
-          fi
-
-          echo "✅ All prerequisites checked and installed"
-
-    - name: 🏗️ Setup VM Directories
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 30s
-        command_timeout: 60s
-        script: |
-          echo "🏗️ Setting up directories for Brooks..."
-
-          sudo mkdir -p /opt/brooks
-          sudo mkdir -p /opt/brooks/infra/caddy
-          sudo mkdir -p /opt/brooks/infra/db/init
-          sudo mkdir -p /opt/brooks/certs
-          sudo chown -R $USER:$USER /opt/brooks
-
-          echo "✅ VM directories ready"
-
     - name: 📤 Upload Files to VM
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -570,36 +592,6 @@ jobs:
         overwrite: true
         source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*,prod-ca-2021.crt"
         target: /opt/brooks/
-
-    - name: 📦 Create .env file on VM from Secret Manager
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 120s
-        command_timeout: 300s
-        script: |
-          set -e
-          PROJECT_ID="${{ env.PROJECT_ID }}"
-
-          echo "📦 Creating .env file from Secret Manager..."
-
-          gcloud secrets versions access latest \
-            --secret="${{ env.ENV_SECRET_NAME }}" \
-            --project="$PROJECT_ID" > /tmp/raw_env
-
-          echo "🔧 Cleaning .env file format..."
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/raw_env > /opt/brooks/.env || {
-            echo "❌ No valid environment variables found!"
-            exit 1
-          }
-
-          rm -f /tmp/raw_env
-
-          echo "✅ .env file created successfully"
-          echo "📊 Environment variables count: $(wc -l < /opt/brooks/.env)"
 
     - name: 🚀 Deploy Application
       uses: appleboy/ssh-action@v1.0.3
