@@ -5,7 +5,7 @@
 This project is now deployed as microservices behind Caddy.
 Use the microservices compose file and the updated Caddy config at `infra/caddy/Caddyfile`.
 
-### Architecture Overview (Microservices)
+### Architecture Overview (Microservices).
 
 ```
 Internet -> Caddy (HTTPS) -> Frontend (Nginx:3000)
