@@ -113,6 +113,11 @@ jobs:
             echo "ERROR: Missing DB credentials for ${svc}"
             exit 1
           fi
+          if echo "$url" | grep -Eq 'jdbc:postgresql://(localhost|127\.0\.0\.1|\[::1\]|::1)(:|/|$)'; then
+            echo "ERROR: ${svc}_DB_URL points to localhost, which is invalid from inside containers"
+            echo "Set ${svc}_DB_URL to your remote DB host (e.g. *.pooler.supabase.com)"
+            exit 1
+          fi
           if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
             echo "ERROR: ${svc}_DB_URL uses Supabase pooler but ${svc}_DB_USER=postgres"
             echo "Set ${svc}_DB_USER to postgres.<project-ref> in Secret Manager."
@@ -770,6 +775,11 @@ jobs:
             pass="$(grep -E "^${svc}_DB_PASSWORD=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
             if [ -z "$url" ] || [ -z "$user" ] || [ -z "$pass" ]; then
               echo "ERROR: Missing DB credentials for ${svc} in runtime env"
+              exit 1
+            fi
+            if echo "$url" | grep -Eq 'jdbc:postgresql://(localhost|127\.0\.0\.1|\[::1\]|::1)(:|/|$)'; then
+              echo "ERROR: ${svc}_DB_URL points to localhost, which is invalid from inside containers"
+              echo "Update Secret Manager value: ${svc}_DB_URL must target remote DB host"
               exit 1
             fi
             if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
