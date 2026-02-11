@@ -102,6 +102,25 @@ jobs:
         fi
         echo "DB URLs normalized for runtime compatibility"
 
+    - name: Validate DB Credentials Shape (CI)
+      run: |
+        set -euo pipefail
+        for svc in AUTH SOCIAL LISTS PINS MODERATION; do
+          url="$(grep -E "^${svc}_DB_URL=" .env.production | cut -d'=' -f2-)"
+          user="$(grep -E "^${svc}_DB_USER=" .env.production | cut -d'=' -f2-)"
+          pass="$(grep -E "^${svc}_DB_PASSWORD=" .env.production | cut -d'=' -f2-)"
+          if [ -z "$url" ] || [ -z "$user" ] || [ -z "$pass" ]; then
+            echo "ERROR: Missing DB credentials for ${svc}"
+            exit 1
+          fi
+          if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
+            echo "ERROR: ${svc}_DB_URL uses Supabase pooler but ${svc}_DB_USER=postgres"
+            echo "Set ${svc}_DB_USER to postgres.<project-ref> in Secret Manager."
+            exit 1
+          fi
+        done
+        echo "DB credential shape validation passed"
+
     - name: 🧪 Validate Required Variables
       run: |
         set -e
@@ -745,6 +764,20 @@ jobs:
             echo "ERROR: sslrootcert still present in runtime env; aborting deploy"
             exit 1
           fi
+          for svc in AUTH SOCIAL LISTS PINS MODERATION; do
+            url="$(grep -E "^${svc}_DB_URL=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
+            user="$(grep -E "^${svc}_DB_USER=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
+            pass="$(grep -E "^${svc}_DB_PASSWORD=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
+            if [ -z "$url" ] || [ -z "$user" ] || [ -z "$pass" ]; then
+              echo "ERROR: Missing DB credentials for ${svc} in runtime env"
+              exit 1
+            fi
+            if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
+              echo "ERROR: ${svc}_DB_URL uses Supabase pooler but ${svc}_DB_USER=postgres"
+              echo "Update Secret Manager value: ${svc}_DB_USER=postgres.<project-ref>"
+              exit 1
+            fi
+          done
           printf "%s\n" \
             "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}" \
             "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}" \
