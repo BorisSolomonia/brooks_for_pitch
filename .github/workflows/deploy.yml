@@ -1,8 +1,8 @@
-name: 🚀 Deploy Brooks App
+name: Deploy Brooks App
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 concurrency:
@@ -13,963 +13,281 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
   REPOSITORY: ${{ secrets.GCP_ARTIFACT_REPOSITORY }}
-  VM_ZONE: ${{ secrets.GCP_VM_ZONE }}
-  VM_NAME: ${{ secrets.GCP_VM_NAME }}
   ENV_SECRET_NAME: ${{ secrets.GCP_ENV_SECRET_NAME }}
 
 jobs:
-  validate-and-prepare:
-    name: 🔍 Validate & Prepare VM
+  handshake:
+    name: VM Handshake
     runs-on: ubuntu-latest
-
     steps:
-    - name: 📥 Checkout Code
-      uses: actions/checkout@v4
-
-    - name: 🤝 Fail-Fast SSH Handshake Check
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 15s
-        command_timeout: 10s
-        script: |
-          echo "✅ SSH handshake successful"
-          echo "Host: $(hostname)"
-          echo "User: $(whoami)"
-          echo "Date: $(date -u)"
-
-    - name: 🔐 Auth to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-    - name: ☁️ Setup Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-
-    - name: 🧭 Resolve required runtime variables
-      run: |
-        set -euo pipefail
-        PROJECT_ID="${{ env.PROJECT_ID }}"
-        if [ -z "$PROJECT_ID" ]; then
-          PROJECT_ID="${CLOUDSDK_CORE_PROJECT:-}"
-        fi
-        if [ -z "$PROJECT_ID" ]; then
-          echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
-          exit 1
-        fi
-        REGION="${{ env.REGION }}"
-        if [ -z "$REGION" ]; then
-          echo "❌ REGION is empty. Set repo variable GCP_REGION."
-          exit 1
-        fi
-        REPOSITORY="${{ env.REPOSITORY }}"
-        if [ -z "$REPOSITORY" ]; then
-          echo "❌ REPOSITORY is empty. Set repo variable GCP_ARTIFACT_REPOSITORY."
-          exit 1
-        fi
-        ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
-        if [ -z "$ENV_SECRET_NAME" ]; then
-          echo "❌ ENV_SECRET_NAME is empty. Set secret GCP_ENV_SECRET_NAME."
-          exit 1
-        fi
-        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
-        echo "REGION=$REGION" >> $GITHUB_ENV
-        echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV
-        echo "ENV_SECRET_NAME=$ENV_SECRET_NAME" >> $GITHUB_ENV
-
-    - name: 📦 Fetch Environment Variables from Secret Manager
-      run: |
-        gcloud secrets versions access latest \
-          --secret="${{ env.ENV_SECRET_NAME }}" \
-          --project="${{ env.PROJECT_ID }}" > .env.production
-
-    - name: Normalize DB SSL Parameters (CI)
-      run: |
-        set -euo pipefail
-        sed -E -i '/^[A-Z_]+_DB_URL=/{
-          s#sslmode=verify-full#sslmode=require#g;
-          s#([?&])sslrootcert=[^&]*##g;
-          s#\?&+#?#g;
-          s#&&+#\&#g;
-          s#[?&]$##g;
-        }' .env.production
-        if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' .env.production >/dev/null; then
-          echo "ERROR: sslrootcert still present in *_DB_URL after normalization"
-          exit 1
-        fi
-        echo "DB URLs normalized for runtime compatibility"
-
-    - name: Validate DB Credentials Shape (CI)
-      run: |
-        set -euo pipefail
-        for svc in AUTH SOCIAL LISTS PINS MODERATION; do
-          url="$(grep -E "^${svc}_DB_URL=" .env.production | cut -d'=' -f2-)"
-          user="$(grep -E "^${svc}_DB_USER=" .env.production | cut -d'=' -f2-)"
-          pass="$(grep -E "^${svc}_DB_PASSWORD=" .env.production | cut -d'=' -f2-)"
-          if [ -z "$url" ] || [ -z "$user" ] || [ -z "$pass" ]; then
-            echo "ERROR: Missing DB credentials for ${svc}"
-            exit 1
-          fi
-          if echo "$url" | grep -Eq 'jdbc:postgresql://(localhost|127\.0\.0\.1|\[::1\]|::1)(:|/|$)'; then
-            echo "ERROR: ${svc}_DB_URL points to localhost, which is invalid from inside containers"
-            echo "Set ${svc}_DB_URL to your remote DB host (e.g. *.pooler.supabase.com)"
-            exit 1
-          fi
-          if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
-            echo "ERROR: ${svc}_DB_URL uses Supabase pooler but ${svc}_DB_USER=postgres"
-            echo "Set ${svc}_DB_USER to postgres.<project-ref> in Secret Manager."
-            exit 1
-          fi
-        done
-        echo "DB credential shape validation passed"
-
-    - name: 🧪 Validate Required Variables
-      run: |
-        set -e
-        REQUIRED_VARS=(
-          "AUTH_DB_URL"
-          "SOCIAL_DB_URL"
-          "LISTS_DB_URL"
-          "PINS_DB_URL"
-          "MODERATION_DB_URL"
-          "AUTH_DB_USER"
-          "SOCIAL_DB_USER"
-          "LISTS_DB_USER"
-          "PINS_DB_USER"
-          "MODERATION_DB_USER"
-          "AUTH_DB_PASSWORD"
-          "SOCIAL_DB_PASSWORD"
-          "LISTS_DB_PASSWORD"
-          "PINS_DB_PASSWORD"
-          "MODERATION_DB_PASSWORD"
-          "AUTH_DB_NAME"
-          "SOCIAL_DB_NAME"
-          "LISTS_DB_NAME"
-          "PINS_DB_NAME"
-          "MODERATION_DB_NAME"
-          "BROOKS_JWT_SECRET"
-          "BROOKS_JWT_ISSUER"
-          "BROOKS_JWT_ACCESS_TTL"
-          "BROOKS_JWT_REFRESH_TTL"
-          "AUTH0_ISSUER_URI"
-          "AUTH0_AUDIENCE"
-          "BROOKS_WEB_ORIGINS"
-          "INTERNAL_SERVICE_KEY"
-          "INTERNAL_SERVICE_KEYS"
-          "INTERNAL_SERVICE_ALLOWED_NAMES"
-          "INTERNAL_SERVICE_KEY_MAP"
-          "INTERNAL_SERVICE_NAME"
-          "SOCIAL_SERVICE_URL"
-          "LISTS_SERVICE_URL"
-          "BROOKS_BUCKET_SIZE_DEG"
-          "BROOKS_CLEANUP_ENABLED"
-          "BROOKS_CLEANUP_BATCH_SIZE"
-          "BROOKS_CLEANUP_RETENTION_DAYS"
-          "BROOKS_CLEANUP_CRON"
-          "MEDIA_UPLOAD_BASE_URL"
-          "VITE_AUTH_API_URL"
-          "VITE_AUTH0_DOMAIN"
-          "VITE_AUTH0_CLIENT_ID"
-          "VITE_AUTH0_AUDIENCE"
-          "VITE_AUTH0_REDIRECT_URI"
-          "VITE_SOCIAL_API_URL"
-          "VITE_LISTS_API_URL"
-          "VITE_PINS_API_URL"
-          "VITE_MEDIA_API_URL"
-          "VITE_MODERATION_API_URL"
-          "VITE_NOTIFICATIONS_API_URL"
-          "VITE_MAP_PROVIDER"
-          "VITE_NOMINATIM_URL"
-          "VITE_LEAFLET_TILE_URL"
-          "VITE_LEAFLET_ATTRIBUTION"
-          "VITE_DEFAULT_CENTER_LAT"
-          "VITE_DEFAULT_CENTER_LNG"
-          "REDIS_HOST"
-          "REDIS_PORT"
-          "REDIS_PASSWORD"
-          "REDIS_CACHE_TTL_SECONDS"
-        )
-
-        missing=0
-        for key in "${REQUIRED_VARS[@]}"; do
-          if ! grep -E "^${key}=" .env.production >/dev/null; then
-            echo "❌ Missing required env var: ${key}"
-            missing=1
-          fi
-        done
-
-        if [ "$missing" -ne 0 ]; then
-          echo "❌ Environment validation failed."
-          exit 1
-        fi
-
-        echo "✅ Environment validation passed."
-
-    - name: 🔧 Install VM Prerequisites (Docker, gcloud, etc.)
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 600s
-        command_timeout: 600s
-        script: |
-          set -e
-          echo "🔍 Checking VM prerequisites..."
-
-          # Check if Docker is installed
-          if ! command -v docker &> /dev/null; then
-            echo "🐳 Docker not found. Installing Docker..."
-
-            # Update and install prerequisites
-            sudo apt-get update
-            sudo apt-get install -y ca-certificates curl gnupg lsb-release
-
-            # Add Docker's official GPG key
-            sudo mkdir -p /etc/apt/keyrings
-            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-            # Set up Docker repository
-            echo \
-              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-              $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-            # Install Docker Engine
-            sudo apt-get update
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-            # Add user to docker group
-            sudo usermod -aG docker $USER
-
-            # Start and enable Docker
-            sudo systemctl start docker
-            sudo systemctl enable docker
-
-            echo "✅ Docker installed successfully"
-          else
-            echo "✅ Docker already installed: $(docker --version)"
-          fi
-
-          # Check if gcloud is installed
-          if ! command -v gcloud &> /dev/null; then
-            echo "☁️ gcloud CLI not found. Installing..."
-
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
-              sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-              sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-
-            sudo apt-get update
-            sudo apt-get install -y google-cloud-cli
-
-            echo "✅ gcloud CLI installed successfully"
-          else
-            echo "✅ gcloud CLI already installed: $(gcloud --version | head -1)"
-          fi
-
-          # Create Docker network if it doesn't exist
-          if ! sudo docker network inspect web &> /dev/null; then
-            echo "🌐 Creating Docker network 'web'..."
-            sudo docker network create web
-            echo "✅ Docker network 'web' created"
-          else
-            echo "✅ Docker network 'web' already exists"
-          fi
-
-          echo "✅ All prerequisites checked and installed"
-
-    - name: 🏗️ Setup VM Directories
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 30s
-        command_timeout: 60s
-        script: |
-          echo "🏗️ Setting up directories for Brooks..."
-
-          sudo mkdir -p /opt/brooks
-          sudo mkdir -p /opt/brooks/infra/caddy
-          sudo mkdir -p /opt/brooks/infra/db/init
-          sudo mkdir -p /opt/brooks/certs
-          sudo chown -R $USER:$USER /opt/brooks
-
-          echo "✅ VM directories ready"
-
-    - name: 📦 Create .env file on VM from Secret Manager
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 120s
-        command_timeout: 300s
-        script: |
-          set -e
-          PROJECT_ID="${{ env.PROJECT_ID }}"
-
-          echo "📦 Creating .env file from Secret Manager..."
-
-          gcloud secrets versions access latest \
-            --secret="${{ env.ENV_SECRET_NAME }}" \
-            --project="$PROJECT_ID" > /tmp/raw_env
-
-          echo "🔧 Cleaning .env file format..."
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/raw_env > /opt/brooks/.env || {
-            echo "❌ No valid environment variables found!"
-            exit 1
-          }
-
-          echo "Normalizing DB SSL parameters on VM..."
-          sed -E -i '/^[A-Z_]+_DB_URL=/{
-            s#sslmode=verify-full#sslmode=require#g;
-            s#([?&])sslrootcert=[^&]*##g;
-            s#\?&+#?#g;
-            s#&&+#\&#g;
-            s#[?&]$##g;
-          }' /opt/brooks/.env
-          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env >/dev/null; then
-            echo "ERROR: sslrootcert still present in *_DB_URL on VM after normalization"
-            exit 1
-          fi
-
-          rm -f /tmp/raw_env
-
-          echo "✅ .env file created successfully"
-          echo "📊 Environment variables count: $(wc -l < /opt/brooks/.env)"
+      - name: SSH handshake
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 20s
+          command_timeout: 20s
+          script: |
+            set -e
+            echo "SSH handshake successful"
+            echo "Host: $(hostname)"
+            echo "User: $(whoami)"
+            echo "UTC:  $(date -u)"
 
   deploy:
-    name: 🏗️ Build & Deploy
+    name: Build and Redeploy
     runs-on: ubuntu-latest
-    needs: validate-and-prepare
+    needs: handshake
 
     steps:
-    - name: 📥 Checkout Code
-      uses: actions/checkout@v4
-
-    - name: 🔐 Auth to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-    - name: ☁️ Setup Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-
-    - name: 🧭 Resolve required runtime variables
-      run: |
-        set -euo pipefail
-        PROJECT_ID="${{ env.PROJECT_ID }}"
-        if [ -z "$PROJECT_ID" ]; then
-          PROJECT_ID="${CLOUDSDK_CORE_PROJECT:-}"
-        fi
-        if [ -z "$PROJECT_ID" ]; then
-          echo "❌ PROJECT_ID is empty. Set repo variable GCP_PROJECT_ID."
-          exit 1
-        fi
-        REGION="${{ env.REGION }}"
-        if [ -z "$REGION" ]; then
-          echo "❌ REGION is empty. Set repo variable GCP_REGION."
-          exit 1
-        fi
-        REPOSITORY="${{ env.REPOSITORY }}"
-        if [ -z "$REPOSITORY" ]; then
-          echo "❌ REPOSITORY is empty. Set repo variable GCP_ARTIFACT_REPOSITORY."
-          exit 1
-        fi
-        ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
-        if [ -z "$ENV_SECRET_NAME" ]; then
-          echo "❌ ENV_SECRET_NAME is empty. Set secret GCP_ENV_SECRET_NAME."
-          exit 1
-        fi
-        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
-        echo "REGION=$REGION" >> $GITHUB_ENV
-        echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV
-        echo "ENV_SECRET_NAME=$ENV_SECRET_NAME" >> $GITHUB_ENV
-
-    - name: 🔍 Verify GCP Configuration
-      run: |
-        echo "🔍 GCP Configuration:"
-        echo "Project: $(gcloud config get-value project)"
-        echo "Account: $(gcloud config get-value account)"
-        echo "Region: ${{ env.REGION }}"
-        echo "Repository: ${{ env.REPOSITORY }}"
-
-    - name: 🐳 Configure Docker for Artifact Registry
-      run: |
-        echo "🐳 Configuring Docker for Artifact Registry..."
-        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-        echo "✅ Docker configured"
-
-    - name: 📦 Fetch Environment Variables from Secret Manager
-      run: |
-        echo "📦 Fetching environment variables from Secret Manager..."
-        gcloud secrets versions access latest \
-          --secret="${{ env.ENV_SECRET_NAME }}" \
-          --project="${{ env.PROJECT_ID }}" > .env.production
-
-    - name: Normalize DB SSL Parameters (Build/Deploy Job)
-      run: |
-        set -euo pipefail
-        sed -E -i '/^[A-Z_]+_DB_URL=/{
-          s#sslmode=verify-full#sslmode=require#g;
-          s#([?&])sslrootcert=[^&]*##g;
-          s#\?&+#?#g;
-          s#&&+#\&#g;
-          s#[?&]$##g;
-        }' .env.production
-        if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' .env.production >/dev/null; then
-          echo "ERROR: sslrootcert still present in *_DB_URL after normalization"
-          exit 1
-        fi
-        echo "DB URLs normalized for image build/deploy flow"
-
-        echo "✅ Environment variables fetched"
-        echo "📊 Variables count: $(wc -l < .env.production)"
-
-    - name: 🏗️ Build & Push Auth Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service"
-
-        echo "🏗️ Building auth-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-        echo "📍 Tags: ${{ github.sha }}, latest"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/auth-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing auth-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Auth-service images pushed"
-        echo "BROOKS_AUTH_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Social Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service"
-
-        echo "🏗️ Building social-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/social-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing social-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Social-service images pushed"
-        echo "BROOKS_SOCIAL_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Lists Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service"
-
-        echo "🏗️ Building lists-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/lists-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing lists-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Lists-service images pushed"
-        echo "BROOKS_LISTS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Pins Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service"
-
-        echo "🏗️ Building pins-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/pins-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing pins-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Pins-service images pushed"
-        echo "BROOKS_PINS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Media Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service"
-
-        echo "🏗️ Building media-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/media-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing media-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Media-service images pushed"
-        echo "BROOKS_MEDIA_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Moderation Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service"
-
-        echo "🏗️ Building moderation-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/moderation-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing moderation-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Moderation-service images pushed"
-        echo "BROOKS_MODERATION_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Notifications Service Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service"
-
-        echo "🏗️ Building notifications-service Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        docker build \
-          --progress=plain \
-          --build-arg SERVICE_DIR=services/notifications-service \
-          -f infra/docker/Dockerfile.service \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          .
-
-        echo "📤 Pushing notifications-service images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Notifications-service images pushed"
-        echo "BROOKS_NOTIFICATIONS_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 🏗️ Build & Push Frontend Image
-      run: |
-        IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend"
-
-        echo "🏗️ Building frontend Docker image..."
-        echo "📍 Image path: $IMAGE_PATH"
-
-        # Extract Vite variables for build args
-        echo "📦 Extracting build arguments from .env.production..."
-        VITE_AUTH_API_URL=$(grep "^VITE_AUTH_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_AUTH0_DOMAIN=$(grep "^VITE_AUTH0_DOMAIN=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_AUTH0_CLIENT_ID=$(grep "^VITE_AUTH0_CLIENT_ID=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_AUTH0_AUDIENCE=$(grep "^VITE_AUTH0_AUDIENCE=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_AUTH0_REDIRECT_URI=$(grep "^VITE_AUTH0_REDIRECT_URI=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_SOCIAL_API_URL=$(grep "^VITE_SOCIAL_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_LISTS_API_URL=$(grep "^VITE_LISTS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_PINS_API_URL=$(grep "^VITE_PINS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_MEDIA_API_URL=$(grep "^VITE_MEDIA_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_MODERATION_API_URL=$(grep "^VITE_MODERATION_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_NOTIFICATIONS_API_URL=$(grep "^VITE_NOTIFICATIONS_API_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_MAP_PROVIDER=$(grep "^VITE_MAP_PROVIDER=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_GOOGLE_MAPS_KEY=$(grep "^VITE_GOOGLE_MAPS_KEY=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_NOMINATIM_URL=$(grep "^VITE_NOMINATIM_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_LEAFLET_TILE_URL=$(grep "^VITE_LEAFLET_TILE_URL=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_LEAFLET_ATTRIBUTION=$(grep "^VITE_LEAFLET_ATTRIBUTION=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_DEFAULT_CENTER_LAT=$(grep "^VITE_DEFAULT_CENTER_LAT=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-        VITE_DEFAULT_CENTER_LNG=$(grep "^VITE_DEFAULT_CENTER_LNG=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-
-        docker build \
-          --progress=plain \
-          --build-arg VITE_AUTH_API_URL="${VITE_AUTH_API_URL}" \
-          --build-arg VITE_AUTH0_DOMAIN="${VITE_AUTH0_DOMAIN}" \
-          --build-arg VITE_AUTH0_CLIENT_ID="${VITE_AUTH0_CLIENT_ID}" \
-          --build-arg VITE_AUTH0_AUDIENCE="${VITE_AUTH0_AUDIENCE}" \
-          --build-arg VITE_AUTH0_REDIRECT_URI="${VITE_AUTH0_REDIRECT_URI}" \
-          --build-arg VITE_SOCIAL_API_URL="${VITE_SOCIAL_API_URL}" \
-          --build-arg VITE_LISTS_API_URL="${VITE_LISTS_API_URL}" \
-          --build-arg VITE_PINS_API_URL="${VITE_PINS_API_URL}" \
-          --build-arg VITE_MEDIA_API_URL="${VITE_MEDIA_API_URL}" \
-          --build-arg VITE_MODERATION_API_URL="${VITE_MODERATION_API_URL}" \
-          --build-arg VITE_NOTIFICATIONS_API_URL="${VITE_NOTIFICATIONS_API_URL}" \
-          --build-arg VITE_MAP_PROVIDER="${VITE_MAP_PROVIDER}" \
-          --build-arg VITE_GOOGLE_MAPS_KEY="${VITE_GOOGLE_MAPS_KEY}" \
-          --build-arg VITE_NOMINATIM_URL="${VITE_NOMINATIM_URL}" \
-          --build-arg VITE_LEAFLET_TILE_URL="${VITE_LEAFLET_TILE_URL}" \
-          --build-arg VITE_LEAFLET_ATTRIBUTION="${VITE_LEAFLET_ATTRIBUTION}" \
-          --build-arg VITE_DEFAULT_CENTER_LAT="${VITE_DEFAULT_CENTER_LAT}" \
-          --build-arg VITE_DEFAULT_CENTER_LNG="${VITE_DEFAULT_CENTER_LNG}" \
-          -f web/Dockerfile \
-          -t $IMAGE_PATH:${{ github.sha }} \
-          -t $IMAGE_PATH:latest \
-          web/
-
-        echo "📤 Pushing frontend images..."
-        docker push $IMAGE_PATH:${{ github.sha }}
-        docker push $IMAGE_PATH:latest
-
-        echo "✅ Frontend images pushed"
-        echo "FRONTEND_IMAGE=$IMAGE_PATH" >> $GITHUB_ENV
-
-    - name: 📤 Upload Files to VM
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 30s
-        command_timeout: 60s
-        overwrite: true
-        source: "infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
-        target: /opt/brooks/
-
-    - name: 🚀 Deploy Application
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 300s
-        command_timeout: 900s
-        script: |
-          set -e
-
-          PROJECT_ID="${{ env.PROJECT_ID }}"
-          REGION="${{ env.REGION }}"
-          AUTH_IMAGE="${{ env.BROOKS_AUTH_IMAGE }}"
-          SOCIAL_IMAGE="${{ env.BROOKS_SOCIAL_IMAGE }}"
-          LISTS_IMAGE="${{ env.BROOKS_LISTS_IMAGE }}"
-          PINS_IMAGE="${{ env.BROOKS_PINS_IMAGE }}"
-          MEDIA_IMAGE="${{ env.BROOKS_MEDIA_IMAGE }}"
-          MODERATION_IMAGE="${{ env.BROOKS_MODERATION_IMAGE }}"
-          NOTIFICATIONS_IMAGE="${{ env.BROOKS_NOTIFICATIONS_IMAGE }}"
-          FRONTEND_IMAGE="${{ env.FRONTEND_IMAGE }}"
-          COMMIT_SHA="${{ github.sha }}"
-
-          # Determine if we need sudo for docker commands
-          if docker ps &> /dev/null; then
-            DOCKER="docker"
-            echo "✅ Docker permissions working without sudo"
-          else
-            DOCKER="sudo docker"
-            echo "⚠️ Using sudo for docker commands (user in docker group but session not refreshed)"
-          fi
-
-          echo "🚀 Deploying Brooks App (CLEAN DEPLOYMENT)..."
-          echo "📍 Auth: $AUTH_IMAGE:$COMMIT_SHA"
-          echo "📍 Social: $SOCIAL_IMAGE:$COMMIT_SHA"
-          echo "📍 Lists: $LISTS_IMAGE:$COMMIT_SHA"
-          echo "📍 Pins: $PINS_IMAGE:$COMMIT_SHA"
-          echo "📍 Media: $MEDIA_IMAGE:$COMMIT_SHA"
-          echo "📍 Moderation: $MODERATION_IMAGE:$COMMIT_SHA"
-          echo "📍 Notifications: $NOTIFICATIONS_IMAGE:$COMMIT_SHA"
-          echo "📍 Frontend: $FRONTEND_IMAGE:$COMMIT_SHA"
-
-          cd /opt/brooks
-
-          # Verify .env file
-          if [ ! -f .env ]; then
-            echo "❌ .env file not found!"
-            exit 1
-          fi
-
-          echo "🔐 Authenticating to Artifact Registry..."
-          gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
-
-          # ============================================
-          # FULL CLEAN DEPLOYMENT - Remove ALL old parts
-          # ============================================
-
-          echo "🧹 STEP 1: Stopping ALL running containers..."
-          $DOCKER compose -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
-          # Also stop any standalone containers that might exist outside compose
-          $DOCKER stop $($DOCKER ps -aq) 2>/dev/null || true
-          $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
-
-          echo "🧹 STEP 2: Removing ALL Docker images (clean slate)..."
-          $DOCKER rmi -f $($DOCKER images -aq) 2>/dev/null || true
-
-          echo "🧹 STEP 3: Removing ALL Docker volumes (except named persistent data)..."
-          $DOCKER volume rm $($DOCKER volume ls -q) 2>/dev/null || true
-
-          echo "🧹 STEP 4: Removing ALL Docker networks (except default)..."
-          $DOCKER network prune -f 2>/dev/null || true
-
-          echo "🧹 STEP 5: Full Docker system prune (build cache, dangling objects)..."
-          $DOCKER system prune -af --volumes 2>/dev/null || true
-
-          echo "🧹 STEP 6: Cleaning up old logs and disk space..."
-          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
-          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
-
-          echo "✅ Clean slate achieved. All old Docker artifacts removed."
-          echo "📊 Docker status after cleanup:"
-          echo "  Images: $($DOCKER images -q | wc -l)"
-          echo "  Containers: $($DOCKER ps -aq | wc -l)"
-          echo "  Volumes: $($DOCKER volume ls -q | wc -l)"
-
-          # ============================================
-          # FRESH DEPLOYMENT
-          # ============================================
-
-          echo "🌐 Creating Docker networks..."
-          $DOCKER network create web 2>/dev/null || true
-          $DOCKER network create brooks-network 2>/dev/null || true
-
-          echo "📝 Preparing runtime env file..."
-          cp /opt/brooks/.env /opt/brooks/.env.runtime
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve required variables
+        run: |
+          set -euo pipefail
+          [ -n "${PROJECT_ID}" ] || { echo "PROJECT_ID is empty"; exit 1; }
+          [ -n "${REGION}" ] || { echo "REGION is empty"; exit 1; }
+          [ -n "${REPOSITORY}" ] || { echo "REPOSITORY is empty"; exit 1; }
+          [ -n "${ENV_SECRET_NAME}" ] || { echo "ENV_SECRET_NAME is empty"; exit 1; }
+
+      - name: Fetch env from Secret Manager
+        run: |
+          set -euo pipefail
+          gcloud secrets versions access latest \
+            --secret="${ENV_SECRET_NAME}" \
+            --project="${PROJECT_ID}" > .env.production
+
+      - name: Normalize and validate DB env
+        run: |
+          set -euo pipefail
+
+          # Keep DB URLs runtime-compatible in containers.
           sed -E -i '/^[A-Z_]+_DB_URL=/{
             s#sslmode=verify-full#sslmode=require#g;
             s#([?&])sslrootcert=[^&]*##g;
             s#\?&+#?#g;
             s#&&+#\&#g;
             s#[?&]$##g;
-          }' /opt/brooks/.env.runtime
-          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env.runtime >/dev/null; then
-            echo "ERROR: sslrootcert still present in runtime env; aborting deploy"
-            exit 1
-          fi
+          }' .env.production
+
           for svc in AUTH SOCIAL LISTS PINS MODERATION; do
-            url="$(grep -E "^${svc}_DB_URL=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
-            user="$(grep -E "^${svc}_DB_USER=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
-            pass="$(grep -E "^${svc}_DB_PASSWORD=" /opt/brooks/.env.runtime | cut -d'=' -f2-)"
-            if [ -z "$url" ] || [ -z "$user" ] || [ -z "$pass" ]; then
-              echo "ERROR: Missing DB credentials for ${svc} in runtime env"
-              exit 1
-            fi
-            if echo "$url" | grep -Eq 'jdbc:postgresql://(localhost|127\.0\.0\.1|\[::1\]|::1)(:|/|$)'; then
-              echo "ERROR: ${svc}_DB_URL points to localhost, which is invalid from inside containers"
-              echo "Update Secret Manager value: ${svc}_DB_URL must target remote DB host"
-              exit 1
-            fi
-            if echo "$url" | grep -q "pooler.supabase.com" && [ "$user" = "postgres" ]; then
-              echo "ERROR: ${svc}_DB_URL uses Supabase pooler but ${svc}_DB_USER=postgres"
-              echo "Update Secret Manager value: ${svc}_DB_USER=postgres.<project-ref>"
-              exit 1
-            fi
-          done
-          printf "%s\n" \
-            "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_LISTS_IMAGE=${LISTS_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_PINS_IMAGE=${PINS_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_MEDIA_IMAGE=${MEDIA_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_MODERATION_IMAGE=${MODERATION_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_NOTIFICATIONS_IMAGE=${NOTIFICATIONS_IMAGE}:${COMMIT_SHA}" \
-            "BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}:${COMMIT_SHA}" \
-            >> /opt/brooks/.env.runtime
+            url="$(grep -E "^${svc}_DB_URL=" .env.production | cut -d'=' -f2- || true)"
+            user="$(grep -E "^${svc}_DB_USER=" .env.production | cut -d'=' -f2- || true)"
+            pass="$(grep -E "^${svc}_DB_PASSWORD=" .env.production | cut -d'=' -f2- || true)"
 
-          echo "📦 Pulling fresh images (with retries)..."
-          for i in 1 2 3; do
-            if $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
-              echo "✅ All images pulled successfully on attempt $i"
-              break
-            fi
-            echo "⚠️ Pull attempt $i failed; retrying in 10s..."
-            sleep 10
-          done
+            [ -n "$url" ] || { echo "Missing ${svc}_DB_URL"; exit 1; }
+            [ -n "$user" ] || { echo "Missing ${svc}_DB_USER"; exit 1; }
+            [ -n "$pass" ] || { echo "Missing ${svc}_DB_PASSWORD"; exit 1; }
 
-          echo "🔄 Starting fresh deployment..."
-          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d
-
-          echo "⏳ Waiting for services to start (60s)..."
-          sleep 60
-
-          echo "📊 Container status:"
-          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
-
-          echo "🔧 Reloading Caddy configuration..."
-          if $DOCKER ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
-            $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile || {
-              echo "❌ Caddy reload failed, retrying..."
-              sleep 5
-              $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
+            echo "$url" | grep -Eq '^jdbc:postgresql://' || {
+              echo "${svc}_DB_URL must start with jdbc:postgresql://";
+              exit 1;
             }
-          else
-            echo "ℹ️ Caddy container not found; skipping reload"
-          fi
 
-          echo "✅ Clean deployment completed successfully!"
+            echo "$url" | grep -Eq 'jdbc:postgresql://(localhost|127\.0\.0\.1|\[::1\]|::1)(:|/|$)' && {
+              echo "${svc}_DB_URL points to localhost; invalid inside containers";
+              exit 1;
+            }
 
-    - name: 🔍 Health Check
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 120s
-        command_timeout: 300s
-        script: |
-          set -e
+            if echo "$url" | grep -q 'pooler.supabase.com' && [ "$user" = "postgres" ]; then
+              echo "${svc}_DB_USER must be postgres.<project-ref> when using Supabase pooler"
+              exit 1
+            fi
+          done
 
-          # Determine docker command
-          if docker ps &> /dev/null; then
-            DOCKER="docker"
-          else
-            DOCKER="sudo docker"
-          fi
+      - name: Configure Docker for Artifact Registry
+        run: |
+          set -euo pipefail
+          gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
 
-          echo "🔍 Running health checks..."
+      - name: Build and push backend images
+        run: |
+          set -euo pipefail
 
-          sleep 20
+          build_push() {
+            local service_dir="$1"
+            local image_name="$2"
+            local env_key="$3"
+            local image_path="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${image_name}"
 
-          healthcheck() {
-            local name="$1"
-            local url="$2"
-            echo "📍 ${name} health check: ${url}"
-            curl -f -m 10 "$url" >/dev/null && echo "✅ ${name} OK" || echo "❌ ${name} FAIL"
+            docker build \
+              --progress=plain \
+              --build-arg SERVICE_DIR="${service_dir}" \
+              -f infra/docker/Dockerfile.service \
+              -t "${image_path}:${GITHUB_SHA}" \
+              -t "${image_path}:latest" \
+              .
+
+            docker push "${image_path}:${GITHUB_SHA}"
+            docker push "${image_path}:latest"
+
+            echo "${env_key}=${image_path}:${GITHUB_SHA}" >> "$GITHUB_ENV"
           }
 
-          healthcheck "Auth" "http://localhost:8081/actuator/health"
-          healthcheck "Social" "http://localhost:8082/actuator/health"
-          healthcheck "Lists" "http://localhost:8083/actuator/health"
-          healthcheck "Pins" "http://localhost:8084/actuator/health"
-          healthcheck "Media" "http://localhost:8085/actuator/health"
-          healthcheck "Moderation" "http://localhost:8086/actuator/health"
-          healthcheck "Notifications" "http://localhost:8087/actuator/health"
-          healthcheck "Frontend" "http://localhost:3000/health"
-          healthcheck "External" "http://${{ secrets.VM_HOST }}/"
+          build_push "services/auth-service" "brooks-auth-service" "BROOKS_AUTH_IMAGE"
+          build_push "services/social-service" "brooks-social-service" "BROOKS_SOCIAL_IMAGE"
+          build_push "services/lists-service" "brooks-lists-service" "BROOKS_LISTS_IMAGE"
+          build_push "services/pins-service" "brooks-pins-service" "BROOKS_PINS_IMAGE"
+          build_push "services/media-service" "brooks-media-service" "BROOKS_MEDIA_IMAGE"
+          build_push "services/moderation-service" "brooks-moderation-service" "BROOKS_MODERATION_IMAGE"
+          build_push "services/notifications-service" "brooks-notifications-service" "BROOKS_NOTIFICATIONS_IMAGE"
 
-          echo "📋 Application logs:"
-          echo "=== Pins logs ==="
-          $DOCKER logs brooks-pins-service --tail 20
-          echo "=== Frontend logs ==="
-          $DOCKER logs brooks-frontend --tail 20
+      - name: Build and push frontend image
+        run: |
+          set -euo pipefail
+          IMAGE_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/brooks-frontend"
 
-          echo "🎯 Deployment verification complete!"
+          get_env() {
+            local key="$1"
+            grep "^${key}=" .env.production | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true
+          }
 
-    - name: ❌ Rollback on Failure
-      if: failure()
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_SSH_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: 22
-        timeout: 120s
-        command_timeout: 900s
-        script: |
-          set -e
+          docker build \
+            --progress=plain \
+            --build-arg VITE_AUTH_API_URL="$(get_env VITE_AUTH_API_URL)" \
+            --build-arg VITE_AUTH0_DOMAIN="$(get_env VITE_AUTH0_DOMAIN)" \
+            --build-arg VITE_AUTH0_CLIENT_ID="$(get_env VITE_AUTH0_CLIENT_ID)" \
+            --build-arg VITE_AUTH0_AUDIENCE="$(get_env VITE_AUTH0_AUDIENCE)" \
+            --build-arg VITE_AUTH0_REDIRECT_URI="$(get_env VITE_AUTH0_REDIRECT_URI)" \
+            --build-arg VITE_SOCIAL_API_URL="$(get_env VITE_SOCIAL_API_URL)" \
+            --build-arg VITE_LISTS_API_URL="$(get_env VITE_LISTS_API_URL)" \
+            --build-arg VITE_PINS_API_URL="$(get_env VITE_PINS_API_URL)" \
+            --build-arg VITE_MEDIA_API_URL="$(get_env VITE_MEDIA_API_URL)" \
+            --build-arg VITE_MODERATION_API_URL="$(get_env VITE_MODERATION_API_URL)" \
+            --build-arg VITE_NOTIFICATIONS_API_URL="$(get_env VITE_NOTIFICATIONS_API_URL)" \
+            --build-arg VITE_MAP_PROVIDER="$(get_env VITE_MAP_PROVIDER)" \
+            --build-arg VITE_GOOGLE_MAPS_KEY="$(get_env VITE_GOOGLE_MAPS_KEY)" \
+            --build-arg VITE_NOMINATIM_URL="$(get_env VITE_NOMINATIM_URL)" \
+            --build-arg VITE_LEAFLET_TILE_URL="$(get_env VITE_LEAFLET_TILE_URL)" \
+            --build-arg VITE_LEAFLET_ATTRIBUTION="$(get_env VITE_LEAFLET_ATTRIBUTION)" \
+            --build-arg VITE_DEFAULT_CENTER_LAT="$(get_env VITE_DEFAULT_CENTER_LAT)" \
+            --build-arg VITE_DEFAULT_CENTER_LNG="$(get_env VITE_DEFAULT_CENTER_LNG)" \
+            -f web/Dockerfile \
+            -t "${IMAGE_PATH}:${GITHUB_SHA}" \
+            -t "${IMAGE_PATH}:latest" \
+            web/
 
-          echo "❌ Deployment failed, initiating rollback..."
+          docker push "${IMAGE_PATH}:${GITHUB_SHA}"
+          docker push "${IMAGE_PATH}:latest"
 
-          # Determine docker command
-          if docker ps &> /dev/null; then
-            DOCKER="docker"
-          else
-            DOCKER="sudo docker"
-          fi
+          echo "BROOKS_FRONTEND_IMAGE=${IMAGE_PATH}:${GITHUB_SHA}" >> "$GITHUB_ENV"
 
-          PROJECT_ID="${{ env.PROJECT_ID }}"
-          ENV_SECRET_NAME="${{ env.ENV_SECRET_NAME }}"
-          if [ ! -f /opt/brooks/.env ]; then
-            echo "???? .env missing, fetching from Secret Manager..."
-            gcloud secrets versions access latest \
-              --secret="$ENV_SECRET_NAME" \
-              --project="$PROJECT_ID" > /opt/brooks/.env
-          fi
+      - name: Upload deployment files to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          overwrite: true
+          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
+          target: /opt/brooks/
 
-          cd /opt/brooks
+      - name: Clean VM and redeploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 300s
+          command_timeout: 1200s
+          script: |
+            set -euo pipefail
 
-          echo "🧹 Reclaiming disk space..."
-          $DOCKER system prune -af >/dev/null 2>&1 || true
-          $DOCKER volume prune -f >/dev/null 2>&1 || true
-          sudo journalctl --vacuum-time=7d >/dev/null 2>&1 || true
-          sudo rm -rf /var/log/*.gz /var/log/*.[0-9] >/dev/null 2>&1 || true
-
-          if [ -z "${{ env.REGION }}" ] || [ -z "${{ env.PROJECT_ID }}" ] || [ -z "${{ env.REPOSITORY }}" ]; then
-            echo "❌ REGION/PROJECT_ID/REPOSITORY missing. Set GCP_REGION, GCP_PROJECT_ID, GCP_ARTIFACT_REPOSITORY."
-            exit 1
-          fi
-
-          echo "📝 Preparing rollback env file..."
-          cp /opt/brooks/.env /opt/brooks/.env.runtime
-          sed -E -i '/^[A-Z_]+_DB_URL=/{
-            s#sslmode=verify-full#sslmode=require#g;
-            s#([?&])sslrootcert=[^&]*##g;
-            s#\?&+#?#g;
-            s#&&+#\&#g;
-            s#[?&]$##g;
-          }' /opt/brooks/.env.runtime
-          if grep -E '^[A-Z_]+_DB_URL=.*sslrootcert=' /opt/brooks/.env.runtime >/dev/null; then
-            echo "ERROR: sslrootcert still present in rollback runtime env; aborting rollback"
-            exit 1
-          fi
-          printf "%s\n" \
-            "BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:latest" \
-            "BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:latest" \
-            "BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:latest" \
-            "BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:latest" \
-            "BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:latest" \
-            "BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:latest" \
-            "BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:latest" \
-            "BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:latest" \
-            >> /opt/brooks/.env.runtime
-
-          echo "🧹 Removing legacy containers that may conflict..."
-          $DOCKER rm -f brooks-frontend brooks-backend caddy brooks-caddy >/dev/null 2>&1 || true
-
-          echo "📦 Pulling fallback images (with retries)..."
-          for i in 1 2 3; do
-            if $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull; then
-              break
+            if docker ps >/dev/null 2>&1; then
+              DOCKER="docker"
+            else
+              DOCKER="sudo docker"
             fi
-            echo "⚠️ Pull attempt $i failed; retrying in 10s..."
-            sleep 10
-          done
 
-          echo "🔄 Rolling back to previous version..."
-          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate
+            mkdir -p /opt/brooks/infra/caddy /opt/brooks/infra/db/init
+            [ -f /opt/brooks/.env.production ] || { echo "/opt/brooks/.env.production missing"; exit 1; }
 
-          echo "🔧 Reloading Caddy..."
-          if $DOCKER ps --format "{{.Names}}" | grep -q "^brooks-caddy$"; then
-            $DOCKER exec brooks-caddy caddy reload --config /etc/caddy/Caddyfile
-          else
-            echo "ℹ️ Caddy container not found; skipping reload"
-          fi
+            cp /opt/brooks/.env.production /opt/brooks/.env
 
-          echo "📊 Rollback status:"
-          $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
+            sed -E -i '/^[A-Z_]+_DB_URL=/{
+              s#sslmode=verify-full#sslmode=require#g;
+              s#([?&])sslrootcert=[^&]*##g;
+              s#\?&+#?#g;
+              s#&&+#\&#g;
+              s#[?&]$##g;
+            }' /opt/brooks/.env
 
-          echo "⚠️ Rollback completed - check logs for issues"
+            cd /opt/brooks
+
+            # Remove previous deployment after successful handshake.
+            $DOCKER compose -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
+            $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
+            $DOCKER rmi -f $($DOCKER images -q '*/brooks-*') 2>/dev/null || true
+            $DOCKER network prune -f || true
+            $DOCKER system prune -af --volumes || true
+
+            cp /opt/brooks/.env /opt/brooks/.env.runtime
+            printf "%s\n" \
+              "BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:${{ github.sha }}" \
+              "BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:${{ github.sha }}" \
+              "BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:${{ github.sha }}" \
+              "BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:${{ github.sha }}" \
+              "BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:${{ github.sha }}" \
+              "BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:${{ github.sha }}" \
+              "BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:${{ github.sha }}" \
+              "BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:${{ github.sha }}" \
+              >> /opt/brooks/.env.runtime
+
+            $DOCKER network create web 2>/dev/null || true
+            $DOCKER network create brooks-network 2>/dev/null || true
+
+            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
+            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate --remove-orphans
+
+            sleep 30
+            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 120s
+          command_timeout: 300s
+          script: |
+            set -e
+            if docker ps >/dev/null 2>&1; then
+              DOCKER="docker"
+            else
+              DOCKER="sudo docker"
+            fi
+
+            check() {
+              local name="$1"
+              local url="$2"
+              echo "Checking ${name}: ${url}"
+              curl -f -m 10 "$url" >/dev/null
+            }
+
+            check "Auth" "http://localhost:8081/actuator/health"
+            check "Social" "http://localhost:8082/actuator/health"
+            check "Lists" "http://localhost:8083/actuator/health"
+            check "Pins" "http://localhost:8084/actuator/health"
+            check "Media" "http://localhost:8085/actuator/health"
+            check "Moderation" "http://localhost:8086/actuator/health"
+            check "Notifications" "http://localhost:8087/actuator/health"
+
+            echo "Recent logs:"
+            $DOCKER logs brooks-auth-service --tail 40
+            $DOCKER logs brooks-lists-service --tail 40
+            $DOCKER logs brooks-pins-service --tail 40
