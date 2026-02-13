@@ -190,6 +190,22 @@ jobs:
 
           echo "BROOKS_FRONTEND_IMAGE=${IMAGE_PATH}:${GITHUB_SHA}" >> "$GITHUB_ENV"
 
+      - name: Prepare VM upload directories
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 120s
+          script: |
+            set -e
+            sudo mkdir -p /opt/brooks
+            sudo mkdir -p /opt/brooks/infra/caddy
+            sudo mkdir -p /opt/brooks/infra/db/init
+            sudo chown -R "$USER:$USER" /opt/brooks
+
       - name: Upload deployment files to VM
         id: scp_upload_1
         continue-on-error: true
