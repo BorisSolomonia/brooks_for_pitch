@@ -296,26 +296,43 @@ jobs:
               s#[?&]$##g;
             }' /opt/brooks/.env
 
+            for key in REDIS_PASSWORD AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
+              val="$(grep -E "^${key}=" /opt/brooks/.env | cut -d'=' -f2- || true)"
+              if [ -z "${val}" ]; then
+                echo "Missing required env var in /opt/brooks/.env: ${key}"
+                exit 1
+              fi
+            done
+
             cd /opt/brooks
 
             # Remove previous deployment after successful handshake.
-            $DOCKER compose -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
+            $DOCKER compose --env-file /opt/brooks/.env -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
             $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
             $DOCKER rmi -f $($DOCKER images -q '*/brooks-*') 2>/dev/null || true
             $DOCKER network prune -f || true
             $DOCKER system prune -af --volumes || true
 
             cp /opt/brooks/.env /opt/brooks/.env.runtime
+            AUTH_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:${{ github.sha }}"
+            SOCIAL_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:${{ github.sha }}"
+            LISTS_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:${{ github.sha }}"
+            PINS_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:${{ github.sha }}"
+            MEDIA_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:${{ github.sha }}"
+            MODERATION_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:${{ github.sha }}"
+            NOTIFICATIONS_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:${{ github.sha }}"
+            FRONTEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:${{ github.sha }}"
             printf "%s\n" \
-              "BROOKS_AUTH_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:${{ github.sha }}" \
-              "BROOKS_SOCIAL_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:${{ github.sha }}" \
-              "BROOKS_LISTS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:${{ github.sha }}" \
-              "BROOKS_PINS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-pins-service:${{ github.sha }}" \
-              "BROOKS_MEDIA_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-media-service:${{ github.sha }}" \
-              "BROOKS_MODERATION_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:${{ github.sha }}" \
-              "BROOKS_NOTIFICATIONS_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:${{ github.sha }}" \
-              "BROOKS_FRONTEND_IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:${{ github.sha }}" \
+              "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}" \
+              "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}" \
+              "BROOKS_LISTS_IMAGE=${LISTS_IMAGE}" \
+              "BROOKS_PINS_IMAGE=${PINS_IMAGE}" \
+              "BROOKS_MEDIA_IMAGE=${MEDIA_IMAGE}" \
+              "BROOKS_MODERATION_IMAGE=${MODERATION_IMAGE}" \
+              "BROOKS_NOTIFICATIONS_IMAGE=${NOTIFICATIONS_IMAGE}" \
+              "BROOKS_FRONTEND_IMAGE=${FRONTEND_IMAGE}" \
               >> /opt/brooks/.env.runtime
+            export BROOKS_AUTH_IMAGE="${AUTH_IMAGE}" BROOKS_SOCIAL_IMAGE="${SOCIAL_IMAGE}" BROOKS_LISTS_IMAGE="${LISTS_IMAGE}" BROOKS_PINS_IMAGE="${PINS_IMAGE}" BROOKS_MEDIA_IMAGE="${MEDIA_IMAGE}" BROOKS_MODERATION_IMAGE="${MODERATION_IMAGE}" BROOKS_NOTIFICATIONS_IMAGE="${NOTIFICATIONS_IMAGE}" BROOKS_FRONTEND_IMAGE="${FRONTEND_IMAGE}"
 
             $DOCKER network create web 2>/dev/null || true
             $DOCKER network create brooks-network 2>/dev/null || true
