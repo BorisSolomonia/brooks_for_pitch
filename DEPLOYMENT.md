@@ -64,7 +64,7 @@ Internet → Caddy (HTTPS) → Frontend (Nginx:3000) + Backend (Spring Boot:8080
 ## Prerequisites
 
 - [x] GCP project: `brooks-485009`
-- [x] GCP VM: `instance-20260122-071626` (IP: `35.192.65.148`, Zone: `us-central1-c`)
+- [x] GCP VM: `instance-20260213-212636` (IP: `35.238.77.14`, Zone: `us-central1-a`)
 - [x] Service Account: `brooks-service-account@brooks-485009.iam.gserviceaccount.com`
 - [x] Artifact Registry: `us-central1-docker.pkg.dev/brooks-485009/brooksar`
 - [x] Domain: `brooksweb.uk`
@@ -79,8 +79,8 @@ Internet → Caddy (HTTPS) → Frontend (Nginx:3000) + Backend (Spring Boot:8080
 Point your domain to the VM's external IP:
 
 ```
-A Record:     brooksweb.uk      → 35.192.65.148
-A Record:     www.brooksweb.uk  → 35.192.65.148
+A Record:     brooksweb.uk      → 35.238.77.14
+A Record:     www.brooksweb.uk  → 35.238.77.14
 ```
 
 Wait for DNS propagation (use `nslookup brooksweb.uk` to verify).
@@ -91,8 +91,8 @@ SSH into your VM and run the setup script:
 
 ```bash
 # SSH to VM (run this on your local machine, not on the VM)
-gcloud compute ssh instance-20260122-071626 \
-  --zone=us-central1-c \
+gcloud compute ssh instance-20260213-212636 \
+  --zone=us-central1-a \
   --project=brooks-485009
 
 # Download and run setup script (or copy it manually)
@@ -171,7 +171,7 @@ Add the following secrets to your GitHub repository (`Settings` → `Secrets and
 | Secret Name | Description | How to Get |
 |------------|-------------|-----------|
 | `GCP_SA_KEY` | Service account JSON key | Download from GCP Console → IAM → Service Accounts → Create Key (JSON) |
-| `VM_HOST` | VM external IP | `35.192.65.148` |
+| `VM_HOST` | VM external IP | `35.238.77.14` |
 | `VM_SSH_USER` | SSH username | Your GCP username (usually your email prefix) |
 | `VM_SSH_KEY` | SSH private key | Content of `~/.ssh/github_actions_brooks` from step 3 |
 
@@ -219,7 +219,7 @@ If you need to manually initialize or update the schema:
 
 ```bash
 # SSH to VM
-gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
+gcloud compute ssh instance-20260213-212636 --zone=us-central1-a --project=brooks-485009
 
 # Once deployed, exec into the database container
 docker exec -i brooks-db psql -U brooks -d brooks < /docker-entrypoint-initdb.d/01-schema.sql
@@ -253,7 +253,7 @@ After deployment completes:
 
 ```bash
 # Check services are running
-gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
+gcloud compute ssh instance-20260213-212636 --zone=us-central1-a --project=brooks-485009
 cd /opt/brooks
 docker compose ps
 
@@ -390,11 +390,11 @@ This section captures real issues seen during setup so the next project avoids t
   Symptom: `Invalid value for field 'resource.natIP': 'brooks-static-ip'`  
   Fix: use the **actual IP** instead of the name:
   ```bash
-  gcloud compute instances add-access-config instance-20260122-071626 \
-    --zone us-central1-c \
+  gcloud compute instances add-access-config instance-20260213-212636 \
+    --zone us-central1-a \
     --project brooks-485009 \
     --access-config-name="External NAT" \
-    --address 35.192.65.148
+    --address 35.238.77.14
   ```
 
 - **`gcloud compute ssh` run on VM fails with scopes error**  
@@ -405,12 +405,12 @@ This section captures real issues seen during setup so the next project avoids t
   Symptom: `ACCESS_TOKEN_SCOPE_INSUFFICIENT` on `gcloud secrets versions access`.  
   Fix: set VM service account scopes to cloud-platform and grant IAM role:
   ```bash
-  gcloud compute instances stop instance-20260122-071626 --zone us-central1-c --project brooks-485009
-  gcloud compute instances set-service-account instance-20260122-071626 \
-    --zone us-central1-c \
+  gcloud compute instances stop instance-20260213-212636 --zone us-central1-a --project brooks-485009
+  gcloud compute instances set-service-account instance-20260213-212636 \
+    --zone us-central1-a \
     --project brooks-485009 \
     --scopes=https://www.googleapis.com/auth/cloud-platform
-  gcloud compute instances start instance-20260122-071626 --zone us-central1-c --project brooks-485009
+  gcloud compute instances start instance-20260213-212636 --zone us-central1-a --project brooks-485009
 
   gcloud projects add-iam-policy-binding brooks-485009 \
     --member="serviceAccount:1074421896445-compute@developer.gserviceaccount.com" \
@@ -522,7 +522,7 @@ If GitHub Actions fails and you need to deploy manually:
 
 ```bash
 # SSH to VM
-gcloud compute ssh instance-20260122-071626 --zone=us-central1-c --project=brooks-485009
+gcloud compute ssh instance-20260213-212636 --zone=us-central1-a --project=brooks-485009
 
 # Navigate to app directory
 cd /opt/brooks

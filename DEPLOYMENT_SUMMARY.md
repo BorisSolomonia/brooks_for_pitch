@@ -73,7 +73,7 @@ All deployment configurations have been created for deploying your Brooks app to
 ### GCP Configuration
 - **Project ID**: `brooks-485009`
 - **VM Name**: `brooks-20260121-095019`
-- **VM IP**: `34.59.112.7`
+- **VM IP**: `35.238.77.14`
 - **VM Zone**: `us-central1-f`
 - **Service Account**: `brooks-service-account@brooks-485009.iam.gserviceaccount.com`
 - **Artifact Registry**: `us-central1-docker.pkg.dev/brooks-485009/brooksar`
@@ -94,8 +94,8 @@ All deployment configurations have been created for deploying your Brooks app to
 ### 1️⃣ DNS Configuration (Required)
 ```
 Point your domain to the VM:
-A Record: brooksweb.uk → 34.59.112.7
-A Record: www.brooksweb.uk → 34.59.112.7
+A Record: brooksweb.uk → 35.238.77.14
+A Record: www.brooksweb.uk → 35.238.77.14
 
 Verify: nslookup brooksweb.uk
 ```
@@ -148,7 +148,7 @@ Add these secrets:
 | Secret Name | Description | How to Get |
 |------------|-------------|-----------|
 | `GCP_SA_KEY` | Service account JSON key | See command below |
-| `VM_HOST` | VM external IP | `34.59.112.7` |
+| `VM_HOST` | VM external IP | `35.238.77.14` |
 | `VM_SSH_USER` | SSH username | Your GCP username |
 | `VM_SSH_KEY` | SSH private key | From step 2 above |
 

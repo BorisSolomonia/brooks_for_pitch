@@ -4,7 +4,7 @@
 
 ### 1. DNS Setup (5 min)
 ```
-Point brooksweb.uk → 34.59.112.7
+Point brooksweb.uk → 35.238.77.14
 ```
 
 ### 2. VM Setup (5 min)
@@ -37,7 +37,7 @@ Add to GitHub repository (`Settings` → `Secrets`):
 | Secret | Value |
 |--------|-------|
 | `GCP_SA_KEY` | Service account JSON key |
-| `VM_HOST` | `34.59.112.7` |
+| `VM_HOST` | `35.238.77.14` |
 | `VM_SSH_USER` | Your GCP username |
 | `VM_SSH_KEY` | Content from `~/.ssh/github_actions_brooks` |
 
