@@ -11,7 +11,7 @@ spring:
     locations: classpath:db/migration
 
 server:
-  port: ${AUTH_SERVICE_PORT}
+  port: ${SERVER_PORT:${AUTH_SERVICE_PORT:8081}}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}

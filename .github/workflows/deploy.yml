@@ -99,6 +99,10 @@ jobs:
               echo "${svc}_DB_URL points to localhost; invalid inside containers";
               exit 1;
             }
+            echo "$url" | grep -Eq 'jdbc:postgresql://postgres(:|/|$)' && {
+              echo "${svc}_DB_URL points to host postgres; invalid unless local DB service exists";
+              exit 1;
+            }
 
             if echo "$url" | grep -q 'pooler.supabase.com' && [ "$user" = "postgres" ]; then
               echo "${svc}_DB_USER must be postgres.<project-ref> when using Supabase pooler"
@@ -184,12 +188,45 @@ jobs:
           echo "BROOKS_FRONTEND_IMAGE=${IMAGE_PATH}:${GITHUB_SHA}" >> "$GITHUB_ENV"
 
       - name: Upload deployment files to VM
+        id: scp_upload_1
+        continue-on-error: true
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
+          timeout: 120s
+          command_timeout: 180s
+          overwrite: true
+          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
+          target: /opt/brooks/
+
+      - name: Re-check SSH before retry upload
+        if: steps.scp_upload_1.outcome == 'failure'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 30s
+          script: |
+            set -e
+            echo "Retry SSH handshake successful"
+            echo "Host: $(hostname)"
+
+      - name: Retry upload deployment files to VM
+        if: steps.scp_upload_1.outcome == 'failure'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          timeout: 120s
+          command_timeout: 180s
           overwrite: true
           source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
           target: /opt/brooks/

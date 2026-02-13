@@ -1,5 +1,5 @@
 server:
-  port: ${NOTIFICATIONS_SERVICE_PORT}
+  port: ${SERVER_PORT:${NOTIFICATIONS_SERVICE_PORT:8087}}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}

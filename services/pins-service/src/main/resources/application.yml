@@ -19,7 +19,7 @@ spring:
     locations: classpath:db/migration
 
 server:
-  port: ${PINS_SERVICE_PORT}
+  port: ${SERVER_PORT:${PINS_SERVICE_PORT:8084}}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}

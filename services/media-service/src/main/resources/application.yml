@@ -1,5 +1,5 @@
 server:
-  port: ${MEDIA_SERVICE_PORT}
+  port: ${SERVER_PORT:${MEDIA_SERVICE_PORT:8085}}
 
 auth0:
   issuer-uri: ${AUTH0_ISSUER_URI}
