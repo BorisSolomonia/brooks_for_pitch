@@ -6,7 +6,7 @@ All deployment configurations have been created for deploying your Brooks app to
 
 ## 📁 Files Created/Updated
 
-### Docker Configuration
+### Docker Configuration.
 - ✅ `server/Dockerfile` - Spring Boot backend container (Java 17, Maven build)
 - ✅ `web/Dockerfile` - React/Vite frontend container (Node.js build + Nginx)
 - ✅ `web/nginx.conf` - Nginx configuration for SPA routing and caching
