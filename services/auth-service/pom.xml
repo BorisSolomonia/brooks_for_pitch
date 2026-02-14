@@ -83,6 +83,14 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>db/migration/V2__seed_demo_user.sql</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -91,5 +99,4 @@
     </plugins>
   </build>
 </project>
-
 
