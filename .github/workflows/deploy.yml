@@ -296,7 +296,7 @@ jobs:
               s#[?&]$##g;
             }' /opt/brooks/.env
 
-            for key in REDIS_PASSWORD AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
+            for key in REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
               val="$(grep -E "^${key}=" /opt/brooks/.env | cut -d'=' -f2- || true)"
               if [ -z "${val}" ]; then
                 echo "Missing required env var in /opt/brooks/.env: ${key}"
@@ -306,14 +306,6 @@ jobs:
 
             cd /opt/brooks
 
-            # Remove previous deployment after successful handshake.
-            $DOCKER compose --env-file /opt/brooks/.env -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
-            $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
-            $DOCKER rmi -f $($DOCKER images -q '*/brooks-*') 2>/dev/null || true
-            $DOCKER network prune -f || true
-            $DOCKER system prune -af --volumes || true
-
-            cp /opt/brooks/.env /opt/brooks/.env.runtime
             AUTH_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-auth-service:${{ github.sha }}"
             SOCIAL_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-social-service:${{ github.sha }}"
             LISTS_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-lists-service:${{ github.sha }}"
@@ -322,6 +314,9 @@ jobs:
             MODERATION_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-moderation-service:${{ github.sha }}"
             NOTIFICATIONS_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-notifications-service:${{ github.sha }}"
             FRONTEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/brooks-frontend:${{ github.sha }}"
+
+            cp /opt/brooks/.env /opt/brooks/.env.runtime
+            sed -E -i '/^BROOKS_(AUTH|SOCIAL|LISTS|PINS|MEDIA|MODERATION|NOTIFICATIONS|FRONTEND)_IMAGE=/d' /opt/brooks/.env.runtime
             printf "%s\n" \
               "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}" \
               "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}" \
@@ -334,8 +329,24 @@ jobs:
               >> /opt/brooks/.env.runtime
             export BROOKS_AUTH_IMAGE="${AUTH_IMAGE}" BROOKS_SOCIAL_IMAGE="${SOCIAL_IMAGE}" BROOKS_LISTS_IMAGE="${LISTS_IMAGE}" BROOKS_PINS_IMAGE="${PINS_IMAGE}" BROOKS_MEDIA_IMAGE="${MEDIA_IMAGE}" BROOKS_MODERATION_IMAGE="${MODERATION_IMAGE}" BROOKS_NOTIFICATIONS_IMAGE="${NOTIFICATIONS_IMAGE}" BROOKS_FRONTEND_IMAGE="${FRONTEND_IMAGE}"
 
+            # Remove previous deployment after successful handshake.
+            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
+            $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
+            $DOCKER rmi -f $($DOCKER images -q '*/brooks-*') 2>/dev/null || true
+            $DOCKER network prune -f || true
+            $DOCKER system prune -af --volumes || true
+
             $DOCKER network create web 2>/dev/null || true
             $DOCKER network create brooks-network 2>/dev/null || true
+
+            REGISTRY="${{ env.REGION }}-docker.pkg.dev"
+            TOKEN="$(
+              curl -fsS -H 'Metadata-Flavor: Google' \
+                'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' \
+              | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])"
+            )"
+            [ -n "${TOKEN}" ] || { echo "Failed to get VM metadata access token"; exit 1; }
+            printf '%s' "${TOKEN}" | $DOCKER login -u oauth2accesstoken --password-stdin "https://${REGISTRY}"
 
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate --remove-orphans
