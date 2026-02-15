@@ -317,6 +317,11 @@ jobs:
 
             cp /opt/brooks/.env /opt/brooks/.env.runtime
             sed -E -i '/^BROOKS_(AUTH|SOCIAL|LISTS|PINS|MEDIA|MODERATION|NOTIFICATIONS|FRONTEND)_IMAGE=/d' /opt/brooks/.env.runtime
+            # Ensure low DB pressure defaults exist for Supabase pooler.
+            grep -q '^DB_MAX_POOL_SIZE=' /opt/brooks/.env.runtime || echo 'DB_MAX_POOL_SIZE=1' >> /opt/brooks/.env.runtime
+            grep -q '^DB_MIN_IDLE=' /opt/brooks/.env.runtime || echo 'DB_MIN_IDLE=0' >> /opt/brooks/.env.runtime
+            grep -q '^DB_CONNECTION_TIMEOUT_MS=' /opt/brooks/.env.runtime || echo 'DB_CONNECTION_TIMEOUT_MS=60000' >> /opt/brooks/.env.runtime
+            grep -q '^FLYWAY_CONNECT_RETRIES=' /opt/brooks/.env.runtime || echo 'FLYWAY_CONNECT_RETRIES=30' >> /opt/brooks/.env.runtime
             printf "%s\n" \
               "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}" \
               "BROOKS_SOCIAL_IMAGE=${SOCIAL_IMAGE}" \
@@ -352,9 +357,13 @@ jobs:
 
             # Start in phases to avoid DB connection spikes during Flyway startup.
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate redis
-            for svc in auth-service social-service lists-service pins-service moderation-service media-service notifications-service frontend caddy; do
+            for svc in auth-service social-service lists-service pins-service moderation-service; do
               $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate "$svc"
-              sleep 8
+              sleep 30
+            done
+            for svc in media-service notifications-service frontend caddy; do
+              $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate "$svc"
+              sleep 5
             done
 
             sleep 30
