@@ -349,7 +349,13 @@ jobs:
             printf '%s' "${TOKEN}" | $DOCKER login -u oauth2accesstoken --password-stdin "https://${REGISTRY}"
 
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml pull
-            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate --remove-orphans
+
+            # Start in phases to avoid DB connection spikes during Flyway startup.
+            $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate redis
+            for svc in auth-service social-service lists-service pins-service moderation-service media-service notifications-service frontend caddy; do
+              $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml up -d --force-recreate "$svc"
+              sleep 8
+            done
 
             sleep 30
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml ps
