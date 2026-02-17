@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import '../styles/TopBar.css';
+import { useId, useState } from "react";
+import "../styles/TopBar.css";
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -11,71 +11,77 @@ interface TopBarProps {
 
 export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentTheme }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuId = useId();
 
   const getInitials = (name?: string, email?: string) => {
     if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      return name
+        .split(" ")
+        .map(part => part[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
     }
     if (email) {
-      return email[0].toUpperCase();
+      return email[0]?.toUpperCase() ?? "?";
     }
-    return '?';
+    return "?";
   };
 
   const getThemeLabel = (theme: string) => {
     const themes: Record<string, string> = {
-      rome: 'RM',
-      tbilisi: 'TB',
-      paris: 'PR',
-      default: 'AT'
+      rome: "RM",
+      tbilisi: "TB",
+      paris: "PR",
+      default: "AT"
     };
     return themes[theme.toLowerCase()] || themes.default;
   };
 
   return (
-    <header className="top-bar">
-      <div className="top-bar-left">
-        <button
-          className="hamburger-btn"
-          onClick={onMenuClick}
-          aria-label="Open menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <header className="command-bar">
+      <div className="command-bar-left">
+        <button className="command-btn" onClick={onMenuClick} aria-label="Open menu" aria-controls="brooks-navigation-drawer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
-        <h1 className="app-title">Brooks</h1>
+        <div className="brand-mark">
+          <p className="eyebrow">Brooks</p>
+          <h1 className="brand-title">City pulse map</h1>
+        </div>
       </div>
 
-      <div className="top-bar-right">
-        <div className="theme-badge" title={`Theme: ${currentTheme}`}>
-          {getThemeLabel(currentTheme)}
+      <div className="command-bar-right">
+        <div className="theme-chip" title={`Theme: ${currentTheme}`}>
+          <span>{getThemeLabel(currentTheme)}</span>
         </div>
 
         <div className="user-menu-container">
           <button
             className="user-avatar"
-            onClick={() => setShowUserMenu(!showUserMenu)}
+            onClick={() => setShowUserMenu(open => !open)}
             aria-label="User menu"
+            aria-haspopup="menu"
+            aria-expanded={showUserMenu}
+            aria-controls={menuId}
           >
             {getInitials(userName, userEmail)}
           </button>
 
-          {showUserMenu && (
+          {showUserMenu ? (
             <>
-              <div
-                className="user-menu-backdrop"
-                onClick={() => setShowUserMenu(false)}
-              />
-              <div className="user-menu">
+              <div className="user-menu-backdrop" onClick={() => setShowUserMenu(false)} />
+              <div className="user-menu" role="menu" id={menuId}>
                 <div className="user-menu-header">
-                  <div className="user-menu-name">{userName || 'User'}</div>
+                  <div className="user-menu-name">{userName || "User"}</div>
                   <div className="user-menu-email">{userEmail}</div>
                 </div>
                 <button
                   className="user-menu-item"
+                  role="menuitem"
                   onClick={() => {
                     onSignOut();
                     setShowUserMenu(false);
@@ -86,11 +92,11 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentThe
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
                   </svg>
-                  Sign Out
+                  Sign out
                 </button>
               </div>
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

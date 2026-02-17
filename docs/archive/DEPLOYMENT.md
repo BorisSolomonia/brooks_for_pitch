@@ -2,14 +2,13 @@
 
 This file is retained for backward compatibility.
 
-## Authoritative Deployment Document
-Use `DEPLOYMENT_GUIDE_DETAILED.md`.
+## Canonical Docs
+- `PROJECT_OVERVIEW.md`
+- `BUILD_GUIDE_DETAILED.md`
+- `DEPLOYMENT_GUIDE_DETAILED.md`
 
-It contains:
-- current deployment architecture
-- VM + Artifact Registry + Secret Manager flow
-- phased startup to prevent DB pool storms
-- known incidents and recovery procedures
+## Authoritative Deployment Document
+Use `DEPLOYMENT_GUIDE_DETAILED.md` for deployment and operations.
 
 ## Why This File Was Simplified
 Older content in this file mixed:

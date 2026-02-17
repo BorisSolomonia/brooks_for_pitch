@@ -7,7 +7,7 @@ interface FABProps {
 
 export function FAB({ onClick, label = 'Leave a Mark' }: FABProps) {
   return (
-    <button className="fab" onClick={onClick} aria-label={label}>
+    <button type="button" className="fab" onClick={onClick} aria-label={label}>
       <svg
         className="fab-icon"
         width="24"

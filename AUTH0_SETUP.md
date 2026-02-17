@@ -1,6 +1,11 @@
 # Auth0 Configuration Guide
 
-Complete guide to setting up Auth0 for the Brooks app.
+This guide covers Auth0-specific setup for Brooks.
+
+## Canonical Docs
+- `PROJECT_OVERVIEW.md`
+- `BUILD_GUIDE_DETAILED.md`
+- `DEPLOYMENT_GUIDE_DETAILED.md`
 
 ## Overview
 

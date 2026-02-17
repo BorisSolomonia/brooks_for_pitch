@@ -2,7 +2,7 @@
 
 This document explains deployment architecture, exact deployment flow for this repo, and real production issues seen in this project with fixes.
 
-## 1. Deployment Architecture
+## 1. Deployment Architecture.
 
 Current target architecture:
 - GitHub Actions builds service images
