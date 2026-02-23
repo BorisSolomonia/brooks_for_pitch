@@ -43,6 +43,8 @@
   --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
 
+  --font-serif: "Playfair Display", "Georgia", serif;
+
   --bg: var(--bg-0);
   --bg-3: var(--bg-2);
   --ink: var(--text-primary);
@@ -100,6 +102,7 @@ body::after {
   background-image: radial-gradient(rgba(255, 255, 255, 0.22) 0.6px, transparent 0.8px);
   background-size: 3px 3px;
   mix-blend-mode: soft-light;
+  filter: contrast(120%) brightness(80%);
 }
 
 ::selection {
@@ -190,14 +193,32 @@ select {
 .auth-panel h2,
 .auth-panel h1 {
   margin: 0;
-  font-family: "Sora", "Manrope", sans-serif;
   line-height: 1.08;
   letter-spacing: -0.02em;
 }
 
+.auth-panel h2,
+.auth-panel h1 {
+  font-family: "Sora", "Manrope", sans-serif;
+}
+
 .auth-hero h1 {
+  font-family: var(--font-serif);
+  font-style: italic;
   font-size: clamp(2.1rem, 4.1vw, 3.5rem);
   max-width: 18ch;
+}
+
+.auth-verse {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  border-left: 2px solid var(--accent-secondary);
+  padding-left: 14px;
+  margin: 0;
+  opacity: 0.8;
 }
 
 .lead {
@@ -269,8 +290,8 @@ select {
 }
 
 .auth-panel {
-  background: linear-gradient(158deg, rgba(14, 24, 36, 0.94), rgba(21, 31, 45, 0.88));
-  border: 1px solid var(--stroke);
+  background: linear-gradient(158deg, rgba(20, 14, 8, 0.96), rgba(28, 18, 10, 0.92));
+  border: 1px solid rgba(246, 180, 78, 0.25);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-strong);
   backdrop-filter: blur(16px);
@@ -283,6 +304,91 @@ select {
 
 .auth-gate > .auth-panel {
   width: min(560px, 100%);
+}
+
+.auth-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.fairy-lights {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fairy-lights::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    42px 38px 3px 1px rgba(246, 180, 78, 0.65),
+    120px 110px 3px 1px rgba(70, 224, 195, 0.65),
+    180px 95px 3px 1px rgba(246, 180, 78, 0.5),
+    265px 190px 3px 1px rgba(70, 224, 195, 0.5),
+    320px 45px 3px 1px rgba(246, 180, 78, 0.65),
+    400px 120px 3px 1px rgba(70, 224, 195, 0.6),
+    460px 160px 3px 1px rgba(246, 180, 78, 0.5),
+    540px 210px 3px 1px rgba(70, 224, 195, 0.55),
+    580px 75px 3px 1px rgba(246, 180, 78, 0.65),
+    680px 160px 3px 1px rgba(70, 224, 195, 0.5),
+    720px 130px 3px 1px rgba(246, 180, 78, 0.6),
+    820px 200px 3px 1px rgba(70, 224, 195, 0.55),
+    860px 50px 3px 1px rgba(246, 180, 78, 0.65),
+    960px 120px 3px 1px rgba(70, 224, 195, 0.6),
+    980px 180px 3px 1px rgba(246, 180, 78, 0.5),
+    1100px 90px 3px 1px rgba(246, 180, 78, 0.55),
+    1100px 240px 3px 1px rgba(70, 224, 195, 0.5),
+    1240px 55px 3px 1px rgba(246, 180, 78, 0.65),
+    1240px 170px 3px 1px rgba(70, 224, 195, 0.55),
+    1380px 140px 3px 1px rgba(246, 180, 78, 0.5),
+    1400px 230px 3px 1px rgba(70, 224, 195, 0.6),
+    1520px 80px 3px 1px rgba(246, 180, 78, 0.65),
+    1560px 140px 3px 1px rgba(70, 224, 195, 0.5),
+    1660px 160px 3px 1px rgba(246, 180, 78, 0.55),
+    1700px 200px 3px 1px rgba(70, 224, 195, 0.55),
+    1780px 50px 3px 1px rgba(246, 180, 78, 0.65),
+    1820px 120px 3px 1px rgba(70, 224, 195, 0.6),
+    90px 260px 3px 1px rgba(246, 180, 78, 0.5),
+    150px 300px 3px 1px rgba(70, 224, 195, 0.55),
+    230px 340px 3px 1px rgba(246, 180, 78, 0.55),
+    300px 400px 3px 1px rgba(70, 224, 195, 0.5),
+    370px 290px 3px 1px rgba(246, 180, 78, 0.6),
+    440px 330px 3px 1px rgba(70, 224, 195, 0.6),
+    510px 380px 3px 1px rgba(246, 180, 78, 0.5),
+    580px 440px 3px 1px rgba(70, 224, 195, 0.55),
+    650px 310px 3px 1px rgba(246, 180, 78, 0.55),
+    720px 370px 3px 1px rgba(70, 224, 195, 0.5),
+    790px 420px 3px 1px rgba(246, 180, 78, 0.6),
+    860px 460px 3px 1px rgba(70, 224, 195, 0.55),
+    930px 360px 3px 1px rgba(246, 180, 78, 0.5),
+    1000px 400px 3px 1px rgba(70, 224, 195, 0.6),
+    1070px 280px 3px 1px rgba(246, 180, 78, 0.55),
+    1140px 340px 3px 1px rgba(70, 224, 195, 0.5),
+    1210px 450px 3px 1px rgba(246, 180, 78, 0.5),
+    1280px 490px 3px 1px rgba(70, 224, 195, 0.55),
+    1350px 320px 3px 1px rgba(246, 180, 78, 0.6),
+    1420px 380px 3px 1px rgba(70, 224, 195, 0.5),
+    1490px 400px 3px 1px rgba(246, 180, 78, 0.55),
+    1560px 460px 3px 1px rgba(70, 224, 195, 0.55),
+    55px 530px 3px 1px rgba(246, 180, 78, 0.5),
+    70px 600px 3px 1px rgba(70, 224, 195, 0.6),
+    190px 620px 3px 1px rgba(246, 180, 78, 0.55),
+    215px 700px 3px 1px rgba(70, 224, 195, 0.5),
+    340px 560px 3px 1px rgba(246, 180, 78, 0.6),
+    360px 640px 3px 1px rgba(70, 224, 195, 0.55),
+    480px 680px 3px 1px rgba(246, 180, 78, 0.5),
+    500px 760px 3px 1px rgba(70, 224, 195, 0.5),
+    625px 590px 3px 1px rgba(246, 180, 78, 0.55),
+    640px 680px 3px 1px rgba(70, 224, 195, 0.6),
+    780px 780px 3px 1px rgba(70, 224, 195, 0.5);
+  animation: fairy-twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes fairy-twinkle {
+  from { opacity: 0.4; }
+  to   { opacity: 1; }
 }
 
 .auth-panel h2,

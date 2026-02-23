@@ -14,6 +14,8 @@ type MapViewProps = {
   center: Coordinates;
   pins: MapPin[];
   onDoubleClick?: (coords: Coordinates) => void;
+  onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
+  onHoldEnd?: () => void;
 };
 
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
@@ -35,14 +37,80 @@ function Recenter({ center }: { center: Coordinates }) {
   return null;
 }
 
+function MapDoubleClickHandler({
+  onDoubleClick
+}: {
+  onDoubleClick: (coords: Coordinates) => void;
+}) {
+  useMapEvents({
+    dblclick: event => {
+      onDoubleClick({ lat: event.latlng.lat, lng: event.latlng.lng });
+    }
+  });
+  return null;
+}
+
+function MapHoldHandler({
+  onHoldStart,
+  onHoldEnd
+}: {
+  onHoldStart: (coords: Coordinates, clientX: number, clientY: number) => void;
+  onHoldEnd: () => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      const rect = container.getBoundingClientRect();
+      const latLng = map.containerPointToLatLng(
+        L.point(e.clientX - rect.left, e.clientY - rect.top)
+      );
+      onHoldStart({ lat: latLng.lat, lng: latLng.lng }, e.clientX, e.clientY);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const rect = container.getBoundingClientRect();
+      const latLng = map.containerPointToLatLng(
+        L.point(touch.clientX - rect.left, touch.clientY - rect.top)
+      );
+      onHoldStart({ lat: latLng.lat, lng: latLng.lng }, touch.clientX, touch.clientY);
+    };
+
+    const handleUp = () => onHoldEnd();
+
+    container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("mouseup", handleUp);
+    document.addEventListener("touchend", handleUp);
+
+    return () => {
+      container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("mouseup", handleUp);
+      document.removeEventListener("touchend", handleUp);
+    };
+  }, [map, onHoldStart, onHoldEnd]);
+
+  return null;
+}
+
 function LeafletMap({
   center,
   pins,
-  onDoubleClick
+  onDoubleClick,
+  onHoldStart,
+  onHoldEnd
 }: {
   center: Coordinates;
   pins: MapPin[];
   onDoubleClick?: (coords: Coordinates) => void;
+  onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
+  onHoldEnd?: () => void;
 }) {
   if (!LEAFLET_TILE_URL || !LEAFLET_ATTRIBUTION) {
     return (
@@ -74,6 +142,9 @@ function LeafletMap({
       {onDoubleClick ? (
         <MapDoubleClickHandler onDoubleClick={onDoubleClick} />
       ) : null}
+      {onHoldStart && onHoldEnd ? (
+        <MapHoldHandler onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />
+      ) : null}
       {pins.map(pin => (
         <Marker key={pin.id} position={[pin.location.lat, pin.location.lng]} />
       ))}
@@ -81,27 +152,18 @@ function LeafletMap({
   );
 }
 
-function MapDoubleClickHandler({
-  onDoubleClick
-}: {
-  onDoubleClick: (coords: Coordinates) => void;
-}) {
-  useMapEvents({
-    dblclick: event => {
-      onDoubleClick({ lat: event.latlng.lat, lng: event.latlng.lng });
-    }
-  });
-  return null;
-}
-
 function GoogleMap({
   center,
   pins,
-  onDoubleClick
+  onDoubleClick,
+  onHoldStart,
+  onHoldEnd
 }: {
   center: Coordinates;
   pins: MapPin[];
   onDoubleClick?: (coords: Coordinates) => void;
+  onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
+  onHoldEnd?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -142,6 +204,39 @@ function GoogleMap({
   }, [onDoubleClick]);
 
   useEffect(() => {
+    if (!mapRef.current || !onHoldStart || !onHoldEnd) {
+      return;
+    }
+    const listener = mapRef.current.addListener(
+      "mousedown",
+      (e: google.maps.MapMouseEvent) => {
+        if (!e.latLng) return;
+        const domEvent = (e as unknown as { domEvent: MouseEvent | TouchEvent }).domEvent;
+        let clientX: number;
+        let clientY: number;
+        if ("touches" in domEvent && domEvent.touches.length > 0) {
+          clientX = domEvent.touches[0].clientX;
+          clientY = domEvent.touches[0].clientY;
+        } else {
+          clientX = (domEvent as MouseEvent).clientX;
+          clientY = (domEvent as MouseEvent).clientY;
+        }
+        onHoldStart({ lat: e.latLng.lat(), lng: e.latLng.lng() }, clientX, clientY);
+      }
+    );
+
+    const handleUp = () => onHoldEnd();
+    document.addEventListener("mouseup", handleUp);
+    document.addEventListener("touchend", handleUp);
+
+    return () => {
+      listener.remove();
+      document.removeEventListener("mouseup", handleUp);
+      document.removeEventListener("touchend", handleUp);
+    };
+  }, [onHoldStart, onHoldEnd]);
+
+  useEffect(() => {
     if (!mapRef.current) {
       return;
     }
@@ -168,9 +263,9 @@ function GoogleMap({
   return <div ref={containerRef} className="map-canvas" />;
 }
 
-export default function MapView({ provider, center, pins, onDoubleClick }: MapViewProps) {
+export default function MapView({ provider, center, pins, onDoubleClick, onHoldStart, onHoldEnd }: MapViewProps) {
   if (provider === "google") {
-    return <GoogleMap center={center} pins={pins} onDoubleClick={onDoubleClick} />;
+    return <GoogleMap center={center} pins={pins} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
   }
-  return <LeafletMap center={center} pins={pins} onDoubleClick={onDoubleClick} />;
+  return <LeafletMap center={center} pins={pins} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
 }

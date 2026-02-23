@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { TopBar } from "./components/TopBar";
 import { FAB } from "./components/FAB";
 import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
+import { MapChargeRing } from "./components/MapChargeRing";
 import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
@@ -38,6 +39,8 @@ export default function AppRedesigned() {
   const [pins, setPins] = useState<MapPin[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
+  const ringCompletedRef = useRef(false);
 
   const mapProviderEnv = import.meta.env.VITE_MAP_PROVIDER as "leaflet" | "google" | undefined;
   if (!mapProviderEnv) {
@@ -185,9 +188,14 @@ export default function AppRedesigned() {
           provider={mapProvider}
           center={center}
           pins={pins}
-          onDoubleClick={coords => {
-            setCenter(coords);
-            setIsModalOpen(true);
+          onHoldStart={(coords, x, y) => {
+            ringCompletedRef.current = false;
+            setChargeTarget({ coords, x, y });
+          }}
+          onHoldEnd={() => {
+            if (!ringCompletedRef.current) {
+              setChargeTarget(null);
+            }
           }}
         />
         <section className="map-hud" aria-live="polite">
@@ -214,6 +222,24 @@ export default function AppRedesigned() {
       </main>
 
       <FAB onClick={() => setIsModalOpen(true)} />
+
+      {chargeTarget && (
+        <MapChargeRing
+          x={chargeTarget.x}
+          y={chargeTarget.y}
+          active={!!chargeTarget}
+          onComplete={() => {
+            ringCompletedRef.current = true;
+            const coords = chargeTarget.coords;
+            setChargeTarget(null);
+            setCenter(coords);
+            setIsModalOpen(true);
+          }}
+          onCancel={() => {
+            setChargeTarget(null);
+          }}
+        />
+      )}
 
       <NavigationDrawer
         isOpen={isDrawerOpen}

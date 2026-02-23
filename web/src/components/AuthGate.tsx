@@ -28,48 +28,22 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
 
   return (
     <div className="auth-gate">
+      <div className="fairy-lights" aria-hidden="true" />
       <div className="auth-shell">
         <section className="auth-hero">
           <p className="eyebrow">Brooks</p>
-          <h1>Read the city as it breathes around you.</h1>
+          <h1>Leave a trace in time.</h1>
           <p className="muted lead">
-            Drop a pin, tune visibility, and discover what nearby people leave in motion.
+            Drop a pin anywhere. Choose who finds it — and when.
           </p>
-          <div className="hero-grid">
-            <div className="hero-tile">
-              <span className="hero-label">Nearby feed</span>
-              <span className="hero-value">Live map layer</span>
-              <p className="hero-sub">Pins refresh as your location changes.</p>
-            </div>
-            <div className="hero-tile">
-              <span className="hero-label">Quick post</span>
-              <span className="hero-value">One-tap publish</span>
-              <p className="hero-sub">Leave a mark without breaking your flow.</p>
-            </div>
-            <div className="hero-tile">
-              <span className="hero-label">City aware</span>
-              <span className="hero-value">Adaptive skin</span>
-              <p className="hero-sub">The UI shifts with your surroundings.</p>
-            </div>
-            <div className="hero-tile">
-              <span className="hero-label">Proximity first</span>
-              <span className="hero-value">Local by default</span>
-              <p className="hero-sub">Only nearby pins surface in your view.</p>
-            </div>
-          </div>
-          <div className="hero-strip">
-            <span className="hero-chip">Live radius</span>
-            <span className="hero-chip">Context first</span>
-            <span className="hero-chip">Instant map</span>
-          </div>
+          <p className="auth-verse">
+            Some things are meant to be discovered<br />
+            by the right person, at the right moment.
+          </p>
         </section>
 
         <aside className="auth-panel">
-          <p className="eyebrow">Access</p>
-          <h2>Sign in to publish and reveal local pins.</h2>
-          <p className="muted">
-            Use your account to open the map feed and post spatial notes around you.
-          </p>
+          <h2>Open the door</h2>
           {error && <p className="error">{error}</p>}
           <div className="auth-actions">
             <button
@@ -88,14 +62,6 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
             >
               Create account
             </button>
-          </div>
-          <p className="muted small">
-            You will be redirected to Auth0 to complete authentication.
-          </p>
-          <div className="auth-meta">
-            <span className="auth-chip">Secure auth</span>
-            <span className="auth-chip">Fast entry</span>
-            <span className="auth-chip">Privacy first</span>
           </div>
         </aside>
       </div>

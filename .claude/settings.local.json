@@ -20,7 +20,8 @@
       "Bash(ssh-keygen:*)",
       "Bash(gcloud compute ssh:*)",
       "Bash(gcloud compute instances add-metadata:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

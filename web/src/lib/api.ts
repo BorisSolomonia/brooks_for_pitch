@@ -41,7 +41,9 @@ export async function createPin(
   form: PinForm,
   location: Coordinates
 ): Promise<void> {
-  const expiresAt = new Date(Date.now() + form.expiresInHours * 60 * 60 * 1000).toISOString();
+  const expiresAt = form.expiresInHours === "permanent"
+    ? new Date("2124-01-01T00:00:00Z").toISOString()
+    : new Date(Date.now() + (form.expiresInHours as number) * 60 * 60 * 1000).toISOString();
   const acl = form.recipientIds && form.recipientIds.length
     ? { userIds: form.recipientIds }
     : undefined;
@@ -57,7 +59,8 @@ export async function createPin(
       lat: location.lat,
       lng: location.lng,
       altitudeM: null
-    }
+    },
+    ...(form.notifyRadiusM && form.notifyRadiusM > 0 ? { notifyRadiusM: form.notifyRadiusM } : {})
   };
 
   const response = await fetch(`${PINS_API_URL}/pins`, {

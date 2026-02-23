@@ -1,0 +1,45 @@
+.charge-ring-container {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 2000;
+}
+
+.charge-ring-container svg {
+  /* rotate so fill starts at 12 o'clock */
+  transform: rotate(-90deg);
+}
+
+.charge-ring-track {
+  stroke: rgba(255, 255, 255, 0.12);
+  fill: none;
+}
+
+.charge-ring-fill {
+  stroke: var(--accent-secondary);
+  fill: none;
+  stroke-linecap: round;
+  /* initial: fully hidden; animation fills to 0 */
+  stroke-dashoffset: 201.06;
+  animation: charge-fill 1500ms linear forwards;
+  filter: drop-shadow(0 0 6px var(--accent-secondary));
+}
+
+.charge-ring-center {
+  fill: var(--accent-secondary);
+  opacity: 0.9;
+  /* counter-rotate to keep dot upright */
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(90deg);
+}
+
+@keyframes charge-fill {
+  from {
+    stroke-dashoffset: 201.06;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

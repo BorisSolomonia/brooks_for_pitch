@@ -20,11 +20,12 @@ export type PinForm = {
   audienceType: "PRIVATE" | "FRIENDS" | "FOLLOWERS" | "PUBLIC";
   revealType: "VISIBLE_ALWAYS" | "REACH_TO_REVEAL";
   mapPrecision: "EXACT" | "BLURRED";
-  expiresInHours: number;
+  expiresInHours: number | "permanent";
   timeCapsule?: boolean;
   mediaType?: "NONE" | "PHOTO" | "VIDEO" | "AUDIO" | "LINK";
   recipientIds?: string[];
   externalRecipients?: string[];
+  notifyRadiusM?: number;
 };
 
 export type CityResult = {

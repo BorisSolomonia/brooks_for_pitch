@@ -2,6 +2,32 @@ import { useEffect, useId, useState } from "react";
 import type { PinForm as PinFormType, Coordinates } from "../lib/types";
 import "../styles/PinCreationModal.css";
 
+type DurationPreset = {
+  label: string;
+  hours: number | "permanent";
+  icon: string;
+};
+
+const DURATION_PRESETS: DurationPreset[] = [
+  { label: "1 day",    hours: 24,          icon: "◐" },
+  { label: "1 week",   hours: 168,         icon: "◑" },
+  { label: "1 month",  hours: 720,         icon: "◕" },
+  { label: "1 year",   hours: 8_760,       icon: "○" },
+  { label: "10 years", hours: 87_600,      icon: "◉" },
+  { label: "100 yrs",  hours: 876_000,     icon: "✦" },
+  { label: "Forever",  hours: "permanent", icon: "∞" },
+];
+
+const RADIUS_OPTIONS = [
+  { label: "None",  value: 0 },
+  { label: "50 m",  value: 50 },
+  { label: "100 m", value: 100 },
+  { label: "250 m", value: 250 },
+  { label: "500 m", value: 500 },
+  { label: "1 km",  value: 1000 },
+  { label: "5 km",  value: 5000 },
+];
+
 interface PinCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,7 +39,8 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const [text, setText] = useState("");
   const [audienceType, setAudienceType] = useState<"PRIVATE" | "FRIENDS" | "FOLLOWERS" | "PUBLIC">("PUBLIC");
   const [revealType, setRevealType] = useState<"VISIBLE_ALWAYS" | "REACH_TO_REVEAL">("VISIBLE_ALWAYS");
-  const [expiresInHours, setExpiresInHours] = useState(24);
+  const [expiresInHours, setExpiresInHours] = useState<number | "permanent">(24);
+  const [notifyRadiusM, setNotifyRadiusM] = useState(0);
   const [mapPrecision, setMapPrecision] = useState<"EXACT" | "BLURRED">("EXACT");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeCapsule, setTimeCapsule] = useState(false);
@@ -62,6 +89,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
         mapPrecision,
         timeCapsule,
         mediaType,
+        notifyRadiusM,
         recipientIds: sendToPeople
           ? recipientInput
               .split(",")
@@ -80,6 +108,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
       setAudienceType("PUBLIC");
       setRevealType("VISIBLE_ALWAYS");
       setExpiresInHours(24);
+      setNotifyRadiusM(0);
       setMapPrecision("EXACT");
       setTimeCapsule(false);
       setSendToPeople(false);
@@ -155,6 +184,22 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
               <button type="button" className={`pill ${audienceType === "PUBLIC" ? "active" : ""}`} onClick={() => setAudienceType("PUBLIC")}>
                 Public
               </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Notify radius</label>
+            <div className="pill-group">
+              {RADIUS_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`pill ${notifyRadiusM === opt.value ? "active" : ""}`}
+                  onClick={() => setNotifyRadiusM(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -237,30 +282,32 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="expires" className="form-label">
-                Expires in
-              </label>
-              <select id="expires" className="form-select" value={expiresInHours} onChange={event => setExpiresInHours(Number(event.target.value))}>
-                <option value={1}>1 hour</option>
-                <option value={6}>6 hours</option>
-                <option value={24}>24 hours</option>
-                <option value={168}>7 days</option>
-                <option value={720}>30 days</option>
-              </select>
+          <div className="form-group">
+            <label className="form-label">Duration</label>
+            <div className="duration-grid">
+              {DURATION_PRESETS.map(preset => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  className={`duration-card${preset.hours === "permanent" ? " forever" : ""}${expiresInHours === preset.hours ? " active" : ""}`}
+                  onClick={() => setExpiresInHours(preset.hours)}
+                >
+                  <span className="duration-icon">{preset.icon}</span>
+                  <span className="duration-label">{preset.label}</span>
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="form-group">
-              <label className="form-label">Location precision</label>
-              <div className="toggle-group">
-                <button type="button" className={`toggle ${mapPrecision === "EXACT" ? "active" : ""}`} onClick={() => setMapPrecision("EXACT")}>
-                  Exact
-                </button>
-                <button type="button" className={`toggle ${mapPrecision === "BLURRED" ? "active" : ""}`} onClick={() => setMapPrecision("BLURRED")}>
-                  Blurred
-                </button>
-              </div>
+          <div className="form-group">
+            <label className="form-label">Location precision</label>
+            <div className="toggle-group">
+              <button type="button" className={`toggle ${mapPrecision === "EXACT" ? "active" : ""}`} onClick={() => setMapPrecision("EXACT")}>
+                Exact
+              </button>
+              <button type="button" className={`toggle ${mapPrecision === "BLURRED" ? "active" : ""}`} onClick={() => setMapPrecision("BLURRED")}>
+                Blurred
+              </button>
             </div>
           </div>
 
