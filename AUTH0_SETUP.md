@@ -273,7 +273,7 @@ After successful login, check the browser console:
 - You should see an access token
 - Verify it's a valid JWT at https://jwt.io
 
-## Step 8: Redeploy Application
+## Step 8: Redeploy Application.
 
 After updating the GCP secret with Auth0 credentials:
 
