@@ -2,13 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CityResult } from "../lib/types";
 import { CityTheme, resolveTheme } from "../lib/theme";
 
-const rawNominatimUrl = import.meta.env.VITE_NOMINATIM_URL as string | undefined;
-if (!rawNominatimUrl) {
-  throw new Error("VITE_NOMINATIM_URL is required");
-}
-const NOMINATIM_URL = rawNominatimUrl.endsWith("/reverse")
-  ? rawNominatimUrl
-  : `${rawNominatimUrl.replace(/\/$/, "")}/reverse`;
+const BDC_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
 type ThemeState = {
   city?: string;
@@ -39,17 +33,14 @@ export function useCityTheme() {
         const lng = position.coords.longitude;
         try {
           const response = await fetch(
-            `${NOMINATIM_URL}?format=jsonv2&lat=${lat}&lon=${lng}`
+            `${BDC_URL}?latitude=${lat}&longitude=${lng}&localityLanguage=en`
           );
           const data = await response.json();
-          const address = data?.address ?? {};
           const city =
-            address.city ||
-            address.town ||
-            address.village ||
-            address.county ||
-            address.state;
-          const country = address.country;
+            data.city ||
+            data.locality ||
+            data.principalSubdivision;
+          const country = data.countryName;
           setLocation({ city, country, lat, lng });
           setStatus("ready");
         } catch (err) {
