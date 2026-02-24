@@ -50,7 +50,7 @@ brooksweb.uk, www.brooksweb.uk {
     reverse_proxy lists-service:8083
   }
 
-  handle_path /api/pins/* {
+  handle_path /api/pins* {
     reverse_proxy pins-service:8084
   }
 
@@ -120,7 +120,7 @@ http://brooksweb.uk, http://www.brooksweb.uk, :80 {
     reverse_proxy lists-service:8083
   }
 
-  handle_path /api/pins/* {
+  handle_path /api/pins* {
     reverse_proxy pins-service:8084
   }
 
