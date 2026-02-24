@@ -22,8 +22,12 @@ function jsonHeaders(token?: string) {
 
 async function handleJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed: ${response.status}`);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const text = await response.text();
+      throw new Error(text || `Request failed: ${response.status}`);
+    }
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
   }
   return response.json() as Promise<T>;
 }
