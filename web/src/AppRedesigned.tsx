@@ -8,14 +8,11 @@ import { MapChargeRing } from "./components/MapChargeRing";
 import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
-import { CITY_THEMES, applyTheme } from "./lib/theme";
+import { applyTheme } from "./lib/theme";
 import { fetchMapPins, createPin } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
-function formatCoord(value: number) {
-  return value.toFixed(4);
-}
 
 export default function AppRedesigned() {
   const {
@@ -41,6 +38,7 @@ export default function AppRedesigned() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
   const ringCompletedRef = useRef(false);
+  const [showPins, setShowPins] = useState(true);
 
   const mapProviderEnv = import.meta.env.VITE_MAP_PROVIDER as "leaflet" | "google" | undefined;
   if (!mapProviderEnv) {
@@ -171,8 +169,6 @@ export default function AppRedesigned() {
     );
   }
 
-  const locationLabel = location?.city ? `${location.city}${location.country ? `, ${location.country}` : ""}` : "Locating city";
-
   return (
     <div className="app-redesigned">
       <TopBar
@@ -187,7 +183,7 @@ export default function AppRedesigned() {
         <MapView
           provider={mapProvider}
           center={center}
-          pins={pins}
+          pins={showPins ? pins : []}
           onHoldStart={(coords, x, y) => {
             ringCompletedRef.current = false;
             setChargeTarget({ coords, x, y });
@@ -198,30 +194,30 @@ export default function AppRedesigned() {
             }
           }}
         />
-        <section className="map-hud" aria-live="polite">
-          <p className="eyebrow">City signal</p>
-          <h2>{CITY_THEMES[currentTheme].label}</h2>
-          <p className="map-hud-location">{locationLabel}</p>
-          <div className="map-hud-stats">
-            <div className="hud-stat">
-              <span className="hud-label">Center</span>
-              <strong>
-                {formatCoord(center.lat)}, {formatCoord(center.lng)}
-              </strong>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-label">Pins</span>
-              <strong>{pins.length}</strong>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-label">Map</span>
-              <strong>{mapProvider === "leaflet" ? "Leaflet" : "Google"}</strong>
-            </div>
-          </div>
-        </section>
       </main>
 
       <FAB onClick={() => setIsModalOpen(true)} />
+
+      <button
+        className={`pins-toggle${showPins ? "" : " pins-off"}`}
+        onClick={() => setShowPins(v => !v)}
+        title={showPins ? "Hide pins" : "Show pins"}
+        aria-pressed={showPins}
+      >
+        {showPins ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+          </svg>
+        )}
+        <span>{showPins ? "Pins" : "Hidden"}</span>
+      </button>
 
       {chargeTarget && (
         <MapChargeRing

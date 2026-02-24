@@ -64,7 +64,8 @@ export async function createPin(
       lng: location.lng,
       altitudeM: null
     },
-    ...(form.notifyRadiusM && form.notifyRadiusM > 0 ? { notifyRadiusM: form.notifyRadiusM } : {})
+    ...(form.notifyRadiusM && form.notifyRadiusM > 0 ? { notifyRadiusM: form.notifyRadiusM } : {}),
+    ...(form.revealAt ? { revealAt: new Date(form.revealAt).toISOString() } : {})
   };
 
   const response = await fetch(`${PINS_API_URL}/pins`, {

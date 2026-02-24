@@ -26,6 +26,7 @@ export type PinForm = {
   recipientIds?: string[];
   externalRecipients?: string[];
   notifyRadiusM?: number;
+  revealAt?: string;
 };
 
 export type CityResult = {

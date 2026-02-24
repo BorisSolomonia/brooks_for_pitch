@@ -178,27 +178,97 @@
   gap: 12px;
 }
 
-.capsule-group {
-  border: 1px solid var(--stroke);
-  border-radius: 14px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
+.capsule-recipients {
+  display: grid;
+  gap: 10px;
 }
 
-.capsule-toggle {
+/* ── Vault ─────────────────────────────────────────────── */
+.vault-group {
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.vault-group.vault-open {
+  border-color: rgba(246, 180, 78, 0.4);
+  box-shadow: 0 0 18px rgba(246, 180, 78, 0.08);
+}
+
+.vault-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  padding: 13px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  border: none;
+  transition: background var(--motion-fast) var(--ease-standard);
 }
 
-.capsule-toggle input {
-  width: 18px;
-  height: 18px;
+.vault-trigger:hover {
+  background: rgba(255, 255, 255, 0.07);
 }
 
-.capsule-options,
-.capsule-recipients {
+.vault-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.vault-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+}
+
+.vault-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  flex: 1;
+}
+
+.vault-chevron {
+  color: var(--text-dim);
+  transition: transform var(--motion-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.vault-chevron.expanded {
+  transform: rotate(180deg);
+  color: var(--accent-secondary);
+}
+
+.vault-body {
+  padding: 14px;
+  border-top: 1px solid var(--stroke);
+  display: grid;
+  gap: 14px;
+  background: rgba(246, 180, 78, 0.03);
+}
+
+.vault-date-row {
+  display: grid;
+  gap: 6px;
+}
+
+.vault-date-input {
+  color-scheme: dark;
+}
+
+.vault-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.vault-recipients {
   display: grid;
   gap: 10px;
 }

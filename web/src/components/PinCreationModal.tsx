@@ -44,6 +44,11 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const [mapPrecision, setMapPrecision] = useState<"EXACT" | "BLURRED">("EXACT");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeCapsule, setTimeCapsule] = useState(false);
+  const [revealAt, setRevealAt] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().slice(0, 16);
+  });
   const [sendToPeople, setSendToPeople] = useState(false);
   const [recipientInput, setRecipientInput] = useState("");
   const [externalRecipientInput, setExternalRecipientInput] = useState("");
@@ -90,6 +95,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
         timeCapsule,
         mediaType,
         notifyRadiusM,
+        revealAt: timeCapsule ? revealAt : undefined,
         recipientIds: sendToPeople
           ? recipientInput
               .split(",")
@@ -111,6 +117,9 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
       setNotifyRadiusM(0);
       setMapPrecision("EXACT");
       setTimeCapsule(false);
+      const resetDate = new Date();
+      resetDate.setDate(resetDate.getDate() + 30);
+      setRevealAt(resetDate.toISOString().slice(0, 16));
       setSendToPeople(false);
       setRecipientInput("");
       setExternalRecipientInput("");
@@ -224,50 +233,81 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
             </div>
           </div>
 
-          <div className="form-group capsule-group">
-            <label className="form-label">Time capsule</label>
-            <label className="capsule-toggle" htmlFor="time-capsule">
-              <input id="time-capsule" type="checkbox" checked={timeCapsule} onChange={event => setTimeCapsule(event.target.checked)} />
-              Save for later reveal
-            </label>
+          <div className={`vault-group${timeCapsule ? " vault-open" : ""}`}>
+            <button
+              type="button"
+              className="vault-trigger"
+              onClick={() => setTimeCapsule(v => !v)}
+              aria-expanded={timeCapsule}
+            >
+              <span className="vault-icon">{timeCapsule ? "🔓" : "🔒"}</span>
+              <span className="vault-title">Vault</span>
+              <span className="vault-desc">
+                {timeCapsule ? "Hidden until unlock date" : "Lock this note until a future date"}
+              </span>
+              <svg
+                className={`vault-chevron${timeCapsule ? " expanded" : ""}`}
+                width="14" height="14" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="2.5"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
 
-            {timeCapsule ? (
-              <div className="capsule-options">
-                <div className="pill-group">
-                  <button type="button" className={`pill ${!sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(false)}>
-                    Keep private
-                  </button>
-                  <button type="button" className={`pill ${sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(true)}>
-                    Send to people
-                  </button>
+            {timeCapsule && (
+              <div className="vault-body">
+                <div className="vault-date-row">
+                  <label className="form-label" htmlFor="reveal-at">Unlock on</label>
+                  <input
+                    id="reveal-at"
+                    type="datetime-local"
+                    className="form-input vault-date-input"
+                    value={revealAt}
+                    min={new Date(Date.now() + 86_400_000).toISOString().slice(0, 16)}
+                    onChange={e => setRevealAt(e.target.value)}
+                  />
+                  <p className="vault-hint">
+                    This note stays invisible until the unlock date. Only you can see it.
+                  </p>
                 </div>
 
-                {sendToPeople ? (
-                  <div className="capsule-recipients">
-                    <label className="form-label">Recipient UUIDs (comma separated)</label>
-                    <input
-                      className="form-input"
-                      placeholder="7c9e6679-7425-40de-944b-e07fc1f90ae7, 9a35d2b0-3b0a-4b25-9f4f-6d8c8adcb4e1"
-                      value={recipientInput}
-                      onChange={event => {
-                        setRecipientInput(event.target.value);
-                        if (recipientError) {
-                          setRecipientError(null);
-                        }
-                      }}
-                    />
-                    {recipientError ? <div className="form-error">{recipientError}</div> : <div className="form-hint">Only UUIDs are accepted right now.</div>}
-                    <label className="form-label">External recipients</label>
-                    <input
-                      className="form-input"
-                      placeholder="email, handle, or note"
-                      value={externalRecipientInput}
-                      onChange={event => setExternalRecipientInput(event.target.value)}
-                    />
+                <div className="vault-recipients">
+                  <div className="pill-group">
+                    <button type="button" className={`pill ${!sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(false)}>
+                      Keep private
+                    </button>
+                    <button type="button" className={`pill ${sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(true)}>
+                      Send to people
+                    </button>
                   </div>
-                ) : null}
+
+                  {sendToPeople && (
+                    <div className="capsule-recipients">
+                      <label className="form-label">Recipient UUIDs (comma-separated)</label>
+                      <input
+                        className="form-input"
+                        placeholder="7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                        value={recipientInput}
+                        onChange={event => {
+                          setRecipientInput(event.target.value);
+                          if (recipientError) setRecipientError(null);
+                        }}
+                      />
+                      {recipientError
+                        ? <div className="form-error">{recipientError}</div>
+                        : <div className="form-hint">Only UUIDs accepted right now.</div>}
+                      <label className="form-label">External recipients</label>
+                      <input
+                        className="form-input"
+                        placeholder="email, handle, or note"
+                        value={externalRecipientInput}
+                        onChange={event => setExternalRecipientInput(event.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="form-group">
