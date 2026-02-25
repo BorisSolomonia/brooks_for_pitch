@@ -91,9 +91,9 @@ You need these 4 distinct pieces of information. Copy them into your notepad.
 
 | Variable | Where to find it | Example Format |
 | :--- | :--- | :--- |
-| **Host** | Labelled `Host` | `aws-0-us-east-1.pooler.supabase.com` |
-| **Port** | Labelled `Port` | `6543` (usually) |
-| **User** | Labelled `User` | `postgres.your-project-ref` |
+| **Host** | Settings → Database → Connection string (Direct) | `db.<project-ref>.supabase.co` |
+| **Port** | Direct connection port | `5432` |
+| **User** | Direct connection user | `postgres` |
 | **Database**| Labelled `Database` | `postgres` (Default) |
 
 ---
@@ -111,16 +111,16 @@ Format:
 **Example (Visual Builder):**
 ```text
 jdbc:postgresql://
-   + [Host from Step 3]                 (e.g., aws-0-us-east-1.pooler.supabase.com)
+   + [Host from Step 3]                 (e.g., db.fpfoqgncloqmbqqikrsq.supabase.co)
    + :
-   + [Port from Step 3]                 (e.g., 6543)
+   + [Port from Step 3]                 (5432)
    + /
    + [Database from Step 3]             (e.g., postgres)
    + ?sslmode=require
 ```
 
 **Final Result should look like:**
-`jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require`
+`jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
 
 ### 📝 Where to paste this?
 You will save these in your environment file (`.env` or server configuration).
@@ -133,10 +133,10 @@ You will save these in your environment file (`.env` or server configuration).
 # ----------------------------------------
 
 # The URL we just built
-AUTH_DB_URL=jdbc:postgresql://aws-0...:6543/postgres?sslmode=require
+AUTH_DB_URL=jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
 
 # The User from Step 3
-AUTH_DB_USER=postgres.abcdefghijklm
+AUTH_DB_USER=postgres
 
 # The Password you saved in Mission 1 (Step 2)
 AUTH_DB_PASSWORD=your-super-secret-password
@@ -174,7 +174,7 @@ If your app creates tables but you don't see them in the "Table Editor" on the d
 
 - [ ] **Project Created:** You have a Supabase project URL.
 - [ ] **Password Saved:** You have the password in a password manager.
-- [ ] **Connection Info:** You have the Host, Port (6543), and User.
+- [ ] **Connection Info:** You have the direct Host (`db.<ref>.supabase.co`), Port (5432), and User (`postgres`).
 - [ ] **URL Built:** You constructed the `jdbc:postgresql://...` string.
 - [ ] **Env Updated:** You pasted these into your `.env` file.
 

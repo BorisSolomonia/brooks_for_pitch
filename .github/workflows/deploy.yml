@@ -107,8 +107,8 @@ jobs:
               exit 1;
             }
 
-            if echo "$url" | grep -q 'pooler.supabase.com' && [ "$user" = "postgres" ]; then
-              echo "${svc}_DB_USER must be postgres.<project-ref> when using Supabase pooler"
+            if echo "$url" | grep -q 'pooler.supabase.com'; then
+              echo "${svc}_DB_URL uses Supabase pooler (6543) which is incompatible with HikariCP+Flyway. Use direct connection: db.<project-ref>.supabase.co:5432"
               exit 1
             fi
           done
@@ -317,7 +317,7 @@ jobs:
 
             cp /opt/brooks/.env /opt/brooks/.env.runtime
             sed -E -i '/^BROOKS_(AUTH|SOCIAL|LISTS|PINS|MEDIA|MODERATION|NOTIFICATIONS|FRONTEND)_IMAGE=/d' /opt/brooks/.env.runtime
-            # Ensure low DB pressure defaults exist for Supabase pooler.
+            # Ensure low DB pressure defaults exist for Supabase direct connection.
             grep -q '^DB_MAX_POOL_SIZE=' /opt/brooks/.env.runtime || echo 'DB_MAX_POOL_SIZE=1' >> /opt/brooks/.env.runtime
             grep -q '^DB_MIN_IDLE=' /opt/brooks/.env.runtime || echo 'DB_MIN_IDLE=0' >> /opt/brooks/.env.runtime
             grep -q '^DB_CONNECTION_TIMEOUT_MS=' /opt/brooks/.env.runtime || echo 'DB_CONNECTION_TIMEOUT_MS=60000' >> /opt/brooks/.env.runtime

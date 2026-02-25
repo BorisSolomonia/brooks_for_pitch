@@ -91,7 +91,7 @@ Minimum critical values:
 
 Important local note:
 - if services run in Docker, URLs must not point to `localhost` unless DB is on host and network allows it
-- for Supabase external DB, use `jdbc:postgresql://...pooler.supabase.com:6543/postgres?sslmode=require`
+- for Supabase external DB, use `jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
 
 ## 4. Build and Run the Full Stack in Docker
 From repo root:
