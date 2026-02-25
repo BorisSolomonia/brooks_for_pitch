@@ -7,29 +7,26 @@
 }
 
 .charge-ring-container svg {
-  /* rotate so fill starts at 12 o'clock */
   transform: rotate(-90deg);
 }
 
 .charge-ring-track {
-  stroke: rgba(255, 255, 255, 0.12);
+  stroke: rgba(248, 250, 252, 0.24);
   fill: none;
 }
 
 .charge-ring-fill {
-  stroke: var(--accent-secondary);
+  stroke: rgba(248, 250, 252, 0.9);
   fill: none;
   stroke-linecap: round;
-  /* initial: fully hidden; animation fills to 0 */
   stroke-dashoffset: 201.06;
   animation: charge-fill 1500ms linear forwards;
-  filter: drop-shadow(0 0 6px var(--accent-secondary));
+  filter: drop-shadow(0 0 6px rgba(248, 250, 252, 0.55));
 }
 
 .charge-ring-center {
-  fill: var(--accent-secondary);
+  fill: rgba(226, 232, 240, 0.9);
   opacity: 0.9;
-  /* counter-rotate to keep dot upright */
   transform-box: fill-box;
   transform-origin: center;
   transform: rotate(90deg);

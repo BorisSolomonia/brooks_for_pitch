@@ -59,6 +59,9 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
   useEffect(() => {
+    if (!isOpen) {
+      (document.activeElement as HTMLElement)?.blur();
+    }
     document.body.classList.toggle("modal-open", isOpen);
     return () => {
       document.body.classList.remove("modal-open");

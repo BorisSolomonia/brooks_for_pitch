@@ -50,7 +50,7 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentThe
         </button>
         <div className="brand-mark">
           <p className="eyebrow">Brooks</p>
-          <h1 className="brand-title">City pulse map</h1>
+          <h1 className="brand-title traced-brand">City pulse map</h1>
         </div>
       </div>
 
