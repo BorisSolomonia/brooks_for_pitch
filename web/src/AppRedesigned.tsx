@@ -13,24 +13,6 @@ import { fetchMapPins, createPin } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
-const STATIC_DROPS = Array.from({ length: 44 }, (_, idx) => ({
-  id: idx,
-  left: `${((idx * 17) % 100) + Math.random() * 0.6}%`,
-  top: `${((idx * 23) % 100) + Math.random() * 0.8}%`,
-  size: `${1.5 + (idx % 4) * 1.1}px`,
-  stretch: 1 + (idx % 3) * 0.26,
-  opacity: 0.1 + (idx % 6) * 0.055
-}));
-
-const RAIN_STREAKS = Array.from({ length: 30 }, (_, idx) => ({
-  id: idx,
-  left: `${(idx * 3.4) % 100}%`,
-  duration: `${7.2 + (idx % 8) * 1.05}s`,
-  delay: `${(idx % 9) * -1.15}s`,
-  opacity: 0.12 + (idx % 5) * 0.05,
-  width: idx % 5 === 0 ? "2px" : "1px"
-}));
-
 
 export default function AppRedesigned() {
   const {
@@ -189,24 +171,6 @@ export default function AppRedesigned() {
 
   return (
     <div className="app-redesigned">
-      <svg aria-hidden="true" className="liquid-filter-defs">
-        <filter id="fog-trace-filter">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="1.15" result="blur" />
-          <feColorMatrix
-            in="blur"
-            type="matrix"
-            values="
-              1 0 0 0 0
-              0 1 0 0 0
-              0 0 1 0 0
-              0 0 0 26 -12
-            "
-            result="thresh"
-          />
-          <feBlend in="SourceGraphic" in2="thresh" mode="screen" />
-        </filter>
-      </svg>
-
       <TopBar
         onMenuClick={() => setIsDrawerOpen(true)}
         userName={user?.name}
@@ -230,38 +194,6 @@ export default function AppRedesigned() {
             }
           }}
         />
-        <div className="storm-fog" aria-hidden="true" />
-        <div className="rain-streak-layer" aria-hidden="true">
-          {RAIN_STREAKS.map(streak => (
-            <span
-              key={streak.id}
-              className="rain-streak"
-              style={{
-                left: streak.left,
-                animationDuration: streak.duration,
-                animationDelay: streak.delay,
-                opacity: streak.opacity,
-                width: streak.width
-              }}
-            />
-          ))}
-        </div>
-        <div className="raindrop-layer" aria-hidden="true">
-          {STATIC_DROPS.map(drop => (
-            <span
-              key={drop.id}
-              className="raindrop-static"
-              style={{
-                left: drop.left,
-                top: drop.top,
-                width: drop.size,
-                height: drop.size,
-                opacity: drop.opacity,
-                transform: `scaleY(${drop.stretch})`
-              }}
-            />
-          ))}
-        </div>
       </main>
 
       <FAB onClick={() => setIsModalOpen(true)} />

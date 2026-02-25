@@ -3,7 +3,6 @@
   inset: 0;
   z-index: 1300;
   background: rgba(15, 23, 42, 0.62);
-  backdrop-filter: blur(8px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-base) var(--ease-standard);
@@ -29,8 +28,6 @@
   box-shadow: var(--shadow-strong);
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
 }
 
 .pin-modal.open {
@@ -55,7 +52,6 @@
   padding: 14px 18px;
   border-bottom: 1px solid var(--stroke);
   background: rgba(148, 163, 184, 0.08);
-  backdrop-filter: blur(12px);
 }
 
 .modal-header h2 {

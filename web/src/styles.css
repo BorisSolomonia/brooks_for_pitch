@@ -90,7 +90,6 @@ body::before {
   z-index: -2;
   opacity: 0.22;
   background: radial-gradient(circle at 16% 4%, rgba(248, 250, 252, 0.34), transparent 42%);
-  filter: blur(64px);
 }
 
 body::after {
@@ -98,7 +97,6 @@ body::after {
   opacity: 0.18;
   background-image: radial-gradient(rgba(248, 250, 252, 0.45) 0.55px, transparent 0.7px);
   background-size: 3px 3px;
-  mix-blend-mode: soft-light;
 }
 
 ::selection {
@@ -179,8 +177,6 @@ select {
   border: 1px solid var(--stroke);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-medium);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
   animation: revealUp 900ms var(--ease-standard) both;
 }
 
@@ -310,7 +306,6 @@ select {
     rgba(248, 250, 252, 0.06) 43px,
     rgba(248, 250, 252, 0.06) 44px
   );
-  filter: blur(0.6px);
   animation: rainShift 9s linear infinite;
 }
 
