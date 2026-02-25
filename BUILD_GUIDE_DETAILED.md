@@ -91,7 +91,7 @@ Minimum critical values:
 
 Important local note:
 - if services run in Docker, URLs must not point to `localhost` unless DB is on host and network allows it
-- for Supabase external DB, use `jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
+- for Supabase external DB, use session pooler: `jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require` with user `postgres.<project-ref>` (port 5432 = session mode, compatible with HikariCP/Flyway; avoid 6543 transaction mode)
 
 ## 4. Build and Run the Full Stack in Docker
 From repo root:

@@ -60,11 +60,13 @@ Workflow behavior:
 Do not manually edit live container env unless for short emergency mitigation.
 
 ## 5. Database URL Rules for This Project
-For Supabase direct connection (required for Spring Boot + HikariCP):
+For Supabase session pooler (required for Spring Boot + HikariCP on free tier):
 - URL format:
-  `jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
+  `jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require`
 - user:
-  `postgres` (plain, not `postgres.<project-ref>`)
+  `postgres.<project-ref>` (pooler format, not plain `postgres`)
+- port **5432** = session pooler (compatible with HikariCP/Flyway); port **6543** = transaction pooler (incompatible)
+- direct host `db.<project-ref>.supabase.co:5432` requires IPv4 add-on ($4/mo) — not available on free tier
 - remove `sslrootcert` query arg unless cert file is definitely mounted
 
 All DB-backed services currently point to Supabase credentials in env.

@@ -107,8 +107,8 @@ jobs:
               exit 1;
             }
 
-            if echo "$url" | grep -q 'pooler.supabase.com'; then
-              echo "${svc}_DB_URL uses Supabase pooler (6543) which is incompatible with HikariCP+Flyway. Use direct connection: db.<project-ref>.supabase.co:5432"
+            if echo "$url" | grep -q 'pooler.supabase.com:6543'; then
+              echo "${svc}_DB_URL uses Supabase transaction pooler (6543) which is incompatible with HikariCP+Flyway. Use session pooler: pooler.supabase.com:5432"
               exit 1
             fi
           done

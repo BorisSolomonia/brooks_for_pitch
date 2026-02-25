@@ -91,9 +91,9 @@ You need these 4 distinct pieces of information. Copy them into your notepad.
 
 | Variable | Where to find it | Example Format |
 | :--- | :--- | :--- |
-| **Host** | Settings → Database → Connection string (Direct) | `db.<project-ref>.supabase.co` |
-| **Port** | Direct connection port | `5432` |
-| **User** | Direct connection user | `postgres` |
+| **Host** | Settings → Database → Connection pooling → Session mode | `aws-0-<region>.pooler.supabase.com` |
+| **Port** | Session pooler port | `5432` |
+| **User** | Session pooler user | `postgres.<project-ref>` |
 | **Database**| Labelled `Database` | `postgres` (Default) |
 
 ---
@@ -111,16 +111,16 @@ Format:
 **Example (Visual Builder):**
 ```text
 jdbc:postgresql://
-   + [Host from Step 3]                 (e.g., db.fpfoqgncloqmbqqikrsq.supabase.co)
+   + [Host from Step 3]                 (e.g., aws-1-ap-south-1.pooler.supabase.com)
    + :
-   + [Port from Step 3]                 (5432)
+   + [Port from Step 3]                 (5432 — session pooler)
    + /
    + [Database from Step 3]             (e.g., postgres)
    + ?sslmode=require
 ```
 
 **Final Result should look like:**
-`jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
+`jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require`
 
 ### 📝 Where to paste this?
 You will save these in your environment file (`.env` or server configuration).
@@ -132,11 +132,11 @@ You will save these in your environment file (`.env` or server configuration).
 # 🔐 DATABASE CONFIGURATION
 # ----------------------------------------
 
-# The URL we just built
-AUTH_DB_URL=jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
+# The URL we just built (session pooler — port 5432, not transaction pooler 6543)
+AUTH_DB_URL=jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
 
-# The User from Step 3
-AUTH_DB_USER=postgres
+# The User from Step 3 (pooler format)
+AUTH_DB_USER=postgres.fpfoqgncloqmbqqikrsq
 
 # The Password you saved in Mission 1 (Step 2)
 AUTH_DB_PASSWORD=your-super-secret-password
