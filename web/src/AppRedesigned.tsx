@@ -9,7 +9,7 @@ import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { applyTheme } from "./lib/theme";
-import { fetchMapPins, createPin } from "./lib/api";
+import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
@@ -68,6 +68,7 @@ export default function AppRedesigned() {
       try {
         const accessToken = await getAccessTokenSilently();
         setToken({ accessToken, refreshToken: "", expiresIn: 3600 });
+        checkPinsHealth();
       } catch (error) {
         console.error("Failed to get token:", error);
       }

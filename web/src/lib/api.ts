@@ -20,23 +20,35 @@ function jsonHeaders(token?: string) {
   return headers;
 }
 
-async function handleJson<T>(response: Response): Promise<T> {
+async function handleJson<T>(response: Response, label?: string): Promise<T> {
   if (!response.ok) {
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      const text = await response.text();
-      throw new Error(text || `Request failed: ${response.status}`);
-    }
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    const body = await response.text().catch(() => "<unreadable>");
+    const headers: Record<string, string> = {};
+    response.headers.forEach((v, k) => { headers[k] = v; });
+    console.error(
+      `[API] ${label ?? "request"} failed`,
+      { status: response.status, statusText: response.statusText, url: response.url, headers, body }
+    );
+    throw new Error(`Request failed: ${response.status}`);
   }
   return response.json() as Promise<T>;
 }
 
+export async function checkPinsHealth(): Promise<void> {
+  try {
+    const res = await fetch(`${PINS_API_URL}/pins/actuator/health`);
+    const body = await res.text().catch(() => "<unreadable>");
+    console.info("[API] pins-service health:", res.status, body);
+  } catch (err) {
+    console.error("[API] pins-service health check failed (network error):", err);
+  }
+}
+
 export async function fetchMapPins(token: string, bbox: string): Promise<MapPin[]> {
-  const response = await fetch(`${PINS_API_URL}/pins/map?bbox=${encodeURIComponent(bbox)}`, {
-    headers: jsonHeaders(token)
-  });
-  const payload = await handleJson<MapPinsResponse>(response);
+  const url = `${PINS_API_URL}/pins/map?bbox=${encodeURIComponent(bbox)}`;
+  console.debug("[API] fetchMapPins →", url);
+  const response = await fetch(url, { headers: jsonHeaders(token) });
+  const payload = await handleJson<MapPinsResponse>(response, "fetchMapPins");
   return payload.pins ?? [];
 }
 
@@ -68,10 +80,11 @@ export async function createPin(
     ...(form.revealAt ? { revealAt: new Date(form.revealAt).toISOString() } : {})
   };
 
+  console.debug("[API] createPin →", `${PINS_API_URL}/pins`, payload);
   const response = await fetch(`${PINS_API_URL}/pins`, {
     method: "POST",
     headers: jsonHeaders(token),
     body: JSON.stringify(payload)
   });
-  await handleJson(response);
+  await handleJson(response, "createPin");
 }
