@@ -22,7 +22,7 @@ brooksweb.uk, www.brooksweb.uk {
     reverse_proxy lists-service:8083
   }
 
-  handle /api/pins/actuator/health {
+  handle_path /api/pins/actuator/health {
     reverse_proxy pins-service:8084
   }
 
@@ -50,7 +50,8 @@ brooksweb.uk, www.brooksweb.uk {
     reverse_proxy lists-service:8083
   }
 
-  handle_path /api/pins* {
+  handle /api/pins* {
+    uri strip_prefix /api
     reverse_proxy pins-service:8084
   }
 
@@ -120,7 +121,8 @@ http://brooksweb.uk, http://www.brooksweb.uk, :80 {
     reverse_proxy lists-service:8083
   }
 
-  handle_path /api/pins* {
+  handle /api/pins* {
+    uri strip_prefix /api
     reverse_proxy pins-service:8084
   }
 
