@@ -14,9 +14,9 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   REPOSITORY: ${{ secrets.GCP_ARTIFACT_REPOSITORY }}
   ENV_SECRET_NAME: ${{ secrets.GCP_ENV_SECRET_NAME }}
-  VM_HOST: 34.59.248.42
-  VM_NAME: instance-20260213-212636
-  VM_ZONE: us-central1-a
+  VM_HOST: ${{ secrets.GCP_VM_HOST }}
+  VM_NAME: ${{ secrets.GCP_VM_NAME }}
+  VM_ZONE: ${{ secrets.GCP_VM_ZONE }}
 
 jobs:
   handshake:
@@ -63,6 +63,9 @@ jobs:
           [ -n "${REGION}" ] || { echo "REGION is empty"; exit 1; }
           [ -n "${REPOSITORY}" ] || { echo "REPOSITORY is empty"; exit 1; }
           [ -n "${ENV_SECRET_NAME}" ] || { echo "ENV_SECRET_NAME is empty"; exit 1; }
+          [ -n "${VM_HOST}" ] || { echo "VM_HOST is empty"; exit 1; }
+          [ -n "${VM_NAME}" ] || { echo "VM_NAME is empty"; exit 1; }
+          [ -n "${VM_ZONE}" ] || { echo "VM_ZONE is empty"; exit 1; }
 
       - name: Fetch env from Secret Manager
         run: |
@@ -111,6 +114,11 @@ jobs:
               echo "${svc}_DB_URL uses Supabase transaction pooler (6543) which is incompatible with HikariCP+Flyway. Use session pooler: pooler.supabase.com:5432"
               exit 1
             fi
+          done
+
+          for key in BROOKS_DOMAIN AUTH0_ISSUER_URI AUTH0_AUDIENCE BROOKS_WEB_ORIGINS REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS INTERNAL_SERVICE_NAME INTERNAL_SERVICE_KEY SOCIAL_SERVICE_URL LISTS_SERVICE_URL BROOKS_BUCKET_SIZE_DEG BROOKS_CLEANUP_ENABLED BROOKS_CLEANUP_BATCH_SIZE BROOKS_CLEANUP_RETENTION_DAYS BROOKS_CLEANUP_CRON MEDIA_UPLOAD_BASE_URL BROOKS_JWT_ISSUER BROOKS_JWT_SECRET BROOKS_JWT_ACCESS_TTL BROOKS_JWT_REFRESH_TTL VITE_AUTH0_DOMAIN VITE_AUTH0_CLIENT_ID VITE_AUTH0_AUDIENCE VITE_AUTH0_REDIRECT_URI VITE_PINS_API_URL VITE_MAP_PROVIDER VITE_REVERSE_GEOCODE_URL VITE_LEAFLET_TILE_URL VITE_LEAFLET_ATTRIBUTION VITE_DEFAULT_CENTER_LAT VITE_DEFAULT_CENTER_LNG; do
+            val="$(grep -E "^${key}=" .env.production | cut -d'=' -f2- || true)"
+            [ -n "$val" ] || { echo "Missing ${key}"; exit 1; }
           done
 
       - name: Configure Docker for Artifact Registry
@@ -162,20 +170,14 @@ jobs:
 
           docker build \
             --progress=plain \
-            --build-arg VITE_AUTH_API_URL="$(get_env VITE_AUTH_API_URL)" \
             --build-arg VITE_AUTH0_DOMAIN="$(get_env VITE_AUTH0_DOMAIN)" \
             --build-arg VITE_AUTH0_CLIENT_ID="$(get_env VITE_AUTH0_CLIENT_ID)" \
             --build-arg VITE_AUTH0_AUDIENCE="$(get_env VITE_AUTH0_AUDIENCE)" \
             --build-arg VITE_AUTH0_REDIRECT_URI="$(get_env VITE_AUTH0_REDIRECT_URI)" \
-            --build-arg VITE_SOCIAL_API_URL="$(get_env VITE_SOCIAL_API_URL)" \
-            --build-arg VITE_LISTS_API_URL="$(get_env VITE_LISTS_API_URL)" \
             --build-arg VITE_PINS_API_URL="$(get_env VITE_PINS_API_URL)" \
-            --build-arg VITE_MEDIA_API_URL="$(get_env VITE_MEDIA_API_URL)" \
-            --build-arg VITE_MODERATION_API_URL="$(get_env VITE_MODERATION_API_URL)" \
-            --build-arg VITE_NOTIFICATIONS_API_URL="$(get_env VITE_NOTIFICATIONS_API_URL)" \
             --build-arg VITE_MAP_PROVIDER="$(get_env VITE_MAP_PROVIDER)" \
             --build-arg VITE_GOOGLE_MAPS_KEY="$(get_env VITE_GOOGLE_MAPS_KEY)" \
-            --build-arg VITE_NOMINATIM_URL="$(get_env VITE_NOMINATIM_URL)" \
+            --build-arg VITE_REVERSE_GEOCODE_URL="$(get_env VITE_REVERSE_GEOCODE_URL)" \
             --build-arg VITE_LEAFLET_TILE_URL="$(get_env VITE_LEAFLET_TILE_URL)" \
             --build-arg VITE_LEAFLET_ATTRIBUTION="$(get_env VITE_LEAFLET_ATTRIBUTION)" \
             --build-arg VITE_DEFAULT_CENTER_LAT="$(get_env VITE_DEFAULT_CENTER_LAT)" \
@@ -296,7 +298,7 @@ jobs:
               s#[?&]$##g;
             }' /opt/brooks/.env
 
-            for key in REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
+            for key in BROOKS_DOMAIN REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
               val="$(grep -E "^${key}=" /opt/brooks/.env | cut -d'=' -f2- || true)"
               if [ -z "${val}" ]; then
                 echo "Missing required env var in /opt/brooks/.env: ${key}"

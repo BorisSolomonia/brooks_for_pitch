@@ -1,5 +1,5 @@
 # Brooks App - Main Domain with HTTPS (Microservices)
-brooksweb.uk, www.brooksweb.uk {
+{$BROOKS_DOMAIN}, www.{$BROOKS_DOMAIN} {
   log {
     output stdout
     format console
@@ -94,7 +94,7 @@ brooksweb.uk, www.brooksweb.uk {
 }
 
 # HTTP endpoint - serve application directly (SSL via Cloudflare)
-http://brooksweb.uk, http://www.brooksweb.uk, :80 {
+http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
   log {
     output stdout
     format console

@@ -6,6 +6,7 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { env } from "../lib/env";
 
 type MapProvider = "leaflet" | "google";
 
@@ -17,10 +18,6 @@ type MapViewProps = {
   onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
   onHoldEnd?: () => void;
 };
-
-const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
-const LEAFLET_TILE_URL = import.meta.env.VITE_LEAFLET_TILE_URL as string | undefined;
-const LEAFLET_ATTRIBUTION = import.meta.env.VITE_LEAFLET_ATTRIBUTION as string | undefined;
 
 delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -112,7 +109,7 @@ function LeafletMap({
   onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
   onHoldEnd?: () => void;
 }) {
-  if (!LEAFLET_TILE_URL || !LEAFLET_ATTRIBUTION) {
+  if (!env.leafletTileUrl || !env.leafletAttribution) {
     return (
       <div className="map-google-fallback">
         <p>Leaflet map tiles are not configured.</p>
@@ -123,8 +120,8 @@ function LeafletMap({
       </div>
     );
   }
-  const leafletTileUrl = LEAFLET_TILE_URL!;
-  const leafletAttribution = LEAFLET_ATTRIBUTION!;
+  const leafletTileUrl = env.leafletTileUrl;
+  const leafletAttribution = env.leafletAttribution;
 
   return (
     <MapContainer
@@ -169,12 +166,12 @@ function GoogleMap({
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const loader = useMemo(
-    () => (GOOGLE_MAPS_KEY ? new Loader({ apiKey: GOOGLE_MAPS_KEY }) : null),
+    () => (env.googleMapsKey ? new Loader({ apiKey: env.googleMapsKey }) : null),
     []
   );
 
   useEffect(() => {
-    if (!GOOGLE_MAPS_KEY || !containerRef.current || mapRef.current || !loader) {
+    if (!env.googleMapsKey || !containerRef.current || mapRef.current || !loader) {
       return;
     }
     loader.load().then(() => {
@@ -251,7 +248,7 @@ function GoogleMap({
     );
   }, [center, pins]);
 
-  if (!GOOGLE_MAPS_KEY) {
+  if (!env.googleMapsKey) {
     return (
       <div className="map-google-fallback">
         <p>Google Maps is not configured.</p>

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CityResult } from "../lib/types";
+import { env } from "../lib/env";
 import { CityTheme, resolveTheme } from "../lib/theme";
-
-const BDC_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
 type ThemeState = {
   city?: string;
@@ -33,7 +32,7 @@ export function useCityTheme() {
         const lng = position.coords.longitude;
         try {
           const response = await fetch(
-            `${BDC_URL}?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+            `${env.reverseGeocodeUrl}?latitude=${lat}&longitude=${lng}&localityLanguage=en`
           );
           const data = await response.json();
           const city =

@@ -11,11 +11,17 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT_ID="brooks-485009"
-REGION="us-central1"
-VM_NAME="brooks-20260121-095019"
-VM_ZONE="us-central1-f"
-DOMAIN="brooksweb.uk"
+: "${GCP_PROJECT_ID:?GCP_PROJECT_ID must be set}"
+: "${GCP_REGION:?GCP_REGION must be set}"
+: "${GCP_VM_NAME:?GCP_VM_NAME must be set}"
+: "${GCP_VM_ZONE:?GCP_VM_ZONE must be set}"
+: "${BROOKS_DOMAIN:?BROOKS_DOMAIN must be set}"
+
+PROJECT_ID="${GCP_PROJECT_ID}"
+REGION="${GCP_REGION}"
+VM_NAME="${GCP_VM_NAME}"
+VM_ZONE="${GCP_VM_ZONE}"
+DOMAIN="${BROOKS_DOMAIN}"
 
 echo -e "${BLUE}📋 Configuration:${NC}"
 echo "  Project: $PROJECT_ID"
@@ -91,6 +97,8 @@ services:
     image: caddy:2-alpine
     container_name: caddy
     restart: unless-stopped
+    environment:
+      BROOKS_DOMAIN: ${BROOKS_DOMAIN}
     ports:
       - "80:80"
       - "443:443"

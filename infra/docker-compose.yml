@@ -186,20 +186,14 @@ services:
       context: ../web
       dockerfile: Dockerfile
       args:
-        VITE_AUTH_API_URL: ${VITE_AUTH_API_URL?VITE_AUTH_API_URL must be set in .env file}
         VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN?VITE_AUTH0_DOMAIN must be set in .env file}
         VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID?VITE_AUTH0_CLIENT_ID must be set in .env file}
         VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE?VITE_AUTH0_AUDIENCE must be set in .env file}
         VITE_AUTH0_REDIRECT_URI: ${VITE_AUTH0_REDIRECT_URI?VITE_AUTH0_REDIRECT_URI must be set in .env file}
-        VITE_SOCIAL_API_URL: ${VITE_SOCIAL_API_URL?VITE_SOCIAL_API_URL must be set in .env file}
-        VITE_LISTS_API_URL: ${VITE_LISTS_API_URL?VITE_LISTS_API_URL must be set in .env file}
         VITE_PINS_API_URL: ${VITE_PINS_API_URL?VITE_PINS_API_URL must be set in .env file}
-        VITE_MEDIA_API_URL: ${VITE_MEDIA_API_URL?VITE_MEDIA_API_URL must be set in .env file}
-        VITE_MODERATION_API_URL: ${VITE_MODERATION_API_URL?VITE_MODERATION_API_URL must be set in .env file}
-        VITE_NOTIFICATIONS_API_URL: ${VITE_NOTIFICATIONS_API_URL?VITE_NOTIFICATIONS_API_URL must be set in .env file}
         VITE_MAP_PROVIDER: ${VITE_MAP_PROVIDER?VITE_MAP_PROVIDER must be set in .env file}
         VITE_GOOGLE_MAPS_KEY: ${VITE_GOOGLE_MAPS_KEY}
-        VITE_NOMINATIM_URL: ${VITE_NOMINATIM_URL?VITE_NOMINATIM_URL must be set in .env file}
+        VITE_REVERSE_GEOCODE_URL: ${VITE_REVERSE_GEOCODE_URL?VITE_REVERSE_GEOCODE_URL must be set in .env file}
         VITE_LEAFLET_TILE_URL: ${VITE_LEAFLET_TILE_URL?VITE_LEAFLET_TILE_URL must be set in .env file}
         VITE_LEAFLET_ATTRIBUTION: ${VITE_LEAFLET_ATTRIBUTION?VITE_LEAFLET_ATTRIBUTION must be set in .env file}
         VITE_DEFAULT_CENTER_LAT: ${VITE_DEFAULT_CENTER_LAT?VITE_DEFAULT_CENTER_LAT must be set in .env file}

@@ -14,6 +14,8 @@ services:
     image: caddy:2
     container_name: brooks-caddy
     restart: unless-stopped
+    environment:
+      BROOKS_DOMAIN: ${BROOKS_DOMAIN?BROOKS_DOMAIN must be set in .env file}
     ports:
       - "80:80"
       - "443:443"

@@ -8,6 +8,7 @@ import { MapChargeRing } from "./components/MapChargeRing";
 import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
+import { env } from "./lib/env";
 import { applyTheme } from "./lib/theme";
 import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
@@ -26,13 +27,7 @@ export default function AppRedesigned() {
   } = useAuth0();
 
   const [token, setToken] = useState<AuthTokens | null>(null);
-  const defaultCenterLat = Number(import.meta.env.VITE_DEFAULT_CENTER_LAT);
-  const defaultCenterLng = Number(import.meta.env.VITE_DEFAULT_CENTER_LNG);
-  if (Number.isNaN(defaultCenterLat) || Number.isNaN(defaultCenterLng)) {
-    throw new Error("VITE_DEFAULT_CENTER_LAT and VITE_DEFAULT_CENTER_LNG are required");
-  }
-
-  const [center, setCenter] = useState<Coordinates>({ lat: defaultCenterLat, lng: defaultCenterLng });
+  const [center, setCenter] = useState<Coordinates>({ lat: env.defaultCenterLat, lng: env.defaultCenterLng });
   const [pins, setPins] = useState<MapPin[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,12 +35,7 @@ export default function AppRedesigned() {
   const ringCompletedRef = useRef(false);
   const [showPins, setShowPins] = useState(true);
 
-  const mapProviderEnv = import.meta.env.VITE_MAP_PROVIDER as "leaflet" | "google" | undefined;
-  if (!mapProviderEnv) {
-    throw new Error("VITE_MAP_PROVIDER is required");
-  }
-
-  const [mapProvider, setMapProvider] = useState<"leaflet" | "google">(mapProviderEnv);
+  const [mapProvider, setMapProvider] = useState<"leaflet" | "google">(env.mapProvider);
   const { location, theme, setOverride, override } = useCityTheme();
   const currentTheme = (override || theme || "default") as CityTheme;
 
