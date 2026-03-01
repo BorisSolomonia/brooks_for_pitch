@@ -10,8 +10,13 @@ Set GitHub secrets used by `.github/workflows/deploy.yml`:
 - `GCP_REGION`
 - `GCP_ARTIFACT_REPOSITORY`
 - `GCP_ENV_SECRET_NAME`
+- `GCP_VM_NAME`
+- `GCP_VM_ZONE`
 - `VM_SSH_USER`
 - `VM_SSH_KEY`
+
+Optional:
+- `GCP_VM_HOST` if you want to pin a host manually instead of resolving the VM external IP from GCP
 
 ## 2. Production Env Source
 Store production env payload in GCP Secret Manager (`GCP_ENV_SECRET_NAME`).

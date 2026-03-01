@@ -46,8 +46,11 @@ On Supabase:
 - `GCP_ENV_SECRET_NAME`
 - `VM_SSH_USER`
 - `VM_SSH_KEY`
+- `GCP_VM_NAME`
+- `GCP_VM_ZONE`
+- optional: `GCP_VM_HOST`
 
-VM host/zone are currently set in workflow env.
+If `GCP_VM_HOST` is empty, the workflow resolves the VM external IP from `GCP_VM_NAME` + `GCP_VM_ZONE`.
 
 ## 4. Production Env Strategy
 Use Secret Manager payload as source of truth.
@@ -132,7 +135,7 @@ Symptoms:
 
 Fixes:
 - add handshake job before deploy
-- use current VM IP in workflow
+- resolve current VM IP from GCP when host secret is empty
 - add retry path for scp after re-check handshake
 
 ## 8.2 Artifact Registry unauthenticated pull

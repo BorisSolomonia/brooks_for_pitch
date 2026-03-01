@@ -19,14 +19,59 @@ env:
   VM_ZONE: ${{ secrets.GCP_VM_ZONE }}
 
 jobs:
+  resolve-vm-host:
+    name: Resolve VM Host
+    runs-on: ubuntu-latest
+    outputs:
+      vm_host: ${{ steps.resolve.outputs.vm_host }}
+    steps:
+      - name: Validate VM identity inputs
+        run: |
+          set -euo pipefail
+          [ -n "${PROJECT_ID}" ] || { echo "PROJECT_ID is empty"; exit 1; }
+          [ -n "${VM_NAME}" ] || { echo "VM_NAME is empty"; exit 1; }
+          [ -n "${VM_ZONE}" ] || { echo "VM_ZONE is empty"; exit 1; }
+
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve VM host
+        id: resolve
+        run: |
+          set -euo pipefail
+
+          if [ -n "${VM_HOST}" ]; then
+            RESOLVED_HOST="${VM_HOST}"
+          else
+            RESOLVED_HOST="$(
+              gcloud compute instances describe "${VM_NAME}" \
+                --zone="${VM_ZONE}" \
+                --project="${PROJECT_ID}" \
+                --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+            )"
+          fi
+
+          [ -n "${RESOLVED_HOST}" ] || {
+            echo "Failed to resolve VM host. Set GCP_VM_HOST or ensure the VM has an external IP.";
+            exit 1;
+          }
+
+          echo "vm_host=${RESOLVED_HOST}" >> "$GITHUB_OUTPUT"
+
   handshake:
     name: VM Handshake
     runs-on: ubuntu-latest
+    needs: resolve-vm-host
     steps:
       - name: SSH handshake
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -42,7 +87,7 @@ jobs:
   deploy:
     name: Build and Redeploy
     runs-on: ubuntu-latest
-    needs: handshake
+    needs: [resolve-vm-host, handshake]
 
     steps:
       - name: Checkout
@@ -63,7 +108,6 @@ jobs:
           [ -n "${REGION}" ] || { echo "REGION is empty"; exit 1; }
           [ -n "${REPOSITORY}" ] || { echo "REPOSITORY is empty"; exit 1; }
           [ -n "${ENV_SECRET_NAME}" ] || { echo "ENV_SECRET_NAME is empty"; exit 1; }
-          [ -n "${VM_HOST}" ] || { echo "VM_HOST is empty"; exit 1; }
           [ -n "${VM_NAME}" ] || { echo "VM_NAME is empty"; exit 1; }
           [ -n "${VM_ZONE}" ] || { echo "VM_ZONE is empty"; exit 1; }
 
@@ -195,7 +239,7 @@ jobs:
       - name: Prepare VM upload directories
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -228,7 +272,7 @@ jobs:
         continue-on-error: true
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -242,7 +286,7 @@ jobs:
         if: steps.scp_upload_1.outcome == 'failure'
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -257,7 +301,7 @@ jobs:
         if: steps.scp_upload_1.outcome == 'failure'
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -270,7 +314,7 @@ jobs:
       - name: Clean VM and redeploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
@@ -374,7 +418,7 @@ jobs:
       - name: Health check
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.VM_HOST }}
+          host: ${{ needs.resolve-vm-host.outputs.vm_host }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
