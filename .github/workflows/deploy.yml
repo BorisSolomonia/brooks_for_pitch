@@ -45,29 +45,46 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo "=== DEBUG: variable presence ==="
+          echo "VM_HOST   set: $([ -n "${VM_HOST}"   ] && echo YES || echo NO)"
+          echo "VM_NAME   set: $([ -n "${VM_NAME}"   ] && echo YES || echo NO)"
+          echo "VM_ZONE   set: $([ -n "${VM_ZONE}"   ] && echo YES || echo NO)"
+          echo "PROJECT_ID set: $([ -n "${PROJECT_ID}" ] && echo YES || echo NO)"
+
           if [ -n "${VM_HOST}" ]; then
             RESOLVED_HOST="${VM_HOST}"
+            echo "=== Using VM_HOST env var ==="
           else
+            echo "=== VM_HOST empty — querying gcloud ==="
             RESOLVED_HOST="$(
               gcloud compute instances describe "${VM_NAME}" \
                 --zone="${VM_ZONE}" \
                 --project="${PROJECT_ID}" \
                 --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
-            )"
+            )" || true
+            echo "gcloud resolved: $([ -n "${RESOLVED_HOST}" ] && echo YES || echo NO)"
           fi
 
           [ -n "${RESOLVED_HOST}" ] || {
-            echo "Failed to resolve VM host. Set GCP_VM_HOST or ensure the VM has an external IP.";
+            echo "ERROR: Failed to resolve VM host."
+            echo "  Set GCP_VM_HOST as a repository variable (Settings → Secrets and variables → Variables)"
+            echo "  or ensure GCP_VM_NAME + GCP_VM_ZONE + GCP_SA_KEY are correct."
             exit 1;
           }
 
           echo "vm_host=${RESOLVED_HOST}" >> "$GITHUB_OUTPUT"
+          echo "=== Resolved host written to output ==="
 
   handshake:
     name: VM Handshake
     runs-on: ubuntu-latest
     needs: resolve-vm-host
     steps:
+      - name: Verify resolved host
+        run: |
+          echo "vm_host output: $([ -n '${{ needs.resolve-vm-host.outputs.vm_host }}' ] && echo SET || echo EMPTY)"
+          [ -n '${{ needs.resolve-vm-host.outputs.vm_host }}' ] || { echo "vm_host is empty — resolve-vm-host job failed to set output"; exit 1; }
+
       - name: SSH handshake
         uses: appleboy/ssh-action@v1.0.3
         with:
