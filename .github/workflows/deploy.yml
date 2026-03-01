@@ -14,9 +14,9 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   REPOSITORY: ${{ secrets.GCP_ARTIFACT_REPOSITORY }}
   ENV_SECRET_NAME: ${{ secrets.GCP_ENV_SECRET_NAME }}
-  VM_HOST: ${{ secrets.GCP_VM_HOST }}
-  VM_NAME: ${{ secrets.GCP_VM_NAME }}
-  VM_ZONE: ${{ secrets.GCP_VM_ZONE }}
+  VM_HOST: ${{ vars.GCP_VM_HOST || secrets.GCP_VM_HOST }}
+  VM_NAME: ${{ vars.GCP_VM_NAME || secrets.GCP_VM_NAME }}
+  VM_ZONE: ${{ vars.GCP_VM_ZONE || secrets.GCP_VM_ZONE }}
 
 jobs:
   resolve-vm-host:
