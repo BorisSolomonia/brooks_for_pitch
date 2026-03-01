@@ -55,6 +55,8 @@ public class ListsClientImpl implements ListsClient {
     if (listIds == null || listIds.isEmpty()) {
       return false;
     }
+    long startedAt = System.currentTimeMillis();
+    log.info("lists-service request start: baseUrl={}, userId={}, listCount={}", listsBaseUrl, userId, listIds.size());
 
     ListMembershipRequest request = new ListMembershipRequest(userId.toString(), listIds);
     HttpHeaders headers = createAuthHeaders();
@@ -64,6 +66,12 @@ public class ListsClientImpl implements ListsClient {
         HttpMethod.POST,
         new HttpEntity<>(request, headers),
         ListMembershipResponse.class
+    );
+    log.info(
+        "lists-service request end: baseUrl={}, status={}, durationMs={}",
+        listsBaseUrl,
+        response.getStatusCode().value(),
+        System.currentTimeMillis() - startedAt
     );
 
     ListMembershipResponse body = response.getBody();

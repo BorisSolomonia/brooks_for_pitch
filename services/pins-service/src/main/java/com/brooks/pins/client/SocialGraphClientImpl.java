@@ -52,6 +52,8 @@ public class SocialGraphClientImpl implements SocialGraphClient {
   public SocialGraphView fetchGraphView(UUID viewerId, UUID subjectId) {
     String url = String.format("%s/internal/graph/view?viewerId=%s&subjectId=%s",
         socialBaseUrl, viewerId, subjectId);
+    long startedAt = System.currentTimeMillis();
+    log.info("social-service request start: url={}, viewerId={}, subjectId={}", url, viewerId, subjectId);
 
     HttpHeaders headers = createAuthHeaders();
     ResponseEntity<SocialGraphView> response = restTemplate.exchange(
@@ -59,6 +61,12 @@ public class SocialGraphClientImpl implements SocialGraphClient {
         HttpMethod.GET,
         new HttpEntity<>(null, headers),
         SocialGraphView.class
+    );
+    log.info(
+        "social-service request end: url={}, status={}, durationMs={}",
+        url,
+        response.getStatusCode().value(),
+        System.currentTimeMillis() - startedAt
     );
 
     SocialGraphView body = response.getBody();

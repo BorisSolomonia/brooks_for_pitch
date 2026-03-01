@@ -57,6 +57,12 @@ management:
     circuitbreakers:
       enabled: true
 
+logging:
+  level:
+    root: INFO
+    com.brooks.pins: INFO
+    org.springframework.web: INFO
+
 resilience4j:
   circuitbreaker:
     configs:
