@@ -6,7 +6,7 @@ used in code, but it is ready to be wired in later for:
 - list membership caching
 - rate limit counters
 
-## Enable Redis in production.
+## Enable Redis in production..
 1) Set `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_CACHE_TTL_SECONDS` in your VM `.env`.
 2) Redeploy with `infra/docker-compose.prod.yml`.
 
