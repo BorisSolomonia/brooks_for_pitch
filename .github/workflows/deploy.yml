@@ -348,11 +348,16 @@ jobs:
             export BROOKS_AUTH_IMAGE="${AUTH_IMAGE}" BROOKS_SOCIAL_IMAGE="${SOCIAL_IMAGE}" BROOKS_LISTS_IMAGE="${LISTS_IMAGE}" BROOKS_PINS_IMAGE="${PINS_IMAGE}" BROOKS_MEDIA_IMAGE="${MEDIA_IMAGE}" BROOKS_MODERATION_IMAGE="${MODERATION_IMAGE}" BROOKS_NOTIFICATIONS_IMAGE="${NOTIFICATIONS_IMAGE}" BROOKS_FRONTEND_IMAGE="${FRONTEND_IMAGE}"
 
             # Remove previous deployment after successful handshake.
+            # NOTE: we do NOT pass --volumes so that caddy-data (TLS certs) and
+            # brooks-redis-data are preserved between deploys. Purging caddy-data
+            # on every deploy forces a new ACME cert request, which hits Let's
+            # Encrypt rate limits (5 certs/domain/week) after a few redeploys
+            # and leaves Caddy unable to start on port 443, causing Cloudflare 502.
             $DOCKER compose --env-file /opt/brooks/.env.runtime -f /opt/brooks/infra/docker-compose.prod.yml down --remove-orphans || true
             $DOCKER rm -f $($DOCKER ps -aq) 2>/dev/null || true
             $DOCKER rmi -f $($DOCKER images -q '*/brooks-*') 2>/dev/null || true
             $DOCKER network prune -f || true
-            $DOCKER system prune -af --volumes || true
+            $DOCKER system prune -af || true
 
             $DOCKER network create web 2>/dev/null || true
             $DOCKER network create brooks-network 2>/dev/null || true
@@ -399,22 +404,63 @@ jobs:
               DOCKER="sudo docker"
             fi
 
-            check() {
-              local name="$1"
-              local url="$2"
-              echo "Checking ${name}: ${url}"
-              curl -f -m 10 "$url" >/dev/null
+            # Service ports are `expose`d (not `ports`-mapped), so localhost:808X
+            # is NOT accessible from the host. Use each container's Docker bridge
+            # IP instead, which is directly routable on Linux.
+            check_container() {
+              local container="$1"
+              local port="$2"
+
+              # Check the container is running first
+              local running
+              running=$($DOCKER inspect -f '{{.State.Running}}' "$container" 2>/dev/null || echo "false")
+              if [ "$running" != "true" ]; then
+                echo "ERROR: Container $container is not running!"
+                $DOCKER logs "$container" --tail 50 2>/dev/null || true
+                exit 1
+              fi
+
+              # Get the first IP from any Docker network the container is on
+              local ip
+              ip=$($DOCKER inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' "$container" | awk '{print $1}')
+              if [ -z "$ip" ]; then
+                echo "ERROR: Could not determine IP for $container"
+                exit 1
+              fi
+
+              echo "Checking $container via bridge IP $ip:$port..."
+              curl -fs -m 15 "http://${ip}:${port}/actuator/health" >/dev/null || {
+                echo "ERROR: Health check failed for $container ($ip:$port)"
+                $DOCKER logs "$container" --tail 50
+                exit 1
+              }
+              echo "$container OK"
             }
 
-            check "Auth" "http://localhost:8081/actuator/health"
-            check "Social" "http://localhost:8082/actuator/health"
-            check "Lists" "http://localhost:8083/actuator/health"
-            check "Pins" "http://localhost:8084/actuator/health"
-            check "Media" "http://localhost:8085/actuator/health"
-            check "Moderation" "http://localhost:8086/actuator/health"
-            check "Notifications" "http://localhost:8087/actuator/health"
+            check_container "brooks-auth-service"          "8081"
+            check_container "brooks-social-service"        "8082"
+            check_container "brooks-lists-service"         "8083"
+            check_container "brooks-pins-service"          "8084"
+            check_container "brooks-media-service"         "8085"
+            check_container "brooks-moderation-service"    "8086"
+            check_container "brooks-notifications-service" "8087"
 
-            echo "Recent logs:"
-            $DOCKER logs brooks-auth-service --tail 40
-            $DOCKER logs brooks-lists-service --tail 40
-            $DOCKER logs brooks-pins-service --tail 40
+            # Caddy publishes port 80:80, so localhost works here.
+            # This is the real end-to-end check Cloudflare cares about.
+            echo "Checking Caddy gateway on :80..."
+            for i in 1 2 3 4 5; do
+              curl -fs -m 10 "http://localhost/health" && echo "Caddy OK" && break
+              echo "Caddy not ready yet (attempt $i/5), waiting 10s..."
+              sleep 10
+            done
+            curl -f -m 10 "http://localhost/health" || {
+              echo "ERROR: Caddy is not responding on port 80 — Cloudflare will 502."
+              $DOCKER logs brooks-caddy --tail 80
+              exit 1
+            }
+
+            echo "=== Recent logs ==="
+            $DOCKER logs brooks-caddy            --tail 40
+            $DOCKER logs brooks-auth-service     --tail 20
+            $DOCKER logs brooks-lists-service    --tail 20
+            $DOCKER logs brooks-pins-service     --tail 20

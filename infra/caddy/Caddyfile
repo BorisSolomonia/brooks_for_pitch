@@ -1,5 +1,17 @@
-# Brooks App - Main Domain with HTTPS (Microservices)
-{$BROOKS_DOMAIN}, www.{$BROOKS_DOMAIN} {
+# Brooks App - Cloudflare-terminated SSL
+# Cloudflare handles TLS. Caddy serves plain HTTP on :80.
+# Cloudflare SSL mode should be "Flexible" (connects to origin on HTTP).
+# If you ever switch to "Full/Full-Strict" you need a Cloudflare Origin
+# Certificate and a tls block in the site block below.
+
+{
+  # Disable automatic HTTPS — Cloudflare is the TLS terminator.
+  # Without this Caddy tries ACME on every startup, hits Let's Encrypt
+  # rate limits (5 certs/domain/week) after a few redeploys and fails.
+  auto_https off
+}
+
+http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
   log {
     output stdout
     format console
@@ -9,34 +21,11 @@
   # Enable gzip and zstd compression
   encode gzip zstd
 
-  # API routes -> Microservices
-  handle /api/auth/actuator/health {
-    reverse_proxy auth-service:8081
-  }
+  # Lightweight health check for deploy pipeline and load balancers
+  @health path /health
+  respond @health "OK" 200
 
-  handle /api/social/actuator/health {
-    reverse_proxy social-service:8082
-  }
-
-  handle /api/lists/actuator/health {
-    reverse_proxy lists-service:8083
-  }
-
-  handle_path /api/pins/actuator/health {
-    reverse_proxy pins-service:8084
-  }
-
-  handle /api/media/actuator/health {
-    reverse_proxy media-service:8085
-  }
-
-  handle /api/moderation/actuator/health {
-    reverse_proxy moderation-service:8086
-  }
-
-  handle /api/notifications/actuator/health {
-    reverse_proxy notifications-service:8087
-  }
+  # ── API routes ────────────────────────────────────────────────────────────
 
   handle_path /api/auth/* {
     reverse_proxy auth-service:8081
@@ -50,6 +39,7 @@
     reverse_proxy lists-service:8083
   }
 
+  # /api/pins* — strip only /api so service receives /pins/...
   handle /api/pins* {
     uri strip_prefix /api
     reverse_proxy pins-service:8084
@@ -67,22 +57,17 @@
     reverse_proxy notifications-service:8087
   }
 
-  # Management/Actuator endpoints -> Pins service (primary)
+  # Actuator (primary = pins-service)
   handle /actuator/* {
     reverse_proxy pins-service:8084
   }
 
-  # All other routes -> Frontend (React app on port 3000)
+  # ── Frontend (React SPA) ─────────────────────────────────────────────────
   handle {
-    reverse_proxy frontend:3000 {
-      # Health check
-      health_uri /health
-      health_interval 30s
-      health_timeout 5s
-    }
+    reverse_proxy frontend:3000
   }
 
-  # Security headers
+  # ── Security headers ──────────────────────────────────────────────────────
   header {
     -Server
     X-Content-Type-Options nosniff
@@ -90,69 +75,5 @@
     X-XSS-Protection "1; mode=block"
     Referrer-Policy "strict-origin-when-cross-origin"
     Permissions-Policy "accelerometer=(), camera=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
-  }
-}
-
-# HTTP endpoint - serve application directly (SSL via Cloudflare)
-http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
-  log {
-    output stdout
-    format console
-    level INFO
-  }
-
-  # Enable gzip compression
-  encode gzip zstd
-
-  # Health check
-  @health path /health
-  respond @health "OK" 200
-
-  # API routes -> Microservices
-  handle_path /api/auth/* {
-    reverse_proxy auth-service:8081
-  }
-
-  handle_path /api/social/* {
-    reverse_proxy social-service:8082
-  }
-
-  handle_path /api/lists/* {
-    reverse_proxy lists-service:8083
-  }
-
-  handle /api/pins* {
-    uri strip_prefix /api
-    reverse_proxy pins-service:8084
-  }
-
-  handle_path /api/media/* {
-    reverse_proxy media-service:8085
-  }
-
-  handle_path /api/moderation/* {
-    reverse_proxy moderation-service:8086
-  }
-
-  handle_path /api/notifications/* {
-    reverse_proxy notifications-service:8087
-  }
-
-  # Management/Actuator endpoints
-  handle /actuator/* {
-    reverse_proxy pins-service:8084
-  }
-
-  # All other routes -> Frontend
-  handle {
-    reverse_proxy frontend:3000
-  }
-
-  # Security headers
-  header {
-    -Server
-    X-Content-Type-Options nosniff
-    X-Frame-Options SAMEORIGIN
-    Referrer-Policy "strict-origin-when-cross-origin"
   }
 }
