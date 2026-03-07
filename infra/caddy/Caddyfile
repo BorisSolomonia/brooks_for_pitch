@@ -1,32 +1,27 @@
-# Brooks App - Cloudflare-terminated SSL
-# Cloudflare handles TLS. Caddy serves plain HTTP on :80.
-# Cloudflare SSL mode should be "Flexible" (connects to origin on HTTP).
-# If you ever switch to "Full/Full-Strict" you need a Cloudflare Origin
-# Certificate and a tls block in the site block below.
+# Brooks App — origin server behind Cloudflare
+#
+# Supports both Cloudflare SSL modes without ACME/Let's Encrypt:
+#   Flexible     → Cloudflare connects to origin on :80  (HTTP)
+#   Full         → Cloudflare connects to origin on :443 (self-signed TLS)
+#   Full Strict  → requires a Cloudflare Origin Certificate (not set up here)
+#
+# auto_https off prevents Caddy from requesting Let's Encrypt certs.
+# tls internal  uses Caddy's built-in CA for a self-signed cert on :443.
+# Neither hits any rate limit.
 
 {
-  # Disable automatic HTTPS — Cloudflare is the TLS terminator.
-  # Without this Caddy tries ACME on every startup, hits Let's Encrypt
-  # rate limits (5 certs/domain/week) after a few redeploys and fails.
   auto_https off
 }
 
-http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
-  log {
-    output stdout
-    format console
-    level INFO
-  }
-
-  # Enable gzip and zstd compression
+# ── Shared routes (imported by both HTTP and HTTPS blocks) ──────────────────
+(app_routes) {
   encode gzip zstd
 
-  # Lightweight health check for deploy pipeline and load balancers
+  # Lightweight health check — deploy pipeline and load balancers use this
   @health path /health
   respond @health "OK" 200
 
-  # ── API routes ────────────────────────────────────────────────────────────
-
+  # API routes
   handle_path /api/auth/* {
     reverse_proxy auth-service:8081
   }
@@ -39,7 +34,7 @@ http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
     reverse_proxy lists-service:8083
   }
 
-  # /api/pins* — strip only /api so service receives /pins/...
+  # Strip /api so pins-service receives /pins/...
   handle /api/pins* {
     uri strip_prefix /api
     reverse_proxy pins-service:8084
@@ -57,17 +52,16 @@ http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
     reverse_proxy notifications-service:8087
   }
 
-  # Actuator (primary = pins-service)
+  # Management actuator (primary = pins-service)
   handle /actuator/* {
     reverse_proxy pins-service:8084
   }
 
-  # ── Frontend (React SPA) ─────────────────────────────────────────────────
+  # React SPA — catch-all
   handle {
     reverse_proxy frontend:3000
   }
 
-  # ── Security headers ──────────────────────────────────────────────────────
   header {
     -Server
     X-Content-Type-Options nosniff
@@ -76,4 +70,25 @@ http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
     Referrer-Policy "strict-origin-when-cross-origin"
     Permissions-Policy "accelerometer=(), camera=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
   }
+}
+
+# ── HTTP — Cloudflare "Flexible" SSL ────────────────────────────────────────
+http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
+  log {
+    output stdout
+    format console
+    level INFO
+  }
+  import app_routes
+}
+
+# ── HTTPS — Cloudflare "Full" SSL (self-signed cert, no ACME) ───────────────
+https://{$BROOKS_DOMAIN}, https://www.{$BROOKS_DOMAIN} {
+  log {
+    output stdout
+    format console
+    level INFO
+  }
+  tls internal
+  import app_routes
 }
