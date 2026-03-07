@@ -116,3 +116,4 @@ brooks-env.txt
 *-sa-key.json
 github_actions_*
 .env.production
+certs.xlsx

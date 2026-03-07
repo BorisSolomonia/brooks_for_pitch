@@ -85,6 +85,18 @@ jobs:
             --secret="${ENV_SECRET_NAME}" \
             --project="${PROJECT_ID}" > .env.production
 
+      - name: Fetch TLS origin certificate from Secret Manager
+        run: |
+          set -euo pipefail
+          gcloud secrets versions access latest \
+            --secret="CF_ORIGIN_CERT" \
+            --project="${PROJECT_ID}" > infra/caddy/origin.crt
+          gcloud secrets versions access latest \
+            --secret="CF_ORIGIN_KEY" \
+            --project="${PROJECT_ID}" > infra/caddy/origin.key
+          [ -s infra/caddy/origin.crt ] || { echo "CF_ORIGIN_CERT secret is empty"; exit 1; }
+          [ -s infra/caddy/origin.key ] || { echo "CF_ORIGIN_KEY secret is empty"; exit 1; }
+
       - name: Normalize and validate DB env
         run: |
           set -euo pipefail
@@ -246,7 +258,7 @@ jobs:
           timeout: 120s
           command_timeout: 180s
           overwrite: true
-          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
+          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/caddy/origin.crt,infra/caddy/origin.key,infra/db/init/*"
           target: /opt/brooks/
 
       - name: Re-check SSH before retry upload
@@ -275,7 +287,7 @@ jobs:
           timeout: 120s
           command_timeout: 180s
           overwrite: true
-          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/db/init/*"
+          source: ".env.production,infra/docker-compose.prod.yml,infra/caddy/Caddyfile,infra/caddy/origin.crt,infra/caddy/origin.key,infra/db/init/*"
           target: /opt/brooks/
 
       - name: Clean VM and redeploy

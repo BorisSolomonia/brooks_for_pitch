@@ -1,13 +1,13 @@
 # Brooks App — origin server behind Cloudflare
 #
-# Supports both Cloudflare SSL modes without ACME/Let's Encrypt:
-#   Flexible     → Cloudflare connects to origin on :80  (HTTP)
-#   Full         → Cloudflare connects to origin on :443 (self-signed TLS)
-#   Full Strict  → requires a Cloudflare Origin Certificate (not set up here)
+# SSL modes:
+#   Flexible    → Cloudflare connects to origin on :80  (HTTP only)
+#   Full        → Cloudflare connects on :443, accepts any cert
+#   Full Strict → Cloudflare connects on :443, requires a valid cert
+#                 ✅ we use a Cloudflare Origin Certificate for this
 #
-# auto_https off prevents Caddy from requesting Let's Encrypt certs.
-# tls internal  uses Caddy's built-in CA for a self-signed cert on :443.
-# Neither hits any rate limit.
+# auto_https off  — disables ACME/Let's Encrypt (Cloudflare handles public TLS)
+# tls <cert> <key> — uses the Cloudflare Origin Certificate mounted at deploy time
 
 {
   auto_https off
@@ -82,13 +82,13 @@ http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
   import app_routes
 }
 
-# ── HTTPS — Cloudflare "Full" SSL (self-signed cert, no ACME) ───────────────
+# ── HTTPS — Cloudflare "Full Strict" (Origin Certificate, no ACME) ──────────
 https://{$BROOKS_DOMAIN}, https://www.{$BROOKS_DOMAIN} {
   log {
     output stdout
     format console
     level INFO
   }
-  tls internal
+  tls /etc/caddy/origin.crt /etc/caddy/origin.key
   import app_routes
 }
