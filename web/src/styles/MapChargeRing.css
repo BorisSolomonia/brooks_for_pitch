@@ -11,21 +11,21 @@
 }
 
 .charge-ring-track {
-  stroke: rgba(248, 250, 252, 0.24);
+  stroke: rgba(255, 255, 255, 0.12);
   fill: none;
 }
 
 .charge-ring-fill {
-  stroke: rgba(248, 250, 252, 0.9);
+  stroke: var(--accent-secondary);
   fill: none;
   stroke-linecap: round;
   stroke-dashoffset: 201.06;
   animation: charge-fill 1500ms linear forwards;
-  filter: drop-shadow(0 0 6px rgba(248, 250, 252, 0.55));
+  filter: drop-shadow(0 0 6px var(--accent-secondary));
 }
 
 .charge-ring-center {
-  fill: rgba(226, 232, 240, 0.9);
+  fill: var(--accent-secondary);
   opacity: 0.9;
   transform-box: fill-box;
   transform-origin: center;

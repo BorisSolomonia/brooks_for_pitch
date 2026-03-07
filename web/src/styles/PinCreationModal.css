@@ -384,9 +384,9 @@
 }
 
 .duration-card.active {
-  border-color: rgba(248, 250, 252, 0.6);
-  box-shadow: 0 0 10px rgba(226, 232, 240, 0.18);
-  background: rgba(203, 213, 225, 0.14);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 12px rgba(246, 180, 78, 0.3);
+  background: rgba(246, 180, 78, 0.08);
 }
 
 .duration-card.forever {
