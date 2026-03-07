@@ -21,7 +21,12 @@
       "Bash(gcloud compute ssh:*)",
       "Bash(gcloud compute instances add-metadata:*)",
       "Bash(claude mcp add:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(PGPASSWORD='supabaseZdarova1!' psql:*)",
+      "Bash(docker run:*)",
+      "Bash(powershell.exe -Command \"Test-NetConnection -ComputerName aws-1-ap-south-1.pooler.supabase.com -Port 5432 -WarningAction SilentlyContinue | Select-Object ComputerName, RemotePort, TcpTestSucceeded\")",
+      "Bash(node --version:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
