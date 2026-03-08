@@ -2,6 +2,9 @@
 -- Created: 2026-01-10
 -- Purpose: Optimize report queries
 
+-- Add status column if it was not present in the initial schema
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'PENDING';
+
 -- ==================================================================
 -- Reports Table Indexes
 -- ==================================================================

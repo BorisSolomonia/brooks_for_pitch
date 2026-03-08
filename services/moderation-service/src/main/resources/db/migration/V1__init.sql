@@ -5,6 +5,7 @@ CREATE TABLE reports (
   target_id UUID NOT NULL,
   reason VARCHAR(50) NOT NULL,
   details TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
