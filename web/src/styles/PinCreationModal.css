@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 1300;
-  background: rgba(15, 23, 42, 0.62);
+  background: rgba(74, 55, 40, 0.4);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-base) var(--ease-standard);
@@ -24,7 +24,7 @@
   transition: transform var(--motion-base) var(--ease-emphasized);
   border-radius: 24px 24px 0 0;
   border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.14), rgba(148, 163, 184, 0.09));
+  background: linear-gradient(180deg, #f4ead5, #efe3cb);
   box-shadow: var(--shadow-strong);
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
@@ -38,7 +38,7 @@
   width: 56px;
   height: 4px;
   border-radius: var(--radius-pill);
-  background: rgba(248, 250, 252, 0.34);
+  background: rgba(74, 55, 40, 0.25);
   margin: 10px auto 0;
 }
 
@@ -51,12 +51,12 @@
   justify-content: space-between;
   padding: 14px 18px;
   border-bottom: 1px solid var(--stroke);
-  background: rgba(148, 163, 184, 0.08);
+  background: rgba(139, 107, 66, 0.06);
 }
 
 .modal-header h2 {
   margin: 4px 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-style: italic;
   color: var(--text-strong);
   font-size: 1.34rem;
@@ -67,7 +67,7 @@
   height: 36px;
   border-radius: 50%;
   border: 1px solid var(--stroke);
-  background: rgba(248, 250, 252, 0.1);
+  background: rgba(139, 107, 66, 0.08);
   color: var(--text-primary);
   display: grid;
   place-items: center;
@@ -75,12 +75,19 @@
 }
 
 .modal-close:hover {
-  background: rgba(248, 250, 252, 0.15);
+  background: rgba(139, 107, 66, 0.14);
 }
 
 .modal-content {
   overflow-y: auto;
   padding: 16px 18px 22px;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 31px,
+    var(--ink-line-color) 31px,
+    var(--ink-line-color) 32px
+  );
+  background-size: 100% 32px;
 }
 
 .form-group {
@@ -91,7 +98,7 @@
   display: block;
   margin-bottom: 8px;
   font-size: 0.84rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -103,7 +110,7 @@
   width: 100%;
   border-radius: 12px;
   border: 1px solid var(--stroke);
-  background: rgba(248, 250, 252, 0.1);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--text-primary);
   padding: 11px 12px;
 }
@@ -144,7 +151,7 @@
 .toggle {
   border: 1px solid var(--stroke);
   border-radius: var(--radius-pill);
-  background: rgba(248, 250, 252, 0.08);
+  background: rgba(139, 107, 66, 0.06);
   color: var(--text-primary);
   cursor: pointer;
   padding: 9px 12px;
@@ -166,9 +173,9 @@
 
 .pill.active,
 .toggle.active {
-  color: #0f172a;
+  color: #f4ead5;
   border-color: transparent;
-  background: linear-gradient(130deg, rgba(248, 250, 252, 0.9), rgba(203, 213, 225, 0.82));
+  background: linear-gradient(130deg, #2c1810, #4a3728);
 }
 
 .form-row {
@@ -190,8 +197,8 @@
 }
 
 .vault-group.vault-open {
-  border-color: rgba(248, 250, 252, 0.5);
-  box-shadow: 0 0 18px rgba(226, 232, 240, 0.12);
+  border-color: rgba(74, 55, 40, 0.5);
+  box-shadow: 0 0 18px rgba(184, 134, 11, 0.12);
 }
 
 .vault-trigger {
@@ -200,7 +207,7 @@
   align-items: center;
   gap: 10px;
   padding: 13px 14px;
-  background: rgba(248, 250, 252, 0.08);
+  background: rgba(139, 107, 66, 0.08);
   color: var(--text-primary);
   cursor: pointer;
   text-align: left;
@@ -209,7 +216,7 @@
 }
 
 .vault-trigger:hover {
-  background: rgba(248, 250, 252, 0.12);
+  background: rgba(139, 107, 66, 0.12);
 }
 
 .vault-icon {
@@ -218,7 +225,7 @@
 }
 
 .vault-title {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -239,7 +246,7 @@
 
 .vault-chevron.expanded {
   transform: rotate(180deg);
-  color: rgba(248, 250, 252, 0.92);
+  color: var(--text-strong);
 }
 
 .vault-body {
@@ -247,7 +254,7 @@
   border-top: 1px solid var(--stroke);
   display: grid;
   gap: 14px;
-  background: rgba(203, 213, 225, 0.08);
+  background: rgba(184, 158, 120, 0.08);
 }
 
 .vault-date-row {
@@ -256,7 +263,7 @@
 }
 
 .vault-date-input {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .vault-hint {
@@ -278,9 +285,9 @@
 
 .form-error {
   font-size: 0.78rem;
-  color: #fecdd3;
-  border: 1px solid rgba(251, 113, 133, 0.34);
-  background: rgba(251, 113, 133, 0.12);
+  color: var(--state-danger);
+  border: 1px solid rgba(139, 37, 0, 0.34);
+  background: rgba(139, 37, 0, 0.12);
   border-radius: 10px;
   padding: 8px 10px;
 }
@@ -288,7 +295,7 @@
 .location-info {
   border: 1px solid var(--stroke);
   border-radius: 12px;
-  background: rgba(248, 250, 252, 0.08);
+  background: rgba(139, 107, 66, 0.06);
   display: grid;
   gap: 4px;
   padding: 10px 12px;
@@ -305,7 +312,7 @@
   display: flex;
   gap: 10px;
   padding-top: 12px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.95) 24%);
+  background: linear-gradient(180deg, rgba(244, 234, 213, 0), rgba(244, 234, 213, 0.95) 24%);
 }
 
 .btn {
@@ -332,17 +339,17 @@
 .btn-secondary {
   color: var(--text-primary);
   border-color: var(--stroke);
-  background: rgba(248, 250, 252, 0.1);
+  background: rgba(139, 107, 66, 0.08);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(248, 250, 252, 0.16);
+  background: rgba(139, 107, 66, 0.14);
 }
 
 .btn-primary {
-  color: #0f172a;
-  background: linear-gradient(130deg, rgba(248, 250, 252, 0.9), rgba(203, 213, 225, 0.8));
-  box-shadow: 0 12px 26px rgba(2, 6, 12, 0.42);
+  color: #f4ead5;
+  background: linear-gradient(130deg, #2c1810, #4a3728);
+  box-shadow: 0 12px 26px rgba(74, 55, 40, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -353,8 +360,8 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  border: 2px solid rgba(15, 23, 42, 0.24);
-  border-top-color: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(244, 234, 213, 0.3);
+  border-top-color: rgba(244, 234, 213, 0.85);
   animation: spin 700ms linear infinite;
 }
 
@@ -385,8 +392,8 @@
 
 .duration-card.active {
   border-color: var(--accent-secondary);
-  box-shadow: 0 0 12px rgba(246, 180, 78, 0.3);
-  background: rgba(246, 180, 78, 0.08);
+  box-shadow: 0 0 12px rgba(184, 134, 11, 0.2);
+  background: rgba(184, 134, 11, 0.08);
 }
 
 .duration-card.forever {
@@ -403,7 +410,7 @@
 
 .duration-label {
   font-size: 0.8rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.04em;
 }
 

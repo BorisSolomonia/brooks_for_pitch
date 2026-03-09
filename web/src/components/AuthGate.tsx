@@ -32,18 +32,18 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
       <div className="auth-shell">
         <section className="auth-hero">
           <p className="eyebrow">Brooks</p>
-          <h1>Leave a trace in time.</h1>
+          <h1>The last page is yours.</h1>
           <p className="muted lead">
-            Drop a pin anywhere. Choose who finds it — and when.
+            Every notebook has a last page — the one you kept for yourself. This is yours. Drop a mark anywhere in the world.
           </p>
           <p className="auth-verse">
-            Some things are meant to be discovered<br />
-            by the right person, at the right moment.
+            Every child draws on the last page of their notebook.<br />
+            It is the one page that belongs only to them — ungraded, unjudged, completely free.
           </p>
         </section>
 
         <aside className="auth-panel">
-          <h2>Open the door</h2>
+          <h2>Open the book</h2>
           {error && <p className="error">{error}</p>}
           <div className="auth-actions">
             <button

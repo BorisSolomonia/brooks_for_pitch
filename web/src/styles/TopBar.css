@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--stroke);
-  background: linear-gradient(160deg, rgba(248, 250, 252, 0.13), rgba(148, 163, 184, 0.06));
+  background: linear-gradient(160deg, rgba(244, 234, 213, 0.92), rgba(232, 217, 184, 0.85));
   box-shadow: var(--shadow-soft);
 }
 
@@ -26,7 +26,7 @@
   height: 40px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--stroke);
-  background: rgba(248, 250, 252, 0.09);
+  background: rgba(139, 107, 66, 0.08);
   color: var(--text-primary);
   display: grid;
   place-items: center;
@@ -39,7 +39,7 @@
 .command-btn:hover {
   transform: translateY(-1px);
   border-color: var(--stroke-strong);
-  background: rgba(248, 250, 252, 0.16);
+  background: rgba(139, 107, 66, 0.14);
 }
 
 .brand-mark {
@@ -49,21 +49,19 @@
 
 .brand-title {
   margin: 0;
-  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  font-family: var(--font-serif);
   font-size: clamp(0.95rem, 2vw, 1.12rem);
   color: var(--text-strong);
   letter-spacing: -0.01em;
 }
 
 .traced-brand {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: rgba(248, 250, 252, 0.94);
-  text-shadow:
-    0 0 0.4px rgba(248, 250, 252, 0.85),
-    0 0 8px rgba(226, 232, 240, 0.25);
+  color: var(--text-strong);
+  text-shadow: 0 0 0.3px rgba(44, 24, 16, 0.5);
 }
 
 .theme-chip {
@@ -72,12 +70,12 @@
   border-radius: var(--radius-pill);
   border: 1px solid var(--stroke);
   padding: 0 12px;
-  background: rgba(248, 250, 252, 0.1);
+  background: rgba(139, 107, 66, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(226, 232, 240, 0.95);
-  font-family: "IBM Plex Mono", monospace;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
   font-size: 0.76rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -91,11 +89,11 @@
   width: 38px;
   height: 38px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(248, 250, 252, 0.32);
-  background: linear-gradient(145deg, rgba(248, 250, 252, 0.88), rgba(203, 213, 225, 0.72));
-  color: #0f172a;
+  border: 1px solid rgba(74, 55, 40, 0.5);
+  background: linear-gradient(145deg, #4a3728, #2c1810);
+  color: #f4ead5;
   font-weight: 700;
-  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  font-family: var(--font-display);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -105,7 +103,7 @@
 
 .user-avatar:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 10px 22px rgba(2, 6, 12, 0.42);
+  box-shadow: 0 10px 22px rgba(74, 55, 40, 0.25);
 }
 
 .user-menu-backdrop {
@@ -122,7 +120,7 @@
   z-index: 2;
   border-radius: 14px;
   border: 1px solid var(--stroke);
-  background: linear-gradient(165deg, rgba(248, 250, 252, 0.17), rgba(148, 163, 184, 0.1));
+  background: linear-gradient(165deg, rgba(244, 234, 213, 0.97), rgba(232, 217, 184, 0.94));
   box-shadow: var(--shadow-medium);
   animation: menuIn var(--motion-base) var(--ease-standard);
   overflow: hidden;
@@ -158,7 +156,7 @@
 }
 
 .user-menu-item:hover {
-  background: rgba(248, 250, 252, 0.14);
+  background: rgba(139, 107, 66, 0.1);
 }
 
 @keyframes menuIn {

@@ -26,7 +26,10 @@
       "Bash(docker run:*)",
       "Bash(powershell.exe -Command \"Test-NetConnection -ComputerName aws-1-ap-south-1.pooler.supabase.com -Port 5432 -WarningAction SilentlyContinue | Select-Object ComputerName, RemotePort, TcpTestSucceeded\")",
       "Bash(node --version:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(\"C:/Users/Boris/Dell/Projects/APPS/Brooks/Brooks_new_1/docs/insight-host-error-521.md\":*)",
+      "Bash(\"C:/Users/Boris/Dell/Projects/APPS/Brooks/Brooks_new_1/docs/insight-supabase-db-failures.md\":*)",
+      "Bash(python3:*)"
     ]
   }
 }

@@ -31,12 +31,19 @@ export function MapChargeRing({ x, y, active, onComplete, onCancel }: MapChargeR
       aria-hidden="true"
     >
       <svg width="80" height="80" viewBox="0 0 80 80">
+        <defs>
+          <filter id="ink-rough">
+            <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="4" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" />
+          </filter>
+        </defs>
         <circle
           className="charge-ring-track"
           cx="40"
           cy="40"
           r={radius}
           strokeWidth="4"
+          filter="url(#ink-rough)"
         />
         <circle
           className="charge-ring-fill"
@@ -46,6 +53,7 @@ export function MapChargeRing({ x, y, active, onComplete, onCancel }: MapChargeR
           strokeWidth="4"
           strokeDasharray={circumference}
           onAnimationEnd={onComplete}
+          filter="url(#ink-rough)"
         />
         <circle className="charge-ring-center" cx="40" cy="40" r="5" />
       </svg>
