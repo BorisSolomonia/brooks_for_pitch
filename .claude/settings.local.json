@@ -29,7 +29,9 @@
       "Bash(npm install:*)",
       "Bash(\"C:/Users/Boris/Dell/Projects/APPS/Brooks/Brooks_new_1/docs/insight-host-error-521.md\":*)",
       "Bash(\"C:/Users/Boris/Dell/Projects/APPS/Brooks/Brooks_new_1/docs/insight-supabase-db-failures.md\":*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(gemini -p \"Research the typography and fonts used in these historical 3D video games released after 2018. For each game, identify the specific fonts or font styles used in their UI, menus, titles, and in-game text. I need exact font names or the closest Google Fonts equivalents.:*)",
+      "Bash(gemini:*)"
     ]
   }
 }

@@ -7,13 +7,17 @@
   border: 1px solid var(--stroke);
   background: linear-gradient(165deg, rgba(244, 234, 213, 0.97), rgba(232, 217, 184, 0.94));
   box-shadow: var(--shadow-medium);
-  max-width: 280px;
+  max-width: 310px;
+  max-height: calc(100vh - var(--topbar-height) - 32px);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
 .font-selector.collapsed {
   border-radius: var(--radius-pill);
   max-width: none;
+  max-height: none;
   width: auto;
 }
 
@@ -30,6 +34,7 @@
   font-size: 0.78rem;
   letter-spacing: 0.06em;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .font-selector-toggle:hover {
@@ -39,7 +44,9 @@
 .font-selector-body {
   padding: 0 12px 12px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .font-slot-group {
@@ -53,6 +60,11 @@
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--text-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(239, 227, 203, 0.95);
+  padding: 4px 0;
+  z-index: 1;
 }
 
 .font-slot-options {

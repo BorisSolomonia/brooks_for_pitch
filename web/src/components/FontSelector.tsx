@@ -46,6 +46,7 @@ export function FontSelector({ selections, onChange }: FontSelectorProps) {
                       className={`font-option ${selections[slot] === opt.id ? "active" : ""}`}
                       onClick={() => onChange(slot, opt.id)}
                       style={{ fontFamily: opt.family }}
+                      title={opt.origin}
                     >
                       {opt.label}
                     </button>
