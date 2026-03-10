@@ -4,12 +4,17 @@ import { TopBar } from "./components/TopBar";
 import { FAB } from "./components/FAB";
 import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
+import { PinDetailModal } from "./components/PinDetailModal";
 import { MapChargeRing } from "./components/MapChargeRing";
+import { FontSelector } from "./components/FontSelector";
+import { SketchOverlay } from "./components/SketchOverlay";
 import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { env } from "./lib/env";
 import { applyTheme } from "./lib/theme";
+import { getDefaultFontId, applyFont } from "./lib/fonts";
+import type { FontSlot } from "./lib/fonts";
 import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
 import "./styles/AppRedesigned.css";
@@ -34,6 +39,13 @@ export default function AppRedesigned() {
   const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
   const ringCompletedRef = useRef(false);
   const [showPins, setShowPins] = useState(true);
+  const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
+
+  const [fontSelections, setFontSelections] = useState<Record<FontSlot, string>>({
+    display: getDefaultFontId("display"),
+    body: getDefaultFontId("body"),
+    mono: getDefaultFontId("mono"),
+  });
 
   const [mapProvider, setMapProvider] = useState<"leaflet" | "google">(env.mapProvider);
   const { location, theme, setOverride, override } = useCityTheme();
@@ -42,6 +54,16 @@ export default function AppRedesigned() {
   useEffect(() => {
     applyTheme(currentTheme);
   }, [currentTheme]);
+
+  useEffect(() => {
+    applyFont("display", fontSelections.display);
+    applyFont("body", fontSelections.body);
+    applyFont("mono", fontSelections.mono);
+  }, [fontSelections]);
+
+  const handleFontChange = (slot: FontSlot, fontId: string) => {
+    setFontSelections(prev => ({ ...prev, [slot]: fontId }));
+  };
 
   useEffect(() => {
     if (location) {
@@ -162,6 +184,7 @@ export default function AppRedesigned() {
 
   return (
     <div className="app-redesigned">
+      <SketchOverlay />
       <TopBar
         onMenuClick={() => setIsDrawerOpen(true)}
         userName={user?.name}
@@ -175,6 +198,7 @@ export default function AppRedesigned() {
           provider={mapProvider}
           center={center}
           pins={showPins ? pins : []}
+          onPinClick={pin => setSelectedPin(pin)}
           onHoldStart={(coords, x, y) => {
             ringCompletedRef.current = false;
             setChargeTarget({ coords, x, y });
@@ -249,6 +273,16 @@ export default function AppRedesigned() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreatePin}
         location={center}
+      />
+
+      <PinDetailModal
+        pin={selectedPin}
+        onClose={() => setSelectedPin(null)}
+      />
+
+      <FontSelector
+        selections={fontSelections}
+        onChange={handleFontChange}
       />
     </div>
   );

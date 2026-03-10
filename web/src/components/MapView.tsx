@@ -14,6 +14,7 @@ type MapViewProps = {
   provider: MapProvider;
   center: Coordinates;
   pins: MapPin[];
+  onPinClick?: (pin: MapPin) => void;
   onDoubleClick?: (coords: Coordinates) => void;
   onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
   onHoldEnd?: () => void;
@@ -99,12 +100,14 @@ function MapHoldHandler({
 function LeafletMap({
   center,
   pins,
+  onPinClick,
   onDoubleClick,
   onHoldStart,
   onHoldEnd
 }: {
   center: Coordinates;
   pins: MapPin[];
+  onPinClick?: (pin: MapPin) => void;
   onDoubleClick?: (coords: Coordinates) => void;
   onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
   onHoldEnd?: () => void;
@@ -143,7 +146,11 @@ function LeafletMap({
         <MapHoldHandler onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />
       ) : null}
       {pins.map(pin => (
-        <Marker key={pin.id} position={[pin.location.lat, pin.location.lng]} />
+        <Marker
+          key={pin.id}
+          position={[pin.location.lat, pin.location.lng]}
+          eventHandlers={onPinClick ? { click: () => onPinClick(pin) } : undefined}
+        />
       ))}
     </MapContainer>
   );
@@ -152,12 +159,14 @@ function LeafletMap({
 function GoogleMap({
   center,
   pins,
+  onPinClick,
   onDoubleClick,
   onHoldStart,
   onHoldEnd
 }: {
   center: Coordinates;
   pins: MapPin[];
+  onPinClick?: (pin: MapPin) => void;
   onDoubleClick?: (coords: Coordinates) => void;
   onHoldStart?: (coords: Coordinates, clientX: number, clientY: number) => void;
   onHoldEnd?: () => void;
@@ -239,14 +248,17 @@ function GoogleMap({
     }
     mapRef.current.setCenter({ lat: center.lat, lng: center.lng });
     markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = pins.map(
-      pin =>
-        new google.maps.Marker({
-          position: { lat: pin.location.lat, lng: pin.location.lng },
-          map: mapRef.current
-        })
-    );
-  }, [center, pins]);
+    markersRef.current = pins.map(pin => {
+      const marker = new google.maps.Marker({
+        position: { lat: pin.location.lat, lng: pin.location.lng },
+        map: mapRef.current
+      });
+      if (onPinClick) {
+        marker.addListener("click", () => onPinClick(pin));
+      }
+      return marker;
+    });
+  }, [center, pins, onPinClick]);
 
   if (!env.googleMapsKey) {
     return (
@@ -260,9 +272,9 @@ function GoogleMap({
   return <div ref={containerRef} className="map-canvas" />;
 }
 
-export default function MapView({ provider, center, pins, onDoubleClick, onHoldStart, onHoldEnd }: MapViewProps) {
+export default function MapView({ provider, center, pins, onPinClick, onDoubleClick, onHoldStart, onHoldEnd }: MapViewProps) {
   if (provider === "google") {
-    return <GoogleMap center={center} pins={pins} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
+    return <GoogleMap center={center} pins={pins} onPinClick={onPinClick} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
   }
-  return <LeafletMap center={center} pins={pins} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
+  return <LeafletMap center={center} pins={pins} onPinClick={onPinClick} onDoubleClick={onDoubleClick} onHoldStart={onHoldStart} onHoldEnd={onHoldEnd} />;
 }

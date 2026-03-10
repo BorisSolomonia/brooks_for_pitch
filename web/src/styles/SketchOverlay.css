@@ -1,0 +1,33 @@
+.sketch-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  color: var(--text-primary);
+}
+
+.sketch {
+  position: absolute;
+  opacity: 0.6;
+}
+
+.sketch-tl {
+  top: calc(var(--topbar-height) + 20px);
+  left: 16px;
+}
+
+.sketch-br {
+  bottom: 90px;
+  right: 12px;
+}
+
+.sketch-ml {
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+}
+
+.sketch-tr {
+  top: calc(var(--topbar-height) + 14px);
+  right: 60px;
+}

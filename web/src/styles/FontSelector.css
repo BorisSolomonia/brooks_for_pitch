@@ -1,0 +1,85 @@
+.font-selector {
+  position: fixed;
+  top: calc(var(--topbar-height) + 12px);
+  right: 14px;
+  z-index: 1050;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(165deg, rgba(244, 234, 213, 0.97), rgba(232, 217, 184, 0.94));
+  box-shadow: var(--shadow-medium);
+  max-width: 280px;
+  overflow: hidden;
+}
+
+.font-selector.collapsed {
+  border-radius: var(--radius-pill);
+  max-width: none;
+  width: auto;
+}
+
+.font-selector-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  width: 100%;
+}
+
+.font-selector-toggle:hover {
+  background: rgba(139, 107, 66, 0.08);
+}
+
+.font-selector-body {
+  padding: 0 12px 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.font-slot-group {
+  display: grid;
+  gap: 6px;
+}
+
+.font-slot-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+.font-slot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.font-option {
+  padding: 5px 10px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+
+.font-option:hover {
+  border-color: var(--stroke-strong);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.font-option.active {
+  background: linear-gradient(130deg, #2c1810, #4a3728);
+  color: #f4ead5;
+  border-color: transparent;
+}
