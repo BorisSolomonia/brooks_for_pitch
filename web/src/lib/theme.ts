@@ -24,6 +24,11 @@ const makePalette = (tokens: {
   glow: string;
   strokeSoft: string;
   strokeStrong: string;
+  glowColor: string;
+  glowColorStrong: string;
+  auroraStart: string;
+  auroraEnd: string;
+  grainOpacity: string;
 }): Record<string, string> => ({
   "--bg-0": tokens.bg0,
   "--bg-1": tokens.bg1,
@@ -43,6 +48,11 @@ const makePalette = (tokens: {
   "--glow": tokens.glow,
   "--stroke-soft": tokens.strokeSoft,
   "--stroke-strong": tokens.strokeStrong,
+  "--glow-color": tokens.glowColor,
+  "--glow-color-strong": tokens.glowColorStrong,
+  "--aurora-start": tokens.auroraStart,
+  "--aurora-end": tokens.auroraEnd,
+  "--grain-opacity": tokens.grainOpacity,
 
   // Compatibility aliases
   "--bg": tokens.bg0,
@@ -54,7 +64,8 @@ const makePalette = (tokens: {
   "--accent": tokens.accentPrimary,
   "--accent-2": tokens.accentSecondary,
   "--accent-3": tokens.accentTertiary,
-  "--stroke": tokens.strokeSoft
+  "--stroke": tokens.strokeSoft,
+  "--paper-grain-opacity": tokens.grainOpacity
 });
 
 export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
@@ -78,7 +89,12 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       ring: "rgba(180, 76, 58, 0.45)",
       glow: "rgba(180, 76, 58, 0.35)",
       strokeSoft: "rgba(90, 45, 32, 0.20)",
-      strokeStrong: "rgba(60, 21, 24, 0.42)"
+      strokeStrong: "rgba(60, 21, 24, 0.42)",
+      glowColor: "rgba(180,76,58,0.30)",
+      glowColorStrong: "rgba(180,76,58,0.50)",
+      auroraStart: "rgba(180,76,58,0.06)",
+      auroraEnd: "rgba(139,107,66,0.04)",
+      grainOpacity: "0.15"
     })
   },
   tbilisi: {
@@ -101,7 +117,12 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       ring: "rgba(122, 59, 46, 0.45)",
       glow: "rgba(122, 59, 46, 0.35)",
       strokeSoft: "rgba(74, 56, 40, 0.20)",
-      strokeStrong: "rgba(45, 36, 23, 0.42)"
+      strokeStrong: "rgba(45, 36, 23, 0.42)",
+      glowColor: "rgba(122,59,46,0.30)",
+      glowColorStrong: "rgba(122,59,46,0.50)",
+      auroraStart: "rgba(122,59,46,0.06)",
+      auroraEnd: "rgba(74,56,40,0.04)",
+      grainOpacity: "0.10"
     })
   },
   paris: {
@@ -124,7 +145,12 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       ring: "rgba(197, 160, 40, 0.45)",
       glow: "rgba(197, 160, 40, 0.35)",
       strokeSoft: "rgba(46, 61, 82, 0.20)",
-      strokeStrong: "rgba(26, 35, 50, 0.42)"
+      strokeStrong: "rgba(26, 35, 50, 0.42)",
+      glowColor: "rgba(197,160,40,0.30)",
+      glowColorStrong: "rgba(197,160,40,0.50)",
+      auroraStart: "rgba(197,160,40,0.06)",
+      auroraEnd: "rgba(26,35,50,0.04)",
+      grainOpacity: "0.08"
     })
   },
   default: {
@@ -147,7 +173,12 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       ring: "rgba(184, 134, 11, 0.45)",
       glow: "rgba(184, 134, 11, 0.35)",
       strokeSoft: "rgba(74, 55, 40, 0.20)",
-      strokeStrong: "rgba(44, 24, 16, 0.42)"
+      strokeStrong: "rgba(44, 24, 16, 0.42)",
+      glowColor: "rgba(184,134,11,0.35)",
+      glowColorStrong: "rgba(184,134,11,0.55)",
+      auroraStart: "rgba(184,134,11,0.06)",
+      auroraEnd: "rgba(139,107,66,0.04)",
+      grainOpacity: "0.12"
     })
   }
 };

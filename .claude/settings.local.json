@@ -31,7 +31,18 @@
       "Bash(\"C:/Users/Boris/Dell/Projects/APPS/Brooks/Brooks_new_1/docs/insight-supabase-db-failures.md\":*)",
       "Bash(python3:*)",
       "Bash(gemini -p \"Research the typography and fonts used in these historical 3D video games released after 2018. For each game, identify the specific fonts or font styles used in their UI, menus, titles, and in-game text. I need exact font names or the closest Google Fonts equivalents.:*)",
-      "Bash(gemini:*)"
+      "Bash(gemini:*)",
+      "WebFetch(domain:web.meetcleo.com)",
+      "WebFetch(domain:relace.ai)",
+      "WebFetch(domain:www.ancestry.com)",
+      "WebSearch",
+      "WebFetch(domain:www.lapa.ninja)",
+      "WebFetch(domain:mobbin.com)",
+      "WebFetch(domain:www.hartley.design)",
+      "WebFetch(domain:www.underconsideration.com)",
+      "WebFetch(domain:www.designinsiderlive.com)",
+      "WebFetch(domain:laurenrowe.co.uk)",
+      "Bash(npx vite build)"
     ]
   }
 }

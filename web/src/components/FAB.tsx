@@ -1,3 +1,4 @@
+import { useSpotlight } from '../hooks/useSpotlight';
 import '../styles/FAB.css';
 
 interface FABProps {
@@ -6,8 +7,18 @@ interface FABProps {
 }
 
 export function FAB({ onClick, label = 'Leave a Mark' }: FABProps) {
+  const spotlight = useSpotlight<HTMLButtonElement>();
+
   return (
-    <button type="button" className="fab" onClick={onClick} aria-label={label}>
+    <button
+      type="button"
+      className="fab"
+      onClick={onClick}
+      aria-label={label}
+      ref={spotlight.ref}
+      onMouseMove={spotlight.onMouseMove}
+    >
+      <span className="fab-spotlight" aria-hidden="true" />
       <svg
         className="fab-icon"
         width="24"

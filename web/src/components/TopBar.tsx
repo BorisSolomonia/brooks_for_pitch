@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import "../styles/TopBar.css";
 
 interface TopBarProps {
@@ -12,6 +12,20 @@ interface TopBarProps {
 export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentTheme }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuId = useId();
+  const themeChipRef = useRef<HTMLDivElement>(null);
+  const prevThemeRef = useRef(currentTheme);
+
+  useEffect(() => {
+    if (prevThemeRef.current !== currentTheme) {
+      prevThemeRef.current = currentTheme;
+      const chip = themeChipRef.current;
+      if (chip) {
+        chip.classList.remove("theme-pulse");
+        void chip.offsetWidth;
+        chip.classList.add("theme-pulse");
+      }
+    }
+  }, [currentTheme]);
 
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -55,7 +69,7 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentThe
       </div>
 
       <div className="command-bar-right">
-        <div className="theme-chip" title={`Theme: ${currentTheme}`}>
+        <div className="theme-chip" ref={themeChipRef} title={`Theme: ${currentTheme}`}>
           <span>{getThemeLabel(currentTheme)}</span>
         </div>
 

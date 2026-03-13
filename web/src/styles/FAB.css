@@ -35,15 +35,34 @@
 
 .fab::before {
   inset: -4px;
-  border: 1px solid rgba(184, 134, 11, 0.4);
+  border: 1px solid var(--glow-color);
   opacity: 0.54;
   animation: inkPulse 4s ease-out infinite;
 }
 
 .fab::after {
   inset: -14px;
-  background: radial-gradient(circle, rgba(184, 134, 11, 0.15), transparent 62%);
+  background: radial-gradient(circle, var(--glow-color), transparent 62%);
   z-index: -1;
+}
+
+.fab-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--glow-color-strong),
+    transparent 60%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.fab:hover .fab-spotlight {
+  opacity: 1;
 }
 
 .fab:hover {

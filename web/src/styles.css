@@ -56,8 +56,15 @@
   --font-mono: "Special Elite", "Courier New", monospace;
 
   /* TEXTURE */
-  --paper-grain-opacity: 0.12;
+  --grain-opacity: 0.12;
+  --paper-grain-opacity: var(--grain-opacity);
   --ink-line-color: rgba(74, 55, 40, 0.12);
+
+  /* GLOW & AURORA */
+  --glow-color: rgba(184, 134, 11, 0.35);
+  --glow-color-strong: rgba(184, 134, 11, 0.55);
+  --aurora-start: rgba(184, 134, 11, 0.06);
+  --aurora-end: rgba(139, 107, 66, 0.04);
 
   /* ALIASES */
   --bg: var(--bg-0);
@@ -206,6 +213,12 @@ select {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  z-index: 1;
+}
+
+.auth-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .auth-hero h1,
@@ -295,6 +308,39 @@ select {
 .primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 14px 30px rgba(74, 55, 40, 0.35);
+}
+
+.auth-btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--glow-color),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.auth-btn-glow:hover:not(:disabled)::after {
+  opacity: 0.6;
+}
+
+/* Auth shell stagger entrance */
+.auth-shell > :nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.auth-shell > :nth-child(2) {
+  animation-delay: 120ms;
 }
 
 .ghost {
@@ -416,6 +462,199 @@ select {
 
   .auth-panel {
     order: 1;
+  }
+}
+
+/* ── GLOW BORDER ── */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    var(--glow-color),
+    transparent 40%,
+    transparent 60%,
+    var(--glow-color)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-standard);
+  pointer-events: none;
+}
+
+.glow-border:hover::before {
+  opacity: 1;
+}
+
+/* ── SPOTLIGHT MOUSE-FOLLOW ── */
+.spotlight-target {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-target::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    320px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--glow-color),
+    transparent 60%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.spotlight-target:hover::after {
+  opacity: 1;
+}
+
+/* ── BLUR-TO-FOCUS REVEAL ── */
+.blur-reveal {
+  filter: blur(8px) saturate(0.3);
+  opacity: 0;
+  transition: filter 800ms var(--ease-emphasized), opacity 800ms var(--ease-emphasized);
+}
+
+.blur-reveal.revealed {
+  filter: blur(0) saturate(1);
+  opacity: 1;
+}
+
+/* ── SEPIA REVEAL ── */
+.sepia-reveal {
+  filter: sepia(0.6);
+  transition: filter 1200ms var(--ease-standard);
+}
+
+.sepia-reveal.revealed {
+  filter: sepia(0);
+}
+
+/* ── SCROLL REVEAL ── */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms var(--ease-emphasized),
+    transform 600ms var(--ease-emphasized);
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── AURORA GRADIENT ── */
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-bg::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 25% 20%, var(--aurora-start), transparent 50%),
+    radial-gradient(ellipse at 75% 70%, var(--aurora-end), transparent 45%),
+    radial-gradient(ellipse at 50% 50%, var(--aurora-start), transparent 55%);
+  animation: auroraDrift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes auroraDrift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(3%, -2%) rotate(1deg);
+  }
+  100% {
+    transform: translate(-2%, 3%) rotate(-1deg);
+  }
+}
+
+/* ── STAGGER ENTRANCE ── */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes revealRow {
+  from {
+    opacity: 0;
+    filter: sepia(0.4);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    filter: sepia(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes blurIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--glow-color);
+  }
+  50% {
+    box-shadow: 0 0 16px var(--glow-color-strong);
+  }
+}
+
+@keyframes glowBurst {
+  0% {
+    box-shadow: 0 0 0 0 var(--glow-color-strong);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px var(--glow-color);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
