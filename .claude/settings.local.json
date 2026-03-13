@@ -42,7 +42,11 @@
       "WebFetch(domain:www.underconsideration.com)",
       "WebFetch(domain:www.designinsiderlive.com)",
       "WebFetch(domain:laurenrowe.co.uk)",
-      "Bash(npx vite build)"
+      "Bash(npx vite build)",
+      "Bash(gh api:*)",
+      "Bash(where:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(git status:*)"
     ]
   }
 }
