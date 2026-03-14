@@ -34,7 +34,7 @@
   cursor: pointer;
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   width: 100%;
   flex-shrink: 0;
 }
@@ -58,9 +58,8 @@
 
 .font-slot-label {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
   color: var(--text-dim);
   position: sticky;
   top: 0;

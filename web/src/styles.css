@@ -59,9 +59,9 @@
   --ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-emphasized: cubic-bezier(0.16, 0.84, 0.2, 1);
 
-  --font-display: "IM Fell English", "Cormorant Garamond", "Georgia", serif;
-  --font-serif: "Cormorant Garamond", "Georgia", serif;
-  --font-mono: "Special Elite", "Courier New", monospace;
+  --font-display: "Tangerine", "Fondamento", "Georgia", cursive;
+  --font-serif: "Fondamento", "Georgia", cursive;
+  --font-mono: "Homemade Apple", "Fondamento", "Georgia", cursive;
 
   --grain-opacity: 0.18;
   --paper-grain-opacity: var(--grain-opacity);
@@ -156,9 +156,8 @@ select {
 .eyebrow {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
   color: var(--text-dim);
 }
 
@@ -230,9 +229,9 @@ select {
 
 .auth-hero h1 {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 600;
-  font-size: clamp(4.8rem, 9vw, 7.2rem);
+  font-style: normal;
+  font-weight: 700;
+  font-size: clamp(5.4rem, 10vw, 8rem);
   color: var(--text-strong);
   max-width: 11ch;
 }
@@ -274,7 +273,7 @@ select {
 .auth-panel h2,
 .auth-panel h1 {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 2.8vw, 2.8rem);
+  font-size: clamp(2.6rem, 3vw, 3.6rem);
   color: var(--text-strong);
 }
 

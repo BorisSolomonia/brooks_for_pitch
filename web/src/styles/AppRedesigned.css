@@ -49,8 +49,7 @@
   margin: 14px 0 0;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   font-size: 0.72rem;
   animation: blurIn 900ms var(--ease-emphasized) both;
   animation-delay: 200ms;
@@ -84,7 +83,7 @@
   color: var(--text-primary);
   font-size: 0.8rem;
   font-family: var(--font-mono);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition:
     background var(--motion-fast) var(--ease-standard),

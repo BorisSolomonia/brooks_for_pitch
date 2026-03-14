@@ -60,9 +60,9 @@
 .modal-header h2 {
   margin: 4px 0 0;
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   color: var(--text-strong);
-  font-size: 1.56rem;
+  font-size: 2.4rem;
 }
 
 .modal-close {
@@ -96,10 +96,9 @@
 .form-label {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-family: var(--font-mono);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--text-muted);
 }
 
@@ -231,9 +230,8 @@
 
 .vault-title {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
   color: var(--text-strong);
 }
 
@@ -437,7 +435,7 @@
 .duration-label {
   font-size: 0.8rem;
   font-family: var(--font-mono);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 @keyframes spin {

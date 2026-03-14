@@ -104,9 +104,9 @@ export function buildLegacyBbox(center: Coordinates, delta = MAP_SETTINGS.legacy
 }
 
 export function buildActiveBbox(center: Coordinates, delta = MAP_SETTINGS.activeBboxDelta): string {
-  const minLat = center.lat - delta;
-  const maxLat = center.lat + delta;
   const minLng = center.lng - delta;
+  const minLat = center.lat - delta;
   const maxLng = center.lng + delta;
-  return `${minLat},${minLng},${maxLat},${maxLng}`;
+  const maxLat = center.lat + delta;
+  return `${minLng},${minLat},${maxLng},${maxLat}`;
 }

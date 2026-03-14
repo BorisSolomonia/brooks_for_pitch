@@ -82,7 +82,7 @@
 
 .brand-title {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: clamp(1.2rem, 3.2vw, 1.8rem);
   color: var(--text-strong);
   letter-spacing: -0.02em;
