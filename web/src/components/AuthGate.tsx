@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSpotlight } from "../hooks/useSpotlight";
+import { MOTION_SETTINGS } from "../lib/frontendConfig";
 import { fadeSlideUpProps, staggerContainer } from "./MotionWrappers";
 
 type AuthGateProps = {
@@ -47,7 +48,7 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
           <motion.h1
             initial={{ opacity: 0, filter: "blur(16px) saturate(0.1)" }}
             animate={{ opacity: 1, filter: "blur(0px) saturate(1)" }}
-            transition={{ duration: 0.8, ease: [0.16, 0.84, 0.2, 1] as const, delay: 0.2 }}
+            transition={{ duration: 0.8, ease: MOTION_SETTINGS.easeEmphasized, delay: 0.2 }}
           >
             The last page is yours.
           </motion.h1>

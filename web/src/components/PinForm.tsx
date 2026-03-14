@@ -1,21 +1,14 @@
 import { useState } from "react";
 import type { PinForm } from "../lib/types";
+import { PIN_FORM_SETTINGS, createDefaultPinForm } from "../lib/frontendConfig";
 
 type PinFormProps = {
   onSubmit: (form: PinForm) => Promise<void>;
   disabled?: boolean;
 };
 
-const DEFAULT_FORM: PinForm = {
-  text: "",
-  audienceType: "PUBLIC",
-  revealType: "VISIBLE_ALWAYS",
-  expiresInHours: 24,
-  mapPrecision: "EXACT"
-};
-
 export default function PinForm({ onSubmit, disabled }: PinFormProps) {
-  const [form, setForm] = useState<PinForm>(DEFAULT_FORM);
+  const [form, setForm] = useState<PinForm>(() => createDefaultPinForm());
   const [status, setStatus] = useState<"idle" | "saving" | "error" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +23,7 @@ export default function PinForm({ onSubmit, disabled }: PinFormProps) {
     try {
       await onSubmit(form);
       setStatus("success");
-      setForm(DEFAULT_FORM);
+      setForm(createDefaultPinForm());
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Failed to create pin.");
@@ -84,7 +77,7 @@ export default function PinForm({ onSubmit, disabled }: PinFormProps) {
           <input
             type="number"
             min={1}
-            max={720}
+            max={PIN_FORM_SETTINGS.maxManualHours}
             value={form.expiresInHours}
             onChange={event => update("expiresInHours", Number(event.target.value))}
             disabled={disabled}

@@ -1,16 +1,14 @@
 .font-selector {
   position: fixed;
-  top: calc(var(--topbar-height) + 12px);
+  top: calc(var(--topbar-height) + 14px);
   right: 14px;
   z-index: 1050;
   border-radius: var(--radius-m);
-  border: 1px solid rgba(184, 134, 11, 0.18);
-  background: rgba(244, 234, 213, 0.72);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  box-shadow:
-    0 8px 32px rgba(74, 55, 40, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.08);
+  box-shadow: var(--panel-shadow-rest);
   max-width: 310px;
   max-height: calc(100vh - var(--topbar-height) - 32px);
   display: flex;
@@ -29,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 11px 15px;
   border: none;
   background: transparent;
   color: var(--text-primary);
@@ -42,7 +40,7 @@
 }
 
 .font-selector-toggle:hover {
-  background: rgba(139, 107, 66, 0.08);
+  background: var(--surface-hover);
 }
 
 .font-selector-body {
@@ -66,7 +64,7 @@
   color: var(--text-dim);
   position: sticky;
   top: 0;
-  background: rgba(239, 227, 203, 0.95);
+  background: linear-gradient(180deg, rgba(250, 242, 225, 0.96), rgba(232, 211, 173, 0.92));
   padding: 4px 0;
   z-index: 1;
 }
@@ -74,14 +72,14 @@
 .font-slot-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
 }
 
 .font-option {
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: var(--radius-s);
-  border: 1px solid var(--stroke);
-  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--glass-border);
+  background: var(--field-bg);
   color: var(--text-primary);
   cursor: pointer;
   font-size: 0.82rem;
@@ -92,12 +90,12 @@
 
 .font-option:hover {
   border-color: var(--stroke-strong);
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--field-bg-strong);
 }
 
 .font-option.active {
-  background: linear-gradient(130deg, #2c1810, #4a3728);
-  color: #f4ead5;
+  background: linear-gradient(135deg, var(--cta-bg-start), var(--cta-bg-end));
+  color: var(--cta-text);
   border-color: transparent;
-  box-shadow: 0 0 12px var(--glow-color);
+  box-shadow: 0 0 18px rgba(197, 151, 43, 0.22);
 }

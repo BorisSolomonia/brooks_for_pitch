@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { TopBar } from "./components/TopBar";
@@ -7,13 +7,12 @@ import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
 import { PinDetailModal } from "./components/PinDetailModal";
 import { MapChargeRing } from "./components/MapChargeRing";
-import { FontSelector } from "./components/FontSelector";
 import { SketchOverlay } from "./components/SketchOverlay";
 import { GrainOverlay } from "./components/GrainOverlay";
-import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { env } from "./lib/env";
+import { buildActiveBbox, type MapProvider } from "./lib/frontendConfig";
 import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
@@ -21,6 +20,10 @@ import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
+const MapView = lazy(() => import("./components/MapView"));
+const FontSelector = lazy(() =>
+  import("./components/FontSelector").then(module => ({ default: module.FontSelector }))
+);
 
 export default function AppRedesigned() {
   const {
@@ -49,7 +52,7 @@ export default function AppRedesigned() {
     mono: getDefaultFontId("mono"),
   });
 
-  const [mapProvider, setMapProvider] = useState<"leaflet" | "google">(env.mapProvider);
+  const [mapProvider, setMapProvider] = useState<MapProvider>(env.mapProvider);
   const { location } = useCityTheme();
 
   useEffect(() => {
@@ -97,12 +100,7 @@ export default function AppRedesigned() {
 
     const refreshPins = async () => {
       try {
-        const minLat = center.lat - 0.05;
-        const maxLat = center.lat + 0.05;
-        const minLng = center.lng - 0.05;
-        const maxLng = center.lng + 0.05;
-        const bboxString = `${minLat},${minLng},${maxLat},${maxLng}`;
-        const fetchedPins = await fetchMapPins(token.accessToken, bboxString);
+        const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center));
         setPins(fetchedPins);
       } catch (error) {
         console.error("Failed to fetch pins:", error);
@@ -119,12 +117,7 @@ export default function AppRedesigned() {
 
     try {
       await createPin(token.accessToken, form, center);
-      const minLat = center.lat - 0.05;
-      const maxLat = center.lat + 0.05;
-      const minLng = center.lng - 0.05;
-      const maxLng = center.lng + 0.05;
-      const bboxString = `${minLat},${minLng},${maxLat},${maxLng}`;
-      const fetchedPins = await fetchMapPins(token.accessToken, bboxString);
+      const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center));
       setPins(fetchedPins);
     } catch (error) {
       console.error("Failed to create pin:", error);
@@ -202,21 +195,30 @@ export default function AppRedesigned() {
         />
 
         <main className="map-container">
-          <MapView
-            provider={mapProvider}
-            center={center}
-            pins={showPins ? pins : []}
-            onPinClick={pin => setSelectedPin(pin)}
-            onHoldStart={(coords, x, y) => {
-              ringCompletedRef.current = false;
-              setChargeTarget({ coords, x, y });
-            }}
-            onHoldEnd={() => {
-              if (!ringCompletedRef.current) {
-                setChargeTarget(null);
-              }
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="map-google-fallback">
+                <p>Loading map surface...</p>
+                <p>The atlas is assembling your city view.</p>
+              </div>
+            }
+          >
+            <MapView
+              provider={mapProvider}
+              center={center}
+              pins={showPins ? pins : []}
+              onPinClick={pin => setSelectedPin(pin)}
+              onHoldStart={(coords, x, y) => {
+                ringCompletedRef.current = false;
+                setChargeTarget({ coords, x, y });
+              }}
+              onHoldEnd={() => {
+                if (!ringCompletedRef.current) {
+                  setChargeTarget(null);
+                }
+              }}
+            />
+          </Suspense>
         </main>
 
         <FAB onClick={() => setIsModalOpen(true)} />
@@ -283,10 +285,12 @@ export default function AppRedesigned() {
           onClose={() => setSelectedPin(null)}
         />
 
-        <FontSelector
-          selections={fontSelections}
-          onChange={handleFontChange}
-        />
+        <Suspense fallback={null}>
+          <FontSelector
+            selections={fontSelections}
+            onChange={handleFontChange}
+          />
+        </Suspense>
       </div>
     </AnimatePresence>
   );

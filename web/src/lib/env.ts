@@ -1,4 +1,4 @@
-type MapProvider = "leaflet" | "google";
+import type { MapProvider } from "./frontendConfig";
 
 function readRequired(name: string): string {
   const value = import.meta.env[name] as string | undefined;

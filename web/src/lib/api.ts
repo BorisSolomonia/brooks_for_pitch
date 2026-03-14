@@ -1,5 +1,6 @@
 import type { Coordinates, MapPin, PinForm } from "./types";
 import { env } from "./env";
+import { PIN_FORM_SETTINGS } from "./frontendConfig";
 
 const PINS_API_URL = env.pinsApiUrl;
 
@@ -55,8 +56,8 @@ export async function createPin(
   location: Coordinates
 ): Promise<void> {
   const expiresAt = form.expiresInHours === "permanent"
-    ? new Date("2124-01-01T00:00:00Z").toISOString()
-    : new Date(Date.now() + (form.expiresInHours as number) * 60 * 60 * 1000).toISOString();
+    ? new Date(PIN_FORM_SETTINGS.permanentExpiryIso).toISOString()
+    : new Date(Date.now() + (form.expiresInHours as number) * PIN_FORM_SETTINGS.millisecondsPerHour).toISOString();
   const acl = form.recipientIds && form.recipientIds.length
     ? { userIds: form.recipientIds }
     : undefined;

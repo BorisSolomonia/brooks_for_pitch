@@ -11,10 +11,10 @@ export function SketchOverlay() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.3 }}
       >
-        <circle cx="40" cy="40" r="28" fill="none" stroke="currentColor" strokeWidth="0.6" opacity="0.42" />
-        <circle cx="40" cy="40" r="20" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.32" />
-        <line x1="40" y1="10" x2="40" y2="70" stroke="currentColor" strokeWidth="0.4" opacity="0.32" />
-        <line x1="10" y1="40" x2="70" y2="40" stroke="currentColor" strokeWidth="0.4" opacity="0.32" />
+        <circle cx="40" cy="40" r="28" fill="none" stroke="currentColor" strokeWidth="0.6" opacity="0.68" />
+        <circle cx="40" cy="40" r="20" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.54" />
+        <line x1="40" y1="10" x2="40" y2="70" stroke="currentColor" strokeWidth="0.4" opacity="0.52" />
+        <line x1="10" y1="40" x2="70" y2="40" stroke="currentColor" strokeWidth="0.4" opacity="0.52" />
       </motion.svg>
 
       <motion.svg
@@ -29,7 +29,7 @@ export function SketchOverlay() {
           fill="none"
           stroke="currentColor"
           strokeWidth="0.7"
-          opacity="0.38"
+          opacity="0.62"
           strokeLinecap="round"
         />
         <path
@@ -37,7 +37,7 @@ export function SketchOverlay() {
           fill="none"
           stroke="currentColor"
           strokeWidth="0.4"
-          opacity="0.30"
+          opacity="0.48"
           strokeLinecap="round"
         />
       </motion.svg>
@@ -54,7 +54,7 @@ export function SketchOverlay() {
           fill="none"
           stroke="currentColor"
           strokeWidth="0.5"
-          opacity="0.35"
+          opacity="0.56"
           strokeLinecap="round"
         />
       </motion.svg>
@@ -66,11 +66,11 @@ export function SketchOverlay() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.9 }}
       >
-        <line x1="30" y1="8" x2="30" y2="52" stroke="currentColor" strokeWidth="0.5" opacity="0.32" />
-        <line x1="8" y1="30" x2="52" y2="30" stroke="currentColor" strokeWidth="0.5" opacity="0.32" />
-        <line x1="14" y1="14" x2="46" y2="46" stroke="currentColor" strokeWidth="0.35" opacity="0.24" />
-        <line x1="46" y1="14" x2="14" y2="46" stroke="currentColor" strokeWidth="0.35" opacity="0.24" />
-        <circle cx="30" cy="30" r="3" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.38" />
+        <line x1="30" y1="8" x2="30" y2="52" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+        <line x1="8" y1="30" x2="52" y2="30" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+        <line x1="14" y1="14" x2="46" y2="46" stroke="currentColor" strokeWidth="0.35" opacity="0.4" />
+        <line x1="46" y1="14" x2="14" y2="46" stroke="currentColor" strokeWidth="0.35" opacity="0.4" />
+        <circle cx="30" cy="30" r="3" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.62" />
       </motion.svg>
     </div>
   );

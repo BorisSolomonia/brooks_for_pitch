@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeSlideUpProps } from "./MotionWrappers";
+import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS } from "../lib/frontendConfig";
 import type { MapPin } from "../lib/types";
 import "../styles/PinDetailModal.css";
 
@@ -19,7 +20,7 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: MOTION_SETTINGS.backdropDuration }}
           />
         )}
       </AnimatePresence>
@@ -30,13 +31,13 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
             initial={{ y: "102%" }}
             animate={{ y: 0 }}
             exit={{ y: "102%" }}
-            transition={{ duration: 0.4, ease: [0.16, 0.84, 0.2, 1] as const }}
+            transition={{ duration: MOTION_SETTINGS.drawerDuration, ease: MOTION_SETTINGS.easeEmphasized }}
           >
             <div className="modal-handle" />
             <div className="modal-header">
               <h2>Pin</h2>
               <button className="modal-close" onClick={onClose} aria-label="Close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell} strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -50,7 +51,7 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
             >
               <motion.div
                 className="pin-detail-row"
-                variants={{ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } }}
+                variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
                 transition={fadeSlideUpProps.transition}
               >
                 <span className="pin-detail-label">ID</span>
@@ -58,7 +59,7 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
               </motion.div>
               <motion.div
                 className="pin-detail-row"
-                variants={{ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } }}
+                variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
                 transition={fadeSlideUpProps.transition}
               >
                 <span className="pin-detail-label">Location</span>
@@ -68,7 +69,7 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
               </motion.div>
               <motion.div
                 className="pin-detail-row"
-                variants={{ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } }}
+                variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
                 transition={fadeSlideUpProps.transition}
               >
                 <span className="pin-detail-label">Precision</span>

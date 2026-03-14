@@ -36,4 +36,4 @@ export type CityResult = {
   lng: number;
 };
 
-export type CityTheme = 'rome' | 'tbilisi' | 'paris' | 'default';
+export type CityTheme = "default";

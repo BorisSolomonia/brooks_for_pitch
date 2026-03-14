@@ -18,11 +18,11 @@ export function GrainOverlay() {
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      const v = Math.random() * 60 + 30;
+      const v = Math.random() > 0.5 ? Math.random() * 46 + 118 : Math.random() * 38 + 52;
       data[i] = v;
-      data[i + 1] = v * 0.85;
-      data[i + 2] = v * 0.65;
-      data[i + 3] = Math.random() * 40 + 10;
+      data[i + 1] = v * 0.88;
+      data[i + 2] = v * 0.68;
+      data[i + 3] = Math.random() * 22 + 14;
     }
 
     ctx.putImageData(imageData, 0, 0);

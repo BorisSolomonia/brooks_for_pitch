@@ -6,20 +6,12 @@ import PinList from "./components/PinList";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { env } from "./lib/env";
+import { buildLegacyBbox, type MapProvider } from "./lib/frontendConfig";
 import { applyTheme, CITY_THEMES } from "./lib/theme";
 import { createPin, fetchMapPins } from "./lib/api";
 import type { Coordinates, MapPin, PinForm as PinFormState } from "./lib/types";
 
-type MapProvider = "leaflet" | "google";
 const DEFAULT_CENTER: Coordinates = { lat: env.defaultCenterLat, lng: env.defaultCenterLng };
-
-function bboxFromCenter(center: Coordinates, delta = 0.04) {
-  const minLng = center.lng - delta;
-  const minLat = center.lat - delta;
-  const maxLng = center.lng + delta;
-  const maxLat = center.lat + delta;
-  return `${minLng},${minLat},${maxLng},${maxLat}`;
-}
 
 export default function App() {
   const { status, error, location } = useCityTheme();
@@ -88,7 +80,7 @@ export default function App() {
     }
     setPinsLoading(true);
     try {
-      const results = await fetchMapPins(token, bboxFromCenter(center));
+      const results = await fetchMapPins(token, buildLegacyBbox(center));
       setPins(results);
     } catch {
       setPins([]);

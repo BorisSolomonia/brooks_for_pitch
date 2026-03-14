@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { MAP_SETTINGS } from "../lib/frontendConfig";
 import "../styles/MapChargeRing.css";
 
 interface MapChargeRingProps {
@@ -10,7 +11,7 @@ interface MapChargeRingProps {
 }
 
 export function MapChargeRing({ x, y, active, onComplete, onCancel }: MapChargeRingProps) {
-  const radius = 32;
+  const radius = MAP_SETTINGS.holdRingRadius;
   const circumference = 2 * Math.PI * radius; // ≈ 201.06
 
   useEffect(() => {
@@ -27,35 +28,45 @@ export function MapChargeRing({ x, y, active, onComplete, onCancel }: MapChargeR
   return (
     <div
       className="charge-ring-container"
-      style={{ left: x - 40, top: y - 40 }}
+      style={{ left: x - MAP_SETTINGS.holdRingOffset, top: y - MAP_SETTINGS.holdRingOffset }}
       aria-hidden="true"
     >
-      <svg width="80" height="80" viewBox="0 0 80 80">
+      <svg width={MAP_SETTINGS.holdRingSize} height={MAP_SETTINGS.holdRingSize} viewBox="0 0 80 80">
         <defs>
           <filter id="ink-rough">
-            <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="4" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" />
+            <feTurbulence
+              type="turbulence"
+              baseFrequency={MAP_SETTINGS.holdRingTurbulenceBaseFrequency}
+              numOctaves={MAP_SETTINGS.holdRingTurbulenceOctaves}
+              result="noise"
+            />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale={MAP_SETTINGS.holdRingDisplacementScale} />
           </filter>
         </defs>
         <circle
           className="charge-ring-track"
-          cx="40"
-          cy="40"
+          cx={MAP_SETTINGS.holdRingCenter}
+          cy={MAP_SETTINGS.holdRingCenter}
           r={radius}
-          strokeWidth="4"
+          strokeWidth={MAP_SETTINGS.holdRingStrokeWidth}
           filter="url(#ink-rough)"
         />
         <circle
           className="charge-ring-fill"
-          cx="40"
-          cy="40"
+          cx={MAP_SETTINGS.holdRingCenter}
+          cy={MAP_SETTINGS.holdRingCenter}
           r={radius}
-          strokeWidth="4"
+          strokeWidth={MAP_SETTINGS.holdRingStrokeWidth}
           strokeDasharray={circumference}
           onAnimationEnd={onComplete}
           filter="url(#ink-rough)"
         />
-        <circle className="charge-ring-center" cx="40" cy="40" r="5" />
+        <circle
+          className="charge-ring-center"
+          cx={MAP_SETTINGS.holdRingCenter}
+          cy={MAP_SETTINGS.holdRingCenter}
+          r={MAP_SETTINGS.holdRingCenterRadius}
+        />
       </svg>
     </div>
   );

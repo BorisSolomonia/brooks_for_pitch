@@ -14,7 +14,10 @@
   right: 0;
   bottom: 0;
   z-index: 1;
-  background: linear-gradient(180deg, #e8d9b8 0%, #f4ead5 100%);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 235, 190, 0.22), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(197, 151, 43, 0.14), transparent 30%),
+    linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 42%, var(--bg-0) 100%);
 }
 
 .map-canvas {
@@ -31,7 +34,7 @@
   justify-content: center;
   gap: 8px;
   text-align: center;
-  background: linear-gradient(160deg, rgba(228, 213, 185, 0.8), rgba(244, 234, 213, 0.9));
+  background: linear-gradient(160deg, rgba(249, 240, 220, 0.88), rgba(232, 211, 173, 0.92));
   color: var(--text-muted);
 }
 
@@ -49,7 +52,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
-  animation: blurIn 800ms var(--ease-emphasized) both;
+  animation: blurIn 900ms var(--ease-emphasized) both;
   animation-delay: 200ms;
 }
 
@@ -57,10 +60,10 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  border: 4px solid rgba(74, 55, 40, 0.2);
+  border: 4px solid rgba(82, 56, 30, 0.2);
   border-top-color: var(--accent-secondary);
   animation: spin 1200ms linear infinite;
-  box-shadow: 0 0 32px var(--glow-color), 0 0 56px var(--glow-color);
+  box-shadow: 0 0 32px var(--glow-color), 0 0 56px rgba(197, 151, 43, 0.36);
 }
 
 .pins-toggle {
@@ -71,13 +74,13 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 40px;
-  padding: 0 14px;
+  height: 42px;
+  padding: 0 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--stroke-strong);
-  background: rgba(139, 107, 66, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   color: var(--text-primary);
   font-size: 0.8rem;
   font-family: var(--font-mono);
@@ -88,19 +91,18 @@
     border-color var(--motion-fast) var(--ease-standard),
     color var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--panel-shadow-rest);
 }
 
 .pins-toggle:hover {
-  background: rgba(139, 107, 66, 0.14);
-  border-color: rgba(74, 55, 40, 0.4);
+  background: linear-gradient(160deg, rgba(249, 240, 220, 0.92), rgba(232, 211, 173, 0.84));
+  border-color: var(--stroke-strong);
+  box-shadow: var(--panel-shadow-strong);
 }
 
 .pins-toggle.pins-off {
   color: var(--text-dim);
-  border-color: var(--stroke);
-  background: rgba(139, 107, 66, 0.06);
-  box-shadow: none;
+  background: linear-gradient(160deg, rgba(249, 240, 220, 0.74), rgba(232, 211, 173, 0.66));
 }
 
 body.modal-open {

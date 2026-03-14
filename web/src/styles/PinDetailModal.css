@@ -3,12 +3,13 @@
   left: 50%;
   bottom: 0;
   z-index: 1400;
-  width: min(420px, 94vw);
+  width: min(440px, 94vw);
   transform: translateX(-50%);
-  border-radius: 24px 24px 0 0;
-  border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, #f4ead5, #efe3cb);
-  box-shadow: var(--shadow-strong), 0 4px 24px var(--glow-color);
+  border-radius: 26px 26px 0 0;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--panel-shadow-strong);
+  overflow: hidden;
 }
 
 .pin-detail-modal::before {
@@ -16,36 +17,36 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background-image:
-    radial-gradient(rgba(74, 55, 40, 0.3) 0.4px, transparent 0.5px);
-  background-size: 5px 5px;
-  opacity: 0.22;
+  background-image: radial-gradient(var(--ornament-dot) 0.45px, transparent 0.6px);
+  background-size: 6px 6px;
+  opacity: var(--ornament-opacity);
   pointer-events: none;
 }
 
 .pin-detail-body {
-  padding: 16px 18px 24px;
+  padding: 18px 20px 26px;
   display: grid;
   gap: 14px;
   position: relative;
+  z-index: 1;
 }
 
 .pin-detail-body::after {
   content: "";
   position: absolute;
   bottom: 0;
-  left: 18px;
-  right: 18px;
+  left: 20px;
+  right: 20px;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--glow-color), transparent);
-  box-shadow: 0 0 10px var(--glow-color);
+  box-shadow: 0 0 18px var(--glow-color);
 }
 
 .pin-detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 11px 0;
   border-bottom: 1px solid var(--stroke);
 }
 
@@ -55,7 +56,7 @@
 
 .pin-detail-label {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--text-dim);
@@ -63,5 +64,5 @@
 
 .pin-detail-value {
   color: var(--text-strong);
-  font-size: 0.92rem;
+  font-size: 0.96rem;
 }

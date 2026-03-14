@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { ICON_SIZES, ICON_STROKES } from "../lib/frontendConfig";
 import "../styles/TopBar.css";
 
 interface TopBarProps {
@@ -31,7 +32,7 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarPr
     <header className="command-bar">
       <div className="command-bar-left">
         <button className="command-btn" onClick={onMenuClick} aria-label="Open menu" aria-controls="brooks-navigation-drawer">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shellLight}>
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="18" x2="21" y2="18" />
@@ -72,7 +73,7 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarPr
                     setShowUserMenu(false);
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width={ICON_SIZES.small} height={ICON_SIZES.small} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />

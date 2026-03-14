@@ -7,8 +7,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { env } from "../lib/env";
-
-type MapProvider = "leaflet" | "google";
+import { MAP_SETTINGS, type MapProvider } from "../lib/frontendConfig";
 
 type MapViewProps = {
   provider: MapProvider;
@@ -129,7 +128,7 @@ function LeafletMap({
   return (
     <MapContainer
       center={[center.lat, center.lng]}
-      zoom={13}
+      zoom={MAP_SETTINGS.defaultZoom}
       scrollWheelZoom={false}
       doubleClickZoom={false}
       className="map-canvas"
@@ -186,7 +185,7 @@ function GoogleMap({
     loader.load().then(() => {
       mapRef.current = new google.maps.Map(containerRef.current as HTMLElement, {
         center: { lat: center.lat, lng: center.lng },
-        zoom: 13,
+        zoom: MAP_SETTINGS.defaultZoom,
         disableDefaultUI: true,
         clickableIcons: false,
         disableDoubleClickZoom: true

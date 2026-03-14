@@ -2,33 +2,14 @@ import { useEffect, useId, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeSlideUpProps } from "./MotionWrappers";
 import type { PinForm as PinFormType, Coordinates } from "../lib/types";
+import {
+  MOTION_SETTINGS,
+  PIN_DURATION_PRESETS,
+  PIN_FORM_SETTINGS,
+  PIN_RADIUS_OPTIONS,
+  createDefaultRevealAtValue
+} from "../lib/frontendConfig";
 import "../styles/PinCreationModal.css";
-
-type DurationPreset = {
-  label: string;
-  hours: number | "permanent";
-  icon: string;
-};
-
-const DURATION_PRESETS: DurationPreset[] = [
-  { label: "1 day",    hours: 24,          icon: "◐" },
-  { label: "1 week",   hours: 168,         icon: "◑" },
-  { label: "1 month",  hours: 720,         icon: "◕" },
-  { label: "1 year",   hours: 8_760,       icon: "○" },
-  { label: "10 years", hours: 87_600,      icon: "◉" },
-  { label: "100 yrs",  hours: 876_000,     icon: "✦" },
-  { label: "Forever",  hours: "permanent", icon: "∞" },
-];
-
-const RADIUS_OPTIONS = [
-  { label: "None",  value: 0 },
-  { label: "50 m",  value: 50 },
-  { label: "100 m", value: 100 },
-  { label: "250 m", value: 250 },
-  { label: "500 m", value: 500 },
-  { label: "1 km",  value: 1000 },
-  { label: "5 km",  value: 5000 },
-];
 
 interface PinCreationModalProps {
   isOpen: boolean;
@@ -41,15 +22,13 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const [text, setText] = useState("");
   const [audienceType, setAudienceType] = useState<"PRIVATE" | "FRIENDS" | "FOLLOWERS" | "PUBLIC">("PUBLIC");
   const [revealType, setRevealType] = useState<"VISIBLE_ALWAYS" | "REACH_TO_REVEAL">("VISIBLE_ALWAYS");
-  const [expiresInHours, setExpiresInHours] = useState<number | "permanent">(24);
+  const [expiresInHours, setExpiresInHours] = useState<number | "permanent">(PIN_FORM_SETTINGS.defaultExpiresInHours);
   const [notifyRadiusM, setNotifyRadiusM] = useState(0);
   const [mapPrecision, setMapPrecision] = useState<"EXACT" | "BLURRED">("EXACT");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeCapsule, setTimeCapsule] = useState(false);
   const [revealAt, setRevealAt] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return d.toISOString().slice(0, 16);
+    return createDefaultRevealAtValue();
   });
   const [sendToPeople, setSendToPeople] = useState(false);
   const [recipientInput, setRecipientInput] = useState("");
@@ -118,13 +97,11 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
       setText("");
       setAudienceType("PUBLIC");
       setRevealType("VISIBLE_ALWAYS");
-      setExpiresInHours(24);
+      setExpiresInHours(PIN_FORM_SETTINGS.defaultExpiresInHours);
       setNotifyRadiusM(0);
       setMapPrecision("EXACT");
       setTimeCapsule(false);
-      const resetDate = new Date();
-      resetDate.setDate(resetDate.getDate() + 30);
-      setRevealAt(resetDate.toISOString().slice(0, 16));
+      setRevealAt(createDefaultRevealAtValue());
       setSendToPeople(false);
       setRecipientInput("");
       setExternalRecipientInput("");
@@ -138,7 +115,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
     }
   };
 
-  const charLimit = 500;
+  const charLimit = PIN_FORM_SETTINGS.charLimit;
 
   const formGroupVariants = {
     initial: { opacity: 0, y: 20 },
@@ -155,7 +132,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: MOTION_SETTINGS.backdropDuration }}
           />
         )}
       </AnimatePresence>
@@ -169,7 +146,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
             initial={{ y: "102%" }}
             animate={{ y: 0 }}
             exit={{ y: "102%" }}
-            transition={{ duration: 0.4, ease: [0.16, 0.84, 0.2, 1] as const }}
+            transition={{ duration: MOTION_SETTINGS.drawerDuration, ease: MOTION_SETTINGS.easeEmphasized }}
           >
             <div className="modal-handle" />
 
@@ -231,7 +208,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
               <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
                 <label className="form-label">Notify radius</label>
                 <div className="pill-group">
-                  {RADIUS_OPTIONS.map(opt => (
+                  {PIN_RADIUS_OPTIONS.map(opt => (
                     <button
                       key={opt.value}
                       type="button"
@@ -357,7 +334,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
               <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
                 <label className="form-label">Duration</label>
                 <div className="duration-grid">
-                  {DURATION_PRESETS.map(preset => (
+                  {PIN_DURATION_PRESETS.map(preset => (
                     <button
                       key={preset.label}
                       type="button"

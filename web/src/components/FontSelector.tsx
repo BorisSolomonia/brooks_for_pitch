@@ -1,18 +1,13 @@
 import { useState } from "react";
 import type { FontSlot } from "../lib/fonts";
 import { getFontsForSlot } from "../lib/fonts";
+import { FONT_SELECTOR_SLOTS } from "../lib/frontendConfig";
 import "../styles/FontSelector.css";
 
 type FontSelectorProps = {
   selections: Record<FontSlot, string>;
   onChange: (slot: FontSlot, fontId: string) => void;
 };
-
-const SLOTS: { slot: FontSlot; label: string }[] = [
-  { slot: "display", label: "Headings" },
-  { slot: "body",    label: "Body" },
-  { slot: "mono",    label: "Labels" },
-];
 
 export function FontSelector({ selections, onChange }: FontSelectorProps) {
   const [collapsed, setCollapsed] = useState(true);
@@ -34,7 +29,7 @@ export function FontSelector({ selections, onChange }: FontSelectorProps) {
 
       {!collapsed && (
         <div className="font-selector-body">
-          {SLOTS.map(({ slot, label }) => {
+          {FONT_SELECTOR_SLOTS.map(({ slot, label }) => {
             const options = getFontsForSlot(slot);
             return (
               <div key={slot} className="font-slot-group">
