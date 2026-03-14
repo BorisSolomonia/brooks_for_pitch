@@ -90,11 +90,11 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       glow: "rgba(180, 76, 58, 0.35)",
       strokeSoft: "rgba(90, 45, 32, 0.20)",
       strokeStrong: "rgba(60, 21, 24, 0.42)",
-      glowColor: "rgba(180,76,58,0.30)",
-      glowColorStrong: "rgba(180,76,58,0.50)",
-      auroraStart: "rgba(180,76,58,0.06)",
-      auroraEnd: "rgba(139,107,66,0.04)",
-      grainOpacity: "0.15"
+      glowColor: "rgba(180,76,58,0.50)",
+      glowColorStrong: "rgba(180,76,58,0.75)",
+      auroraStart: "rgba(180,76,58,0.24)",
+      auroraEnd: "rgba(139,107,66,0.18)",
+      grainOpacity: "0.30"
     })
   },
   tbilisi: {
@@ -118,11 +118,11 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       glow: "rgba(122, 59, 46, 0.35)",
       strokeSoft: "rgba(74, 56, 40, 0.20)",
       strokeStrong: "rgba(45, 36, 23, 0.42)",
-      glowColor: "rgba(122,59,46,0.30)",
-      glowColorStrong: "rgba(122,59,46,0.50)",
-      auroraStart: "rgba(122,59,46,0.06)",
-      auroraEnd: "rgba(74,56,40,0.04)",
-      grainOpacity: "0.10"
+      glowColor: "rgba(122,59,46,0.50)",
+      glowColorStrong: "rgba(122,59,46,0.75)",
+      auroraStart: "rgba(122,59,46,0.22)",
+      auroraEnd: "rgba(74,56,40,0.16)",
+      grainOpacity: "0.25"
     })
   },
   paris: {
@@ -146,11 +146,11 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       glow: "rgba(197, 160, 40, 0.35)",
       strokeSoft: "rgba(46, 61, 82, 0.20)",
       strokeStrong: "rgba(26, 35, 50, 0.42)",
-      glowColor: "rgba(197,160,40,0.30)",
-      glowColorStrong: "rgba(197,160,40,0.50)",
-      auroraStart: "rgba(197,160,40,0.06)",
-      auroraEnd: "rgba(26,35,50,0.04)",
-      grainOpacity: "0.08"
+      glowColor: "rgba(197,160,40,0.50)",
+      glowColorStrong: "rgba(197,160,40,0.75)",
+      auroraStart: "rgba(197,160,40,0.20)",
+      auroraEnd: "rgba(26,35,50,0.14)",
+      grainOpacity: "0.22"
     })
   },
   default: {
@@ -174,11 +174,11 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       glow: "rgba(184, 134, 11, 0.35)",
       strokeSoft: "rgba(74, 55, 40, 0.20)",
       strokeStrong: "rgba(44, 24, 16, 0.42)",
-      glowColor: "rgba(184,134,11,0.35)",
-      glowColorStrong: "rgba(184,134,11,0.55)",
-      auroraStart: "rgba(184,134,11,0.06)",
-      auroraEnd: "rgba(139,107,66,0.04)",
-      grainOpacity: "0.12"
+      glowColor: "rgba(184,134,11,0.55)",
+      glowColorStrong: "rgba(184,134,11,0.80)",
+      auroraStart: "rgba(184,134,11,0.28)",
+      auroraEnd: "rgba(139,107,66,0.20)",
+      grainOpacity: "0.28"
     })
   }
 };

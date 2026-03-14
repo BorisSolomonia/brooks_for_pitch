@@ -46,7 +46,8 @@
       "Bash(gh api:*)",
       "Bash(where:*)",
       "WebFetch(domain:api.github.com)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

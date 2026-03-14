@@ -58,9 +58,9 @@
   height: 52px;
   border-radius: 50%;
   border: 3px solid rgba(74, 55, 40, 0.2);
-  border-top-color: rgba(74, 55, 40, 0.7);
+  border-top-color: var(--accent-secondary);
   animation: spin 1200ms linear infinite;
-  box-shadow: 0 0 24px var(--glow-color), 0 0 48px var(--glow-color);
+  box-shadow: 0 0 32px var(--glow-color), 0 0 56px var(--glow-color);
 }
 
 .pins-toggle {
@@ -76,6 +76,8 @@
   border-radius: var(--radius-pill);
   border: 1px solid var(--stroke-strong);
   background: rgba(139, 107, 66, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--text-primary);
   font-size: 0.8rem;
   font-family: var(--font-mono);

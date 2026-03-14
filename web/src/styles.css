@@ -56,15 +56,15 @@
   --font-mono: "Special Elite", "Courier New", monospace;
 
   /* TEXTURE */
-  --grain-opacity: 0.12;
+  --grain-opacity: 0.28;
   --paper-grain-opacity: var(--grain-opacity);
   --ink-line-color: rgba(74, 55, 40, 0.12);
 
   /* GLOW & AURORA */
-  --glow-color: rgba(184, 134, 11, 0.35);
-  --glow-color-strong: rgba(184, 134, 11, 0.55);
-  --aurora-start: rgba(184, 134, 11, 0.06);
-  --aurora-end: rgba(139, 107, 66, 0.04);
+  --glow-color: rgba(184, 134, 11, 0.55);
+  --glow-color-strong: rgba(184, 134, 11, 0.80);
+  --aurora-start: rgba(184, 134, 11, 0.28);
+  --aurora-end: rgba(139, 107, 66, 0.20);
 
   /* ALIASES */
   --bg: var(--bg-0);
@@ -109,7 +109,7 @@ body::after {
 
 body::before {
   z-index: -2;
-  opacity: 0.35;
+  opacity: 0.55;
   background:
     radial-gradient(ellipse at 20% 15%, rgba(160, 120, 60, 0.15), transparent 50%),
     radial-gradient(ellipse at 75% 80%, rgba(140, 100, 50, 0.12), transparent 45%),
@@ -233,7 +233,7 @@ select {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
-  font-size: clamp(2.3rem, 4.4vw, 3.7rem);
+  font-size: clamp(3rem, 6vw, 5.2rem);
   color: var(--text-strong);
   max-width: 18ch;
 }
@@ -263,6 +263,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: var(--shadow-medium), 0 4px 30px var(--glow-color);
 }
 
 .auth-gate > .auth-panel {
@@ -302,12 +303,12 @@ select {
 .primary {
   background: linear-gradient(128deg, #2c1810, #4a3728);
   color: #f4ead5;
-  box-shadow: 0 8px 22px rgba(74, 55, 40, 0.25);
+  box-shadow: 0 8px 22px rgba(74, 55, 40, 0.25), 0 2px 16px var(--glow-color);
 }
 
 .primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(74, 55, 40, 0.35);
+  box-shadow: 0 14px 30px rgba(74, 55, 40, 0.35), 0 4px 24px var(--glow-color-strong);
 }
 
 .auth-btn-glow {
@@ -488,7 +489,7 @@ select {
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  opacity: 0;
+  opacity: 0.35;
   transition: opacity var(--motion-base) var(--ease-standard);
   pointer-events: none;
 }
@@ -513,19 +514,19 @@ select {
     var(--glow-color),
     transparent 60%
   );
-  mix-blend-mode: soft-light;
-  opacity: 0;
+  mix-blend-mode: multiply;
+  opacity: 0.15;
   transition: opacity var(--motion-fast) var(--ease-standard);
   pointer-events: none;
 }
 
 .spotlight-target:hover::after {
-  opacity: 1;
+  opacity: 0.45;
 }
 
 /* ── BLUR-TO-FOCUS REVEAL ── */
 .blur-reveal {
-  filter: blur(8px) saturate(0.3);
+  filter: blur(12px) saturate(0.15);
   opacity: 0;
   transition: filter 800ms var(--ease-emphasized), opacity 800ms var(--ease-emphasized);
 }
@@ -537,7 +538,7 @@ select {
 
 /* ── SEPIA REVEAL ── */
 .sepia-reveal {
-  filter: sepia(0.6);
+  filter: sepia(0.85);
   transition: filter 1200ms var(--ease-standard);
 }
 
@@ -594,7 +595,7 @@ select {
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -605,7 +606,7 @@ select {
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
-    transform: translateX(-16px);
+    transform: translateX(-24px);
   }
   to {
     opacity: 1;

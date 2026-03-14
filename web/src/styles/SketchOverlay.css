@@ -8,7 +8,7 @@
 
 .sketch {
   position: absolute;
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 .sketch-tl {
@@ -33,7 +33,7 @@
 .sketch-tr {
   top: calc(var(--topbar-height) + 14px);
   right: 60px;
-  filter: drop-shadow(0 0 4px var(--glow-color));
+  filter: drop-shadow(0 0 8px var(--glow-color));
   animation: driftD 20s ease-in-out infinite alternate;
 }
 
