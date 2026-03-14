@@ -73,7 +73,7 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
           {...fadeSlideUpProps}
           transition={{ ...fadeSlideUpProps.transition, delay: 0.12 }}
         >
-          <h2>Open the book</h2>
+          <h2>Get started</h2>
           {error && <p className="error">{error}</p>}
           <div className="auth-actions">
             <motion.button

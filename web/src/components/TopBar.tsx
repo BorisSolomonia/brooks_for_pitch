@@ -39,8 +39,8 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarPr
           </svg>
         </button>
         <div className="brand-mark">
-          <p className="eyebrow">BROOKS</p>
-          <h1 className="brand-title traced-brand">Handwritten city atlas</h1>
+          <h1 className="brand-title">Brooks</h1>
+          <p className="brand-subtitle">invisible memories</p>
         </div>
       </div>
 

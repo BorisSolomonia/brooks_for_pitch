@@ -244,13 +244,12 @@ export default function AppRedesigned() {
             transition={{ duration: 0.55 }}
           >
             <div className="hero-copy">
-              <p className="hero-kicker">BROOKS ATLAS</p>
+              <p className="hero-kicker">BROOKS</p>
               <h1 className="hero-title">
-                Leave a handwritten trace for {cityLabel}.
+                Leave a memory in {cityLabel}.
               </h1>
               <p className="hero-lead">
-                Pin a note, shape who can uncover it, and let the map carry it with weight.
-                The city stays visible, but the interface leads with confidence.
+                Pin a memory anywhere on the map. Choose who discovers it and when.
               </p>
             </div>
 
@@ -260,10 +259,10 @@ export default function AppRedesigned() {
                 className="hero-cta"
                 onClick={() => setIsModalOpen(true)}
               >
-                Start a new note
+                Leave a memory
               </button>
               <p className="hero-caption">
-                Hold anywhere on the map or use the main action to drop a mark.
+                Hold anywhere on the map or tap the button to start.
               </p>
             </div>
 
@@ -293,6 +292,15 @@ export default function AppRedesigned() {
         </section>
 
         <FAB onClick={() => setIsModalOpen(true)} />
+
+        <div className="bottom-action-bar">
+          <button type="button" className="bottom-bar-primary" onClick={() => setIsModalOpen(true)}>
+            Leave Memory
+          </button>
+          <button type="button" className="bottom-bar-outline" onClick={() => setIsDrawerOpen(true)}>
+            Explore
+          </button>
+        </div>
 
         <button
           className={`pins-toggle${showPins ? "" : " pins-off"}`}

@@ -4,6 +4,7 @@
   pointer-events: none;
   z-index: 0;
   color: var(--text-primary);
+  opacity: 0.12;
 }
 
 .sketch {
@@ -33,7 +34,6 @@
 .sketch-tr {
   top: calc(var(--topbar-height) + 18px);
   right: 62px;
-  filter: drop-shadow(0 0 16px var(--glow-color));
   animation: driftD 30s ease-in-out infinite alternate;
 }
 

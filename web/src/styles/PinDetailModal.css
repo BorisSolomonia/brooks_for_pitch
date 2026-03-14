@@ -7,20 +7,9 @@
   transform: translateX(-50%);
   border-radius: 26px 26px 0 0;
   border: 1px solid var(--glass-border);
-  background: var(--glass-bg-strong);
+  background: rgba(255, 255, 255, 0.98);
   box-shadow: var(--panel-shadow-strong);
   overflow: hidden;
-}
-
-.pin-detail-modal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: radial-gradient(var(--ornament-dot) 0.45px, transparent 0.6px);
-  background-size: 6px 6px;
-  opacity: var(--ornament-opacity);
-  pointer-events: none;
 }
 
 .pin-detail-body {
@@ -29,17 +18,6 @@
   gap: 14px;
   position: relative;
   z-index: 1;
-}
-
-.pin-detail-body::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 20px;
-  right: 20px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--glow-color), transparent);
-  box-shadow: 0 0 18px var(--glow-color);
 }
 
 .pin-detail-row {

@@ -12,13 +12,8 @@ export type FontOption = {
 const FONT_CSS_BASE = "https://fonts.googleapis.com/css2";
 
 const GOOGLE_FONT_HREFS = {
-  fondamento: `${FONT_CSS_BASE}?family=Fondamento:ital@0;1&display=swap`,
-  "homemade-apple": `${FONT_CSS_BASE}?family=Homemade+Apple&display=swap`,
-  tangerine: `${FONT_CSS_BASE}?family=Tangerine:wght@400;700&display=swap`,
-  caveat: `${FONT_CSS_BASE}?family=Caveat:wght@400;500;600;700&display=swap`,
-  kalam: `${FONT_CSS_BASE}?family=Kalam:wght@300;400;700&display=swap`,
-  "patrick-hand": `${FONT_CSS_BASE}?family=Patrick+Hand&display=swap`,
-  "marck-script": `${FONT_CSS_BASE}?family=Marck+Script&display=swap`
+  inter: `${FONT_CSS_BASE}?family=Inter:wght@400;500;600&display=swap`,
+  merriweather: `${FONT_CSS_BASE}?family=Merriweather:wght@400;700&display=swap`,
 } as const satisfies Record<string, string>;
 
 const loadedFontHrefs = new Set<string>();
@@ -41,20 +36,14 @@ function ensureGoogleFontLoaded(href?: string) {
 }
 
 export const FONT_OPTIONS: FontOption[] = [
-  { id: "tangerine", label: "Tangerine", family: '"Tangerine", "Georgia", cursive', slot: "display", googleHref: GOOGLE_FONT_HREFS.tangerine, origin: "Elegant handwritten calligraphy" },
-  { id: "marck-script", label: "Marck Script", family: '"Marck Script", "Georgia", cursive', slot: "display", googleHref: GOOGLE_FONT_HREFS["marck-script"], origin: "Loose brush handwriting" },
-  { id: "homemade-apple-display", label: "Homemade Apple", family: '"Homemade Apple", "Georgia", cursive', slot: "display", googleHref: GOOGLE_FONT_HREFS["homemade-apple"], origin: "Personal notebook handwriting" },
-  { id: "fondamento-display", label: "Fondamento", family: '"Fondamento", "Georgia", cursive', slot: "display", googleHref: GOOGLE_FONT_HREFS.fondamento, origin: "Decorative manuscript hand" },
+  { id: "merriweather", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif display" },
+  { id: "inter-display", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern display" },
 
-  { id: "kalam", label: "Kalam", family: '"Kalam", "Georgia", cursive', slot: "body", googleHref: GOOGLE_FONT_HREFS.kalam, origin: "Readable pen-written text" },
-  { id: "patrick-hand-body", label: "Patrick Hand", family: '"Patrick Hand", "Georgia", cursive', slot: "body", googleHref: GOOGLE_FONT_HREFS["patrick-hand"], origin: "Marker-like handwritten text" },
-  { id: "caveat-body", label: "Caveat", family: '"Caveat", "Georgia", cursive', slot: "body", googleHref: GOOGLE_FONT_HREFS.caveat, origin: "Casual handwritten body text" },
-  { id: "fondamento-body", label: "Fondamento", family: '"Fondamento", "Georgia", cursive', slot: "body", googleHref: GOOGLE_FONT_HREFS.fondamento, origin: "Decorative manuscript hand" },
+  { id: "inter-body", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern body text" },
+  { id: "merriweather-body", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif body text" },
 
-  { id: "patrick-hand-mono", label: "Patrick Hand", family: '"Patrick Hand", "Georgia", cursive', slot: "mono", googleHref: GOOGLE_FONT_HREFS["patrick-hand"], origin: "Quick handwritten labels" },
-  { id: "homemade-apple-mono", label: "Homemade Apple", family: '"Homemade Apple", "Georgia", cursive', slot: "mono", googleHref: GOOGLE_FONT_HREFS["homemade-apple"], origin: "Personal notebook labels" },
-  { id: "caveat-mono", label: "Caveat", family: '"Caveat", "Georgia", cursive', slot: "mono", googleHref: GOOGLE_FONT_HREFS.caveat, origin: "Loose handwritten labels" },
-  { id: "tangerine-mono", label: "Tangerine", family: '"Tangerine", "Georgia", cursive', slot: "mono", googleHref: GOOGLE_FONT_HREFS.tangerine, origin: "Calligraphic handwritten labels" }
+  { id: "inter-mono", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern labels" },
+  { id: "merriweather-mono", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif labels" },
 ];
 
 const CSS_VAR_MAP: Record<FontSlot, string> = {
@@ -80,9 +69,9 @@ export function getDefaultFontId(slot: FontSlot): string {
       return match.id;
     }
   }
-  if (slot === "display") return "tangerine";
-  if (slot === "body") return "kalam";
-  return "patrick-hand-mono";
+  if (slot === "display") return "merriweather";
+  if (slot === "body") return "inter-body";
+  return "inter-mono";
 }
 
 export function applyFont(slot: FontSlot, fontId: string) {
