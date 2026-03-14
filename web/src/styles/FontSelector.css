@@ -4,9 +4,13 @@
   right: 14px;
   z-index: 1050;
   border-radius: var(--radius-m);
-  border: 1px solid var(--stroke);
-  background: linear-gradient(165deg, rgba(244, 234, 213, 0.97), rgba(232, 217, 184, 0.94));
-  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(184, 134, 11, 0.18);
+  background: rgba(244, 234, 213, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow:
+    0 8px 32px rgba(74, 55, 40, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   max-width: 310px;
   max-height: calc(100vh - var(--topbar-height) - 32px);
   display: flex;
@@ -82,7 +86,8 @@
   cursor: pointer;
   font-size: 0.82rem;
   transition: background var(--motion-fast) var(--ease-standard),
-    border-color var(--motion-fast) var(--ease-standard);
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .font-option:hover {
@@ -94,4 +99,5 @@
   background: linear-gradient(130deg, #2c1810, #4a3728);
   color: #f4ead5;
   border-color: transparent;
+  box-shadow: 0 0 12px var(--glow-color);
 }

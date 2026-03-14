@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CityResult } from "../lib/types";
 import { env } from "../lib/env";
-import { CityTheme, resolveTheme } from "../lib/theme";
 
 type ThemeState = {
   city?: string;
@@ -16,7 +15,6 @@ export function useCityTheme() {
   const [status, setStatus] = useState<ThemeStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<ThemeState | null>(null);
-  const [override, setOverride] = useState<CityTheme | null>(null);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -42,7 +40,7 @@ export function useCityTheme() {
           const country = data.countryName;
           setLocation({ city, country, lat, lng });
           setStatus("ready");
-        } catch (err) {
+        } catch {
           setLocation({ lat, lng });
           setStatus("ready");
         }
@@ -55,19 +53,9 @@ export function useCityTheme() {
     );
   }, []);
 
-  const theme = useMemo<CityTheme>(() => {
-    if (override) {
-      return override;
-    }
-    return resolveTheme(location?.city);
-  }, [location?.city, override]);
-
   return {
     status,
     error,
     location: location as CityResult | null,
-    theme,
-    setOverride,
-    override
   };
 }

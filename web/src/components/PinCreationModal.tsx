@@ -1,4 +1,6 @@
 import { useEffect, useId, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeSlideUpProps } from "./MotionWrappers";
 import type { PinForm as PinFormType, Coordinates } from "../lib/types";
 import "../styles/PinCreationModal.css";
 
@@ -138,246 +140,275 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
 
   const charLimit = 500;
 
+  const formGroupVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+  };
+
   return (
     <>
-      <div className={`modal-backdrop ${isOpen ? "open" : ""}`} onClick={onClose} />
-      <section
-        className={`pin-modal ${isOpen ? "open" : ""}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={headingId}
-        aria-hidden={!isOpen}
-      >
-        <div className="modal-handle" />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="modal-backdrop open"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.section
+            className="pin-modal open"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={headingId}
+            initial={{ y: "102%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "102%" }}
+            transition={{ duration: 0.4, ease: [0.16, 0.84, 0.2, 1] as const }}
+          >
+            <div className="modal-handle" />
 
-        <header className="modal-header">
-          <div>
-            <p className="eyebrow">Create</p>
-            <h2 id={headingId}>Leave a mark</h2>
-          </div>
-          <button className="modal-close" onClick={onClose} aria-label="Close" type="button">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        <form className="modal-content" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="pin-text" className="form-label">
-              Message
-            </label>
-            <textarea
-              id="pin-text"
-              className="form-textarea"
-              placeholder="Share a local note"
-              value={text}
-              onChange={event => setText(event.target.value)}
-              maxLength={charLimit}
-              rows={4}
-              autoFocus
-            />
-            <div className="char-count">{text.length} / {charLimit}</div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Audience</label>
-            <div className="pill-group">
-              <button type="button" className={`pill ${audienceType === "PRIVATE" ? "active" : ""}`} onClick={() => setAudienceType("PRIVATE")}>
-                Private
-              </button>
-              <button type="button" className={`pill ${audienceType === "FRIENDS" ? "active" : ""}`} onClick={() => setAudienceType("FRIENDS")}>
-                Friends
-              </button>
-              <button type="button" className={`pill ${audienceType === "FOLLOWERS" ? "active" : ""}`} onClick={() => setAudienceType("FOLLOWERS")}>
-                Followers
-              </button>
-              <button type="button" className={`pill ${audienceType === "PUBLIC" ? "active" : ""}`} onClick={() => setAudienceType("PUBLIC")}>
-                Public
-              </button>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Notify radius</label>
-            <div className="pill-group">
-              {RADIUS_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`pill ${notifyRadiusM === opt.value ? "active" : ""}`}
-                  onClick={() => setNotifyRadiusM(opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Media type</label>
-            <div className="pill-group">
-              <button type="button" className={`pill ${mediaType === "PHOTO" ? "active" : ""}`} onClick={() => setMediaType("PHOTO")}>
-                Photo
-              </button>
-              <button type="button" className={`pill ${mediaType === "VIDEO" ? "active" : ""}`} onClick={() => setMediaType("VIDEO")}>
-                Video
-              </button>
-              <button type="button" className={`pill ${mediaType === "AUDIO" ? "active" : ""}`} onClick={() => setMediaType("AUDIO")}>
-                Audio
-              </button>
-              <button type="button" className={`pill ${mediaType === "LINK" ? "active" : ""}`} onClick={() => setMediaType("LINK")}>
-                Link
-              </button>
-              <button type="button" className={`pill ${mediaType === "NONE" ? "active" : ""}`} onClick={() => setMediaType("NONE")}>
-                None
-              </button>
-            </div>
-          </div>
-
-          <div className={`vault-group${timeCapsule ? " vault-open" : ""}`}>
-            <button
-              type="button"
-              className="vault-trigger"
-              onClick={() => setTimeCapsule(v => !v)}
-              aria-expanded={timeCapsule}
-            >
-              <span className="vault-icon">{timeCapsule ? "🔓" : "🔒"}</span>
-              <span className="vault-title">Vault</span>
-              <span className="vault-desc">
-                {timeCapsule ? "Hidden until unlock date" : "Lock this note until a future date"}
-              </span>
-              <svg
-                className={`vault-chevron${timeCapsule ? " expanded" : ""}`}
-                width="14" height="14" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2.5"
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-
-            {timeCapsule && (
-              <div className="vault-body">
-                <div className="vault-date-row">
-                  <label className="form-label" htmlFor="reveal-at">Unlock on</label>
-                  <input
-                    id="reveal-at"
-                    type="datetime-local"
-                    className="form-input vault-date-input"
-                    value={revealAt}
-                    min={new Date(Date.now() + 86_400_000).toISOString().slice(0, 16)}
-                    onChange={e => setRevealAt(e.target.value)}
-                  />
-                  <p className="vault-hint">
-                    This note stays invisible until the unlock date. Only you can see it.
-                  </p>
-                </div>
-
-                <div className="vault-recipients">
-                  <div className="pill-group">
-                    <button type="button" className={`pill ${!sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(false)}>
-                      Keep private
-                    </button>
-                    <button type="button" className={`pill ${sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(true)}>
-                      Send to people
-                    </button>
-                  </div>
-
-                  {sendToPeople && (
-                    <div className="capsule-recipients">
-                      <label className="form-label">Recipient UUIDs (comma-separated)</label>
-                      <input
-                        className="form-input"
-                        placeholder="7c9e6679-7425-40de-944b-e07fc1f90ae7"
-                        value={recipientInput}
-                        onChange={event => {
-                          setRecipientInput(event.target.value);
-                          if (recipientError) setRecipientError(null);
-                        }}
-                      />
-                      {recipientError
-                        ? <div className="form-error">{recipientError}</div>
-                        : <div className="form-hint">Only UUIDs accepted right now.</div>}
-                      <label className="form-label">External recipients</label>
-                      <input
-                        className="form-input"
-                        placeholder="email, handle, or note"
-                        value={externalRecipientInput}
-                        onChange={event => setExternalRecipientInput(event.target.value)}
-                      />
-                    </div>
-                  )}
-                </div>
+            <header className="modal-header">
+              <div>
+                <p className="eyebrow">Create</p>
+                <h2 id={headingId}>Leave a mark</h2>
               </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Reveal mode</label>
-            <div className="toggle-group">
-              <button type="button" className={`toggle ${revealType === "VISIBLE_ALWAYS" ? "active" : ""}`} onClick={() => setRevealType("VISIBLE_ALWAYS")}>
-                Always visible
+              <button className="modal-close" onClick={onClose} aria-label="Close" type="button">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
-              <button type="button" className={`toggle ${revealType === "REACH_TO_REVEAL" ? "active" : ""}`} onClick={() => setRevealType("REACH_TO_REVEAL")}>
-                Reach to reveal
-              </button>
-            </div>
-          </div>
+            </header>
 
-          <div className="form-group">
-            <label className="form-label">Duration</label>
-            <div className="duration-grid">
-              {DURATION_PRESETS.map(preset => (
+            <motion.form
+              className="modal-content"
+              onSubmit={handleSubmit}
+              initial="initial"
+              animate="animate"
+              transition={{ staggerChildren: 0.06 }}
+            >
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label htmlFor="pin-text" className="form-label">
+                  Message
+                </label>
+                <textarea
+                  id="pin-text"
+                  className="form-textarea"
+                  placeholder="Share a local note"
+                  value={text}
+                  onChange={event => setText(event.target.value)}
+                  maxLength={charLimit}
+                  rows={4}
+                  autoFocus
+                />
+                <div className="char-count">{text.length} / {charLimit}</div>
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Audience</label>
+                <div className="pill-group">
+                  <button type="button" className={`pill ${audienceType === "PRIVATE" ? "active" : ""}`} onClick={() => setAudienceType("PRIVATE")}>
+                    Private
+                  </button>
+                  <button type="button" className={`pill ${audienceType === "FRIENDS" ? "active" : ""}`} onClick={() => setAudienceType("FRIENDS")}>
+                    Friends
+                  </button>
+                  <button type="button" className={`pill ${audienceType === "FOLLOWERS" ? "active" : ""}`} onClick={() => setAudienceType("FOLLOWERS")}>
+                    Followers
+                  </button>
+                  <button type="button" className={`pill ${audienceType === "PUBLIC" ? "active" : ""}`} onClick={() => setAudienceType("PUBLIC")}>
+                    Public
+                  </button>
+                </div>
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Notify radius</label>
+                <div className="pill-group">
+                  {RADIUS_OPTIONS.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`pill ${notifyRadiusM === opt.value ? "active" : ""}`}
+                      onClick={() => setNotifyRadiusM(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Media type</label>
+                <div className="pill-group">
+                  <button type="button" className={`pill ${mediaType === "PHOTO" ? "active" : ""}`} onClick={() => setMediaType("PHOTO")}>
+                    Photo
+                  </button>
+                  <button type="button" className={`pill ${mediaType === "VIDEO" ? "active" : ""}`} onClick={() => setMediaType("VIDEO")}>
+                    Video
+                  </button>
+                  <button type="button" className={`pill ${mediaType === "AUDIO" ? "active" : ""}`} onClick={() => setMediaType("AUDIO")}>
+                    Audio
+                  </button>
+                  <button type="button" className={`pill ${mediaType === "LINK" ? "active" : ""}`} onClick={() => setMediaType("LINK")}>
+                    Link
+                  </button>
+                  <button type="button" className={`pill ${mediaType === "NONE" ? "active" : ""}`} onClick={() => setMediaType("NONE")}>
+                    None
+                  </button>
+                </div>
+              </motion.div>
+
+              <motion.div className={`vault-group${timeCapsule ? " vault-open" : ""}`} variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
                 <button
-                  key={preset.label}
                   type="button"
-                  className={`duration-card${preset.hours === "permanent" ? " forever" : ""}${expiresInHours === preset.hours ? " active" : ""}`}
-                  onClick={() => setExpiresInHours(preset.hours)}
+                  className="vault-trigger"
+                  onClick={() => setTimeCapsule(v => !v)}
+                  aria-expanded={timeCapsule}
                 >
-                  <span className="duration-icon">{preset.icon}</span>
-                  <span className="duration-label">{preset.label}</span>
+                  <span className="vault-icon">{timeCapsule ? "🔓" : "🔒"}</span>
+                  <span className="vault-title">Vault</span>
+                  <span className="vault-desc">
+                    {timeCapsule ? "Hidden until unlock date" : "Lock this note until a future date"}
+                  </span>
+                  <svg
+                    className={`vault-chevron${timeCapsule ? " expanded" : ""}`}
+                    width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" strokeWidth="2.5"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Location precision</label>
-            <div className="toggle-group">
-              <button type="button" className={`toggle ${mapPrecision === "EXACT" ? "active" : ""}`} onClick={() => setMapPrecision("EXACT")}>
-                Exact
-              </button>
-              <button type="button" className={`toggle ${mapPrecision === "BLURRED" ? "active" : ""}`} onClick={() => setMapPrecision("BLURRED")}>
-                Blurred
-              </button>
-            </div>
-          </div>
+                {timeCapsule && (
+                  <div className="vault-body">
+                    <div className="vault-date-row">
+                      <label className="form-label" htmlFor="reveal-at">Unlock on</label>
+                      <input
+                        id="reveal-at"
+                        type="datetime-local"
+                        className="form-input vault-date-input"
+                        value={revealAt}
+                        min={new Date(Date.now() + 86_400_000).toISOString().slice(0, 16)}
+                        onChange={e => setRevealAt(e.target.value)}
+                      />
+                      <p className="vault-hint">
+                        This note stays invisible until the unlock date. Only you can see it.
+                      </p>
+                    </div>
 
-          <div className="location-info">
-            <span className="eyebrow">Pin location</span>
-            <strong>
-              {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-            </strong>
-          </div>
+                    <div className="vault-recipients">
+                      <div className="pill-group">
+                        <button type="button" className={`pill ${!sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(false)}>
+                          Keep private
+                        </button>
+                        <button type="button" className={`pill ${sendToPeople ? "active" : ""}`} onClick={() => setSendToPeople(true)}>
+                          Send to people
+                        </button>
+                      </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={!text.trim() || isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <span className="spinner" />
-                  Posting
-                </>
-              ) : (
-                "Post"
-              )}
-            </button>
-          </div>
-        </form>
-      </section>
+                      {sendToPeople && (
+                        <div className="capsule-recipients">
+                          <label className="form-label">Recipient UUIDs (comma-separated)</label>
+                          <input
+                            className="form-input"
+                            placeholder="7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                            value={recipientInput}
+                            onChange={event => {
+                              setRecipientInput(event.target.value);
+                              if (recipientError) setRecipientError(null);
+                            }}
+                          />
+                          {recipientError
+                            ? <div className="form-error">{recipientError}</div>
+                            : <div className="form-hint">Only UUIDs accepted right now.</div>}
+                          <label className="form-label">External recipients</label>
+                          <input
+                            className="form-input"
+                            placeholder="email, handle, or note"
+                            value={externalRecipientInput}
+                            onChange={event => setExternalRecipientInput(event.target.value)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Reveal mode</label>
+                <div className="toggle-group">
+                  <button type="button" className={`toggle ${revealType === "VISIBLE_ALWAYS" ? "active" : ""}`} onClick={() => setRevealType("VISIBLE_ALWAYS")}>
+                    Always visible
+                  </button>
+                  <button type="button" className={`toggle ${revealType === "REACH_TO_REVEAL" ? "active" : ""}`} onClick={() => setRevealType("REACH_TO_REVEAL")}>
+                    Reach to reveal
+                  </button>
+                </div>
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Duration</label>
+                <div className="duration-grid">
+                  {DURATION_PRESETS.map(preset => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className={`duration-card${preset.hours === "permanent" ? " forever" : ""}${expiresInHours === preset.hours ? " active" : ""}`}
+                      onClick={() => setExpiresInHours(preset.hours)}
+                    >
+                      <span className="duration-icon">{preset.icon}</span>
+                      <span className="duration-label">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <label className="form-label">Location precision</label>
+                <div className="toggle-group">
+                  <button type="button" className={`toggle ${mapPrecision === "EXACT" ? "active" : ""}`} onClick={() => setMapPrecision("EXACT")}>
+                    Exact
+                  </button>
+                  <button type="button" className={`toggle ${mapPrecision === "BLURRED" ? "active" : ""}`} onClick={() => setMapPrecision("BLURRED")}>
+                    Blurred
+                  </button>
+                </div>
+              </motion.div>
+
+              <div className="location-info">
+                <span className="eyebrow">Pin location</span>
+                <strong>
+                  {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                </strong>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={!text.trim() || isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner" />
+                      Posting
+                    </>
+                  ) : (
+                    "Post"
+                  )}
+                </button>
+              </div>
+            </motion.form>
+          </motion.section>
+        )}
+      </AnimatePresence>
     </>
   );
 }

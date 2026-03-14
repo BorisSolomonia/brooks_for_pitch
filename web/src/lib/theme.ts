@@ -1,4 +1,4 @@
-export type CityTheme = "rome" | "tbilisi" | "paris" | "default";
+export type CityTheme = "default";
 
 export type ThemePalette = {
   label: string;
@@ -69,90 +69,6 @@ const makePalette = (tokens: {
 });
 
 export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
-  rome: {
-    label: "Rome",
-    vars: makePalette({
-      bg0: "#f0e0c8",
-      bg1: "#e8d5b5",
-      bg2: "#dcc9a5",
-      surface0: "rgba(139, 107, 66, 0.06)",
-      surface1: "rgba(139, 107, 66, 0.10)",
-      surface2: "rgba(139, 107, 66, 0.16)",
-      surface3: "rgba(180, 76, 58, 0.08)",
-      textStrong: "#3c1518",
-      textPrimary: "#5a2d20",
-      textMuted: "#8a6050",
-      textDim: "#a68070",
-      accentPrimary: "#3c1518",
-      accentSecondary: "#b44c3a",
-      accentTertiary: "rgba(90, 45, 32, 0.72)",
-      ring: "rgba(180, 76, 58, 0.45)",
-      glow: "rgba(180, 76, 58, 0.35)",
-      strokeSoft: "rgba(90, 45, 32, 0.20)",
-      strokeStrong: "rgba(60, 21, 24, 0.42)",
-      glowColor: "rgba(180,76,58,0.50)",
-      glowColorStrong: "rgba(180,76,58,0.75)",
-      auroraStart: "rgba(180,76,58,0.24)",
-      auroraEnd: "rgba(139,107,66,0.18)",
-      grainOpacity: "0.30"
-    })
-  },
-  tbilisi: {
-    label: "Tbilisi",
-    vars: makePalette({
-      bg0: "#eee8d5",
-      bg1: "#e4dcc8",
-      bg2: "#d8cfb8",
-      surface0: "rgba(122, 59, 46, 0.06)",
-      surface1: "rgba(122, 59, 46, 0.10)",
-      surface2: "rgba(122, 59, 46, 0.16)",
-      surface3: "rgba(122, 59, 46, 0.08)",
-      textStrong: "#2d2417",
-      textPrimary: "#4a3828",
-      textMuted: "#7a6450",
-      textDim: "#9a8470",
-      accentPrimary: "#2d2417",
-      accentSecondary: "#7a3b2e",
-      accentTertiary: "rgba(74, 56, 40, 0.72)",
-      ring: "rgba(122, 59, 46, 0.45)",
-      glow: "rgba(122, 59, 46, 0.35)",
-      strokeSoft: "rgba(74, 56, 40, 0.20)",
-      strokeStrong: "rgba(45, 36, 23, 0.42)",
-      glowColor: "rgba(122,59,46,0.50)",
-      glowColorStrong: "rgba(122,59,46,0.75)",
-      auroraStart: "rgba(122,59,46,0.22)",
-      auroraEnd: "rgba(74,56,40,0.16)",
-      grainOpacity: "0.25"
-    })
-  },
-  paris: {
-    label: "Paris",
-    vars: makePalette({
-      bg0: "#f2eee5",
-      bg1: "#eae5da",
-      bg2: "#dfd9cc",
-      surface0: "rgba(26, 35, 50, 0.06)",
-      surface1: "rgba(26, 35, 50, 0.10)",
-      surface2: "rgba(26, 35, 50, 0.16)",
-      surface3: "rgba(197, 160, 40, 0.08)",
-      textStrong: "#1a2332",
-      textPrimary: "#2e3d52",
-      textMuted: "#5a6a80",
-      textDim: "#7a8a9a",
-      accentPrimary: "#1a2332",
-      accentSecondary: "#c5a028",
-      accentTertiary: "rgba(46, 61, 82, 0.72)",
-      ring: "rgba(197, 160, 40, 0.45)",
-      glow: "rgba(197, 160, 40, 0.35)",
-      strokeSoft: "rgba(46, 61, 82, 0.20)",
-      strokeStrong: "rgba(26, 35, 50, 0.42)",
-      glowColor: "rgba(197,160,40,0.50)",
-      glowColorStrong: "rgba(197,160,40,0.75)",
-      auroraStart: "rgba(197,160,40,0.20)",
-      auroraEnd: "rgba(26,35,50,0.14)",
-      grainOpacity: "0.22"
-    })
-  },
   default: {
     label: "Atlas",
     vars: makePalette({
@@ -174,28 +90,17 @@ export const CITY_THEMES: Record<CityTheme, ThemePalette> = {
       glow: "rgba(184, 134, 11, 0.35)",
       strokeSoft: "rgba(74, 55, 40, 0.20)",
       strokeStrong: "rgba(44, 24, 16, 0.42)",
-      glowColor: "rgba(184,134,11,0.55)",
-      glowColorStrong: "rgba(184,134,11,0.80)",
-      auroraStart: "rgba(184,134,11,0.28)",
-      auroraEnd: "rgba(139,107,66,0.20)",
-      grainOpacity: "0.28"
+      glowColor: "rgba(184,134,11,0.60)",
+      glowColorStrong: "rgba(184,134,11,0.85)",
+      auroraStart: "rgba(184,134,11,0.32)",
+      auroraEnd: "rgba(139,107,66,0.24)",
+      grainOpacity: "0.30"
     })
   }
 };
 
-const CITY_ALIASES: Record<string, CityTheme> = {
-  rome: "rome",
-  roma: "rome",
-  tbilisi: "tbilisi",
-  paris: "paris"
-};
-
-export function resolveTheme(city?: string): CityTheme {
-  if (!city) {
-    return "default";
-  }
-  const normalized = city.trim().toLowerCase();
-  return CITY_ALIASES[normalized] ?? "default";
+export function resolveTheme(): CityTheme {
+  return "default";
 }
 
 export function applyTheme(theme: CityTheme) {

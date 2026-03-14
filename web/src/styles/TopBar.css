@@ -10,10 +10,10 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--stroke);
-  background: linear-gradient(160deg, rgba(244, 234, 213, 0.78), rgba(232, 217, 184, 0.78));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: var(--shadow-soft), 0 2px 12px var(--glow-color);
+  background: linear-gradient(160deg, rgba(244, 234, 213, 0.72), rgba(232, 217, 184, 0.72));
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: var(--shadow-soft), 0 2px 16px var(--glow-color);
 }
 
 .command-bar::after {
@@ -93,30 +93,7 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--text-strong);
-  text-shadow: 0 0 8px var(--glow-color);
-}
-
-.theme-chip {
-  min-width: 42px;
-  height: 36px;
-  border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  padding: 0 12px;
-  background: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bg-0);
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  transition: box-shadow var(--motion-base) var(--ease-standard);
-}
-
-.theme-chip.theme-pulse {
-  animation: glowPulse 1200ms var(--ease-standard);
-  box-shadow: 0 0 10px var(--glow-color);
+  text-shadow: 0 0 12px var(--glow-color);
 }
 
 .user-menu-container {
@@ -211,11 +188,5 @@
 @media (max-width: 620px) {
   .brand-title {
     font-size: 0.9rem;
-  }
-
-  .theme-chip {
-    min-width: 36px;
-    padding: 0 8px;
-    letter-spacing: 0.16em;
   }
 }

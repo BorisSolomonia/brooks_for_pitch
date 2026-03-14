@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import "../styles/TopBar.css";
 
 interface TopBarProps {
@@ -6,26 +6,11 @@ interface TopBarProps {
   userName?: string;
   userEmail?: string;
   onSignOut: () => void;
-  currentTheme: string;
 }
 
-export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentTheme }: TopBarProps) {
+export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuId = useId();
-  const themeChipRef = useRef<HTMLDivElement>(null);
-  const prevThemeRef = useRef(currentTheme);
-
-  useEffect(() => {
-    if (prevThemeRef.current !== currentTheme) {
-      prevThemeRef.current = currentTheme;
-      const chip = themeChipRef.current;
-      if (chip) {
-        chip.classList.remove("theme-pulse");
-        void chip.offsetWidth;
-        chip.classList.add("theme-pulse");
-      }
-    }
-  }, [currentTheme]);
 
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -40,16 +25,6 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentThe
       return email[0]?.toUpperCase() ?? "?";
     }
     return "?";
-  };
-
-  const getThemeLabel = (theme: string) => {
-    const themes: Record<string, string> = {
-      rome: "RM",
-      tbilisi: "TB",
-      paris: "PR",
-      default: "AT"
-    };
-    return themes[theme.toLowerCase()] || themes.default;
   };
 
   return (
@@ -69,10 +44,6 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut, currentThe
       </div>
 
       <div className="command-bar-right">
-        <div className="theme-chip" ref={themeChipRef} title={`Theme: ${currentTheme}`}>
-          <span>{getThemeLabel(currentTheme)}</span>
-        </div>
-
         <div className="user-menu-container">
           <button
             className="user-avatar"

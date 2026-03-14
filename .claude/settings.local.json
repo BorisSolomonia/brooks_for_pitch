@@ -47,7 +47,8 @@
       "Bash(where:*)",
       "WebFetch(domain:api.github.com)",
       "Bash(git status:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebFetch(domain:www.meetcleo.com)"
     ]
   }
 }

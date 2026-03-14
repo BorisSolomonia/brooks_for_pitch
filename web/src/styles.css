@@ -56,15 +56,15 @@
   --font-mono: "Special Elite", "Courier New", monospace;
 
   /* TEXTURE */
-  --grain-opacity: 0.28;
+  --grain-opacity: 0.30;
   --paper-grain-opacity: var(--grain-opacity);
   --ink-line-color: rgba(74, 55, 40, 0.12);
 
   /* GLOW & AURORA */
-  --glow-color: rgba(184, 134, 11, 0.55);
-  --glow-color-strong: rgba(184, 134, 11, 0.80);
-  --aurora-start: rgba(184, 134, 11, 0.28);
-  --aurora-end: rgba(139, 107, 66, 0.20);
+  --glow-color: rgba(184, 134, 11, 0.60);
+  --glow-color-strong: rgba(184, 134, 11, 0.85);
+  --aurora-start: rgba(184, 134, 11, 0.32);
+  --aurora-end: rgba(139, 107, 66, 0.24);
 
   /* ALIASES */
   --bg: var(--bg-0);
@@ -99,31 +99,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-body::before,
-body::after {
+body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-}
-
-body::before {
   z-index: -2;
-  opacity: 0.55;
+  opacity: 0.60;
   background:
     radial-gradient(ellipse at 20% 15%, rgba(160, 120, 60, 0.15), transparent 50%),
     radial-gradient(ellipse at 75% 80%, rgba(140, 100, 50, 0.12), transparent 45%),
     radial-gradient(ellipse at 50% 50%, rgba(120, 90, 40, 0.08), transparent 60%);
-}
-
-body::after {
-  z-index: -1;
-  opacity: var(--paper-grain-opacity);
-  background-image:
-    radial-gradient(rgba(74, 55, 40, 0.4) 0.5px, transparent 0.6px),
-    radial-gradient(rgba(74, 55, 40, 0.25) 0.4px, transparent 0.5px);
-  background-size: 4px 4px, 7px 7px;
-  background-position: 0 0, 2px 3px;
 }
 
 ::selection {
@@ -204,7 +190,6 @@ select {
   border: 1px solid var(--stroke);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-medium);
-  animation: revealUp 900ms var(--ease-standard) both;
 }
 
 .auth-hero {
@@ -233,7 +218,7 @@ select {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
-  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-size: clamp(3.2rem, 7vw, 5.8rem);
   color: var(--text-strong);
   max-width: 18ch;
 }
@@ -263,7 +248,9 @@ select {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: var(--shadow-medium), 0 4px 30px var(--glow-color);
+  box-shadow: var(--shadow-medium), 0 6px 40px var(--glow-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .auth-gate > .auth-panel {
@@ -297,7 +284,8 @@ select {
   transition: transform var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard),
     background var(--motion-fast) var(--ease-standard),
-    border-color var(--motion-fast) var(--ease-standard);
+    border-color var(--motion-fast) var(--ease-standard),
+    filter var(--motion-fast) var(--ease-standard);
 }
 
 .primary {
@@ -309,6 +297,7 @@ select {
 .primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 14px 30px rgba(74, 55, 40, 0.35), 0 4px 24px var(--glow-color-strong);
+  filter: brightness(1.1);
 }
 
 .auth-btn-glow {
@@ -333,15 +322,6 @@ select {
 
 .auth-btn-glow:hover:not(:disabled)::after {
   opacity: 0.6;
-}
-
-/* Auth shell stagger entrance */
-.auth-shell > :nth-child(1) {
-  animation-delay: 0ms;
-}
-
-.auth-shell > :nth-child(2) {
-  animation-delay: 120ms;
 }
 
 .ghost {
@@ -479,10 +459,10 @@ select {
   padding: 1.5px;
   background: linear-gradient(
     135deg,
-    var(--glow-color),
+    var(--glow-color-strong),
     transparent 40%,
     transparent 60%,
-    var(--glow-color)
+    var(--glow-color-strong)
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -526,7 +506,7 @@ select {
 
 /* ── BLUR-TO-FOCUS REVEAL ── */
 .blur-reveal {
-  filter: blur(12px) saturate(0.15);
+  filter: blur(16px) saturate(0.1);
   opacity: 0;
   transition: filter 800ms var(--ease-emphasized), opacity 800ms var(--ease-emphasized);
 }
@@ -568,12 +548,13 @@ select {
 .aurora-bg::before {
   content: "";
   position: absolute;
-  inset: -40%;
+  inset: -50%;
   border-radius: inherit;
   background:
     radial-gradient(ellipse at 25% 20%, var(--aurora-start), transparent 50%),
     radial-gradient(ellipse at 75% 70%, var(--aurora-end), transparent 45%),
-    radial-gradient(ellipse at 50% 50%, var(--aurora-start), transparent 55%);
+    radial-gradient(ellipse at 50% 50%, var(--aurora-start), transparent 55%),
+    radial-gradient(ellipse at 40% 80%, var(--aurora-end), transparent 40%);
   animation: auroraDrift 12s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;
@@ -589,6 +570,28 @@ select {
   100% {
     transform: translate(-2%, 3%) rotate(-1deg);
   }
+}
+
+/* ── VARIABLE FONT WEIGHT ANIMATION (Cleo-inspired) ── */
+@keyframes fontWeightPulse {
+  0% { font-variation-settings: 'wght' 400; }
+  50% { font-variation-settings: 'wght' 700; }
+  100% { font-variation-settings: 'wght' 400; }
+}
+
+.traced-brand {
+  animation: fontWeightPulse 3s ease-in-out infinite;
+}
+
+/* ── GLASS PANEL UTILITY ── */
+.glass-panel {
+  background: rgba(244, 234, 213, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(184, 134, 11, 0.18);
+  box-shadow:
+    0 8px 32px rgba(74, 55, 40, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 /* ── STAGGER ENTRANCE ── */
@@ -657,6 +660,11 @@ select {
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
+}
+
+/* ── ACTIVE PRESS FEEDBACK ── */
+button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 @media (prefers-reduced-motion: reduce) {

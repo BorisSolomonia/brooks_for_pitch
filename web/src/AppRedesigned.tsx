@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { TopBar } from "./components/TopBar";
 import { FAB } from "./components/FAB";
 import { NavigationDrawer } from "./components/NavigationDrawer";
@@ -8,6 +9,7 @@ import { PinDetailModal } from "./components/PinDetailModal";
 import { MapChargeRing } from "./components/MapChargeRing";
 import { FontSelector } from "./components/FontSelector";
 import { SketchOverlay } from "./components/SketchOverlay";
+import { GrainOverlay } from "./components/GrainOverlay";
 import MapView from "./components/MapView";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
@@ -16,7 +18,7 @@ import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
 import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
-import type { AuthTokens, Coordinates, MapPin, PinForm, CityTheme } from "./lib/types";
+import type { AuthTokens, Coordinates, MapPin, PinForm } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
 
@@ -48,12 +50,11 @@ export default function AppRedesigned() {
   });
 
   const [mapProvider, setMapProvider] = useState<"leaflet" | "google">(env.mapProvider);
-  const { location, theme, setOverride, override } = useCityTheme();
-  const currentTheme = (override || theme || "default") as CityTheme;
+  const { location } = useCityTheme();
 
   useEffect(() => {
-    applyTheme(currentTheme);
-  }, [currentTheme]);
+    applyTheme("default");
+  }, []);
 
   useEffect(() => {
     applyFont("display", fontSelections.display);
@@ -139,151 +140,154 @@ export default function AppRedesigned() {
     });
   };
 
-  const handleThemeChange = (themeId: string) => {
-    if (themeId === "auto") {
-      setOverride(null);
-      return;
-    }
-    setOverride(themeId as CityTheme);
-  };
-
   if (isLoading) {
     return (
-      <div className="app-loading">
+      <motion.div
+        className="app-loading"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div className="spinner-large" />
         <p>Loading Brooks...</p>
-      </div>
+      </motion.div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <AuthGate
-        isLoading={isLoading}
-        error={authError?.message ?? null}
-        onLogin={() => loginWithRedirect()}
-        onRegister={() =>
-          loginWithRedirect({
-            authorizationParams: {
-              screen_hint: "signup"
-            }
-          })
-        }
-      />
+      <>
+        <GrainOverlay />
+        <AuthGate
+          isLoading={isLoading}
+          error={authError?.message ?? null}
+          onLogin={() => loginWithRedirect()}
+          onRegister={() =>
+            loginWithRedirect({
+              authorizationParams: {
+                screen_hint: "signup"
+              }
+            })
+          }
+        />
+      </>
     );
   }
 
   if (!token) {
     return (
-      <div className="app-loading">
+      <motion.div
+        className="app-loading"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         <div className="spinner-large" />
         <p>Securing your session...</p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="app-redesigned">
-      <SketchOverlay />
-      <TopBar
-        onMenuClick={() => setIsDrawerOpen(true)}
-        userName={user?.name}
-        userEmail={user?.email}
-        onSignOut={handleSignOut}
-        currentTheme={currentTheme}
-      />
+    <AnimatePresence mode="wait">
+      <div className="app-redesigned">
+        <GrainOverlay />
+        <SketchOverlay />
+        <TopBar
+          onMenuClick={() => setIsDrawerOpen(true)}
+          userName={user?.name}
+          userEmail={user?.email}
+          onSignOut={handleSignOut}
+        />
 
-      <main className="map-container">
-        <MapView
-          provider={mapProvider}
-          center={center}
-          pins={showPins ? pins : []}
-          onPinClick={pin => setSelectedPin(pin)}
-          onHoldStart={(coords, x, y) => {
-            ringCompletedRef.current = false;
-            setChargeTarget({ coords, x, y });
-          }}
-          onHoldEnd={() => {
-            if (!ringCompletedRef.current) {
+        <main className="map-container">
+          <MapView
+            provider={mapProvider}
+            center={center}
+            pins={showPins ? pins : []}
+            onPinClick={pin => setSelectedPin(pin)}
+            onHoldStart={(coords, x, y) => {
+              ringCompletedRef.current = false;
+              setChargeTarget({ coords, x, y });
+            }}
+            onHoldEnd={() => {
+              if (!ringCompletedRef.current) {
+                setChargeTarget(null);
+              }
+            }}
+          />
+        </main>
+
+        <FAB onClick={() => setIsModalOpen(true)} />
+
+        <button
+          className={`pins-toggle${showPins ? "" : " pins-off"}`}
+          onClick={() => setShowPins(v => !v)}
+          title={showPins ? "Hide pins" : "Show pins"}
+          aria-pressed={showPins}
+        >
+          {showPins ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          )}
+          <span>{showPins ? "Pins" : "Hidden"}</span>
+        </button>
+
+        {chargeTarget && (
+          <MapChargeRing
+            x={chargeTarget.x}
+            y={chargeTarget.y}
+            active={!!chargeTarget}
+            onComplete={() => {
+              ringCompletedRef.current = true;
+              const coords = chargeTarget.coords;
               setChargeTarget(null);
-            }
-          }}
-        />
-      </main>
-
-      <FAB onClick={() => setIsModalOpen(true)} />
-
-      <button
-        className={`pins-toggle${showPins ? "" : " pins-off"}`}
-        onClick={() => setShowPins(v => !v)}
-        title={showPins ? "Hide pins" : "Show pins"}
-        aria-pressed={showPins}
-      >
-        {showPins ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-            <line x1="1" y1="1" x2="23" y2="23" />
-          </svg>
+              setCenter(coords);
+              setIsModalOpen(true);
+            }}
+            onCancel={() => {
+              setChargeTarget(null);
+            }}
+          />
         )}
-        <span>{showPins ? "Pins" : "Hidden"}</span>
-      </button>
 
-      {chargeTarget && (
-        <MapChargeRing
-          x={chargeTarget.x}
-          y={chargeTarget.y}
-          active={!!chargeTarget}
-          onComplete={() => {
-            ringCompletedRef.current = true;
-            const coords = chargeTarget.coords;
-            setChargeTarget(null);
-            setCenter(coords);
-            setIsModalOpen(true);
+        <NavigationDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          currentMapProvider={mapProvider}
+          onMapProviderChange={provider => {
+            setMapProvider(provider);
+            setTimeout(() => setIsDrawerOpen(false), 220);
           }}
-          onCancel={() => {
-            setChargeTarget(null);
-          }}
+          onSignOut={handleSignOut}
         />
-      )}
 
-      <NavigationDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        currentTheme={currentTheme}
-        onThemeChange={themeId => {
-          handleThemeChange(themeId);
-          setTimeout(() => setIsDrawerOpen(false), 220);
-        }}
-        currentMapProvider={mapProvider}
-        onMapProviderChange={provider => {
-          setMapProvider(provider);
-          setTimeout(() => setIsDrawerOpen(false), 220);
-        }}
-        onSignOut={handleSignOut}
-      />
+        <PinCreationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreatePin}
+          location={center}
+        />
 
-      <PinCreationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleCreatePin}
-        location={center}
-      />
+        <PinDetailModal
+          pin={selectedPin}
+          onClose={() => setSelectedPin(null)}
+        />
 
-      <PinDetailModal
-        pin={selectedPin}
-        onClose={() => setSelectedPin(null)}
-      />
-
-      <FontSelector
-        selections={fontSelections}
-        onChange={handleFontChange}
-      />
-    </div>
+        <FontSelector
+          selections={fontSelections}
+          onChange={handleFontChange}
+        />
+      </div>
+    </AnimatePresence>
   );
 }

@@ -18,10 +18,7 @@
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: 0.01em;
-  box-shadow: var(--shadow-soft), 0 2px 20px var(--glow-color);
-  transition: transform var(--motion-fast) var(--ease-standard),
-    box-shadow var(--motion-fast) var(--ease-standard),
-    filter var(--motion-fast) var(--ease-standard);
+  box-shadow: var(--shadow-soft), 0 4px 24px var(--glow-color);
 }
 
 .fab::before,
@@ -64,16 +61,6 @@
 
 .fab:hover .fab-spotlight {
   opacity: 1;
-}
-
-.fab:hover {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: var(--shadow-medium), 0 4px 24px var(--glow-color-strong);
-  filter: brightness(1.04);
-}
-
-.fab:active {
-  transform: translateY(0);
 }
 
 .fab-icon {

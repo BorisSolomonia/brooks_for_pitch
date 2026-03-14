@@ -3,16 +3,8 @@
   inset: 0;
   z-index: 1300;
   background: rgba(74, 55, 40, 0.4);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--motion-base) var(--ease-standard);
-}
-
-.modal-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .pin-modal {
@@ -22,8 +14,6 @@
   bottom: 0;
   z-index: 1400;
   max-height: min(92vh, 900px);
-  transform: translateY(102%);
-  transition: transform var(--motion-base) var(--ease-emphasized);
   border-radius: 24px 24px 0 0;
   border: 1px solid var(--stroke);
   background: linear-gradient(180deg, #f4ead5, #efe3cb);
@@ -45,46 +35,6 @@
   z-index: 0;
 }
 
-.pin-modal.open {
-  transform: translateY(0);
-}
-
-/* Stagger entrance for form groups */
-.pin-modal.open .form-group:nth-child(1) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 0ms;
-}
-
-.pin-modal.open .form-group:nth-child(2) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 80ms;
-}
-
-.pin-modal.open .form-group:nth-child(3) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 160ms;
-}
-
-.pin-modal.open .form-group:nth-child(4) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 240ms;
-}
-
-.pin-modal.open .form-group:nth-child(5) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 400ms;
-}
-
-.pin-modal.open .form-group:nth-child(6) {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 480ms;
-}
-
-.pin-modal.open .vault-group {
-  animation: fadeSlideUp 500ms var(--ease-emphasized) both;
-  animation-delay: 320ms;
-}
-
 .modal-handle {
   width: 56px;
   height: 4px;
@@ -103,8 +53,8 @@
   padding: 14px 18px;
   border-bottom: 1px solid var(--stroke);
   background: rgba(139, 107, 66, 0.06);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .modal-header h2 {
@@ -396,7 +346,7 @@
 .btn-primary {
   color: #f4ead5;
   background: linear-gradient(130deg, #2c1810, #4a3728);
-  box-shadow: 0 12px 26px rgba(74, 55, 40, 0.2), 0 2px 16px var(--glow-color);
+  box-shadow: 0 12px 26px rgba(74, 55, 40, 0.2), 0 4px 20px var(--glow-color);
   position: relative;
   overflow: hidden;
 }
@@ -494,12 +444,8 @@
     left: 50%;
     right: auto;
     width: min(680px, 94vw);
-    transform: translateX(-50%) translateY(102%);
+    transform: translateX(-50%);
     border-radius: 24px;
-  }
-
-  .pin-modal.open {
-    transform: translateX(-50%) translateY(0);
   }
 
   .pin-modal::after {

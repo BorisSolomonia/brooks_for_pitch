@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useSpotlight } from '../hooks/useSpotlight';
 import '../styles/FAB.css';
 
@@ -10,13 +11,15 @@ export function FAB({ onClick, label = 'Leave a Mark' }: FABProps) {
   const spotlight = useSpotlight<HTMLButtonElement>();
 
   return (
-    <button
+    <motion.button
       type="button"
       className="fab"
       onClick={onClick}
       aria-label={label}
       ref={spotlight.ref}
       onMouseMove={spotlight.onMouseMove}
+      whileHover={{ y: -4, scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
       <span className="fab-spotlight" aria-hidden="true" />
       <svg
@@ -34,6 +37,6 @@ export function FAB({ onClick, label = 'Leave a Mark' }: FABProps) {
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
       <span className="fab-label">{label}</span>
-    </button>
+    </motion.button>
   );
 }

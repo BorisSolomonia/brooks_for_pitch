@@ -6,7 +6,7 @@ import PinList from "./components/PinList";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { env } from "./lib/env";
-import { applyTheme, CITY_THEMES, CityTheme } from "./lib/theme";
+import { applyTheme, CITY_THEMES } from "./lib/theme";
 import { createPin, fetchMapPins } from "./lib/api";
 import type { Coordinates, MapPin, PinForm as PinFormState } from "./lib/types";
 
@@ -22,7 +22,7 @@ function bboxFromCenter(center: Coordinates, delta = 0.04) {
 }
 
 export default function App() {
-  const { status, error, location, theme, setOverride, override } = useCityTheme();
+  const { status, error, location } = useCityTheme();
   const {
     isAuthenticated,
     isLoading: authLoading,
@@ -45,8 +45,8 @@ export default function App() {
   }, [location]);
 
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    applyTheme("default");
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -90,7 +90,7 @@ export default function App() {
     try {
       const results = await fetchMapPins(token, bboxFromCenter(center));
       setPins(results);
-    } catch (err) {
+    } catch {
       setPins([]);
     } finally {
       setPinsLoading(false);
@@ -114,12 +114,6 @@ export default function App() {
     await createPin(token, form, center);
     await refreshPins();
   };
-
-  const themeOptions = Object.entries(CITY_THEMES).map(([key, value]) => ({
-    value: key as CityTheme,
-    label: value.label
-  }));
-  const themeSelectValue = override ?? "auto";
 
   if (authLoading) {
     return (
@@ -177,27 +171,6 @@ export default function App() {
             </button>
           </div>
           <div className="pill">
-            <span className="label">Theme</span>
-            <select
-              value={themeSelectValue}
-              onChange={event => {
-                const next = event.target.value;
-                if (next === "auto") {
-                  setOverride(null);
-                } else {
-                  setOverride(next as CityTheme);
-                }
-              }}
-            >
-              <option value="auto">Auto (location)</option>
-              {themeOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="pill">
             <span className="label">Map</span>
             <div className="segmented">
               <button
@@ -222,7 +195,7 @@ export default function App() {
       <section className="hero">
         <div className="hero-card">
           <div className="hero-meta">
-            <span className="badge">{CITY_THEMES[theme].label}</span>
+            <span className="badge">{CITY_THEMES.default.label}</span>
             <span className="muted">
               {status === "ready" && location?.city ? location.city : "Locating you"}
             </span>

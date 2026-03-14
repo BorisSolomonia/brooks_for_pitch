@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { useSpotlight } from "../hooks/useSpotlight";
+import { fadeSlideUpProps, staggerContainer } from "./MotionWrappers";
 
 type AuthGateProps = {
   isLoading: boolean;
@@ -10,22 +12,7 @@ type AuthGateProps = {
 
 export default function AuthGate({ isLoading, onLogin, onRegister, error }: AuthGateProps) {
   const [status, setStatus] = useState<"idle" | "working">("idle");
-  const h1Ref = useRef<HTMLHeadingElement>(null);
-  const verseRef = useRef<HTMLParagraphElement>(null);
   const spotlight = useSpotlight<HTMLElement>();
-
-  useEffect(() => {
-    const timer1 = setTimeout(() => {
-      h1Ref.current?.classList.add("revealed");
-    }, 200);
-    const timer2 = setTimeout(() => {
-      verseRef.current?.classList.add("revealed");
-    }, 600);
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, []);
 
   const handleLogin = async () => {
     if (status === "working") {
@@ -46,46 +33,71 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
   return (
     <div className="auth-gate">
       <div className="fairy-lights" aria-hidden="true" />
-      <div className="auth-shell">
-        <section className="auth-hero aurora-bg">
+      <motion.div
+        className="auth-shell"
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+      >
+        <motion.section
+          className="auth-hero aurora-bg"
+          {...fadeSlideUpProps}
+        >
           <p className="eyebrow">Brooks</p>
-          <h1 ref={h1Ref} className="blur-reveal">The last page is yours.</h1>
+          <motion.h1
+            initial={{ opacity: 0, filter: "blur(16px) saturate(0.1)" }}
+            animate={{ opacity: 1, filter: "blur(0px) saturate(1)" }}
+            transition={{ duration: 0.8, ease: [0.16, 0.84, 0.2, 1] as const, delay: 0.2 }}
+          >
+            The last page is yours.
+          </motion.h1>
           <p className="muted lead">
             Every notebook has a last page — the one you kept for yourself. This is yours. Drop a mark anywhere in the world.
           </p>
-          <p ref={verseRef} className="auth-verse sepia-reveal">
+          <motion.p
+            className="auth-verse"
+            initial={{ opacity: 0, filter: "sepia(0.85)" }}
+            animate={{ opacity: 0.8, filter: "sepia(0)" }}
+            transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] as const, delay: 0.6 }}
+          >
             Every child draws on the last page of their notebook.<br />
             It is the one page that belongs only to them — ungraded, unjudged, completely free.
-          </p>
-        </section>
+          </motion.p>
+        </motion.section>
 
-        <aside
+        <motion.aside
           className="auth-panel glow-border spotlight-target"
           ref={spotlight.ref}
           onMouseMove={spotlight.onMouseMove}
+          {...fadeSlideUpProps}
+          transition={{ ...fadeSlideUpProps.transition, delay: 0.12 }}
         >
           <h2>Open the book</h2>
           {error && <p className="error">{error}</p>}
           <div className="auth-actions">
-            <button
+            <motion.button
               type="button"
               className="primary auth-btn-glow"
               disabled={isLoading || status === "working"}
               onClick={handleLogin}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               {isLoading ? "Loading..." : "Sign in"}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               className="ghost"
               disabled={isLoading || status === "working"}
               onClick={handleRegister}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               Create account
-            </button>
+            </motion.button>
           </div>
-        </aside>
-      </div>
+        </motion.aside>
+      </motion.div>
     </div>
   );
 }
