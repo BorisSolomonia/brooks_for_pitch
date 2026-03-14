@@ -69,6 +69,58 @@ public class ProximityService {
     return results;
   }
 
+  public List<MapPin> findOwnPinsInBoundingBox(UUID viewerId, double[] bbox) {
+    Instant now = Instant.now();
+    List<PinEntity> pins = pinRepository.findOwnerPinsInBoundingBox(
+        viewerId,
+        bbox[0],
+        bbox[1],
+        bbox[2],
+        bbox[3],
+        now
+    );
+
+    List<MapPin> results = new ArrayList<>();
+    for (PinEntity pin : pins) {
+      LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
+      results.add(new MapPin(
+          pin.getId().toString(),
+          location,
+          pin.getMapPrecision()
+      ));
+    }
+
+    return results;
+  }
+
+  public List<MapPin> findFriendPinsInBoundingBox(UUID viewerId, double[] bbox) {
+    Instant now = Instant.now();
+    List<PinEntity> pins = pinRepository.findInBoundingBox(
+        bbox[0], bbox[1], bbox[2], bbox[3], now
+    );
+
+    Map<UUID, PinAccessService.AccessEvaluationResult> accessResults =
+        pinAccessService.evaluateBatch(pins, viewerId, false);
+
+    List<MapPin> results = new ArrayList<>();
+    for (PinEntity pin : pins) {
+      PinAccessService.AccessEvaluationResult result = accessResults.get(pin.getId());
+
+      if (!result.isAllowed() || viewerId.equals(pin.getOwnerId()) || !result.graphView().friend()) {
+        continue;
+      }
+
+      LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
+      results.add(new MapPin(
+          pin.getId().toString(),
+          location,
+          pin.getMapPrecision()
+      ));
+    }
+
+    return results;
+  }
+
   /**
    * Finds pin candidates for geofence registration in a location bucket.
    * Returns coarse zones (not full pin content) that the client can

@@ -80,11 +80,15 @@ public class PinServiceRefactored {
    * @param bbox Bounding box string (minLng,minLat,maxLng,maxLat)
    * @return Response with visible pins
    */
-  public MapPinsResponse mapPins(String bbox) {
+  public MapPinsResponse mapPins(String bbox, PinMapScope scope) {
     UUID viewerId = requireActor();
     double[] bounds = parseBbox(bbox);
 
-    List<MapPin> pins = proximityService.findPinsInBoundingBox(viewerId, bounds);
+    List<MapPin> pins = switch (scope) {
+      case HOME -> proximityService.findPinsInBoundingBox(viewerId, bounds);
+      case MINE -> proximityService.findOwnPinsInBoundingBox(viewerId, bounds);
+      case FRIENDS -> proximityService.findFriendPinsInBoundingBox(viewerId, bounds);
+    };
     return new MapPinsResponse(pins);
   }
 

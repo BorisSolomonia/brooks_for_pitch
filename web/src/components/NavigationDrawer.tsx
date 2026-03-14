@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { drawerProps, fadeSlideUpProps } from "./MotionWrappers";
 import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS, type MapProvider } from "../lib/frontendConfig";
+import type { PinViewScope } from "../lib/types";
 import "../styles/NavigationDrawer.css";
 
 interface NavigationDrawerProps {
@@ -9,6 +10,8 @@ interface NavigationDrawerProps {
   onClose: () => void;
   currentMapProvider: MapProvider;
   onMapProviderChange: (provider: MapProvider) => void;
+  currentPinView: PinViewScope;
+  onPinViewChange: (scope: PinViewScope) => void;
   onSignOut: () => void;
 }
 
@@ -17,6 +20,8 @@ export function NavigationDrawer({
   onClose,
   currentMapProvider,
   onMapProviderChange,
+  currentPinView,
+  onPinViewChange,
   onSignOut
 }: NavigationDrawerProps) {
   useEffect(() => {
@@ -69,21 +74,33 @@ export function NavigationDrawer({
                 transition={{ ...fadeSlideUpProps.transition, delay: MOTION_SETTINGS.drawerSectionDelayStart }}
               >
                 <h3 className="drawer-section-title">Views</h3>
-                <button className="drawer-item active" type="button">
+                <button
+                  className={`drawer-item ${currentPinView === "home" ? "active" : ""}`}
+                  type="button"
+                  onClick={() => onPinViewChange("home")}
+                >
                   <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
                   Home
                 </button>
-                <button className="drawer-item" type="button">
+                <button
+                  className={`drawer-item ${currentPinView === "mine" ? "active" : ""}`}
+                  type="button"
+                  onClick={() => onPinViewChange("mine")}
+                >
                   <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                   My pins
                 </button>
-                <button className="drawer-item" type="button">
+                <button
+                  className={`drawer-item ${currentPinView === "friends" ? "active" : ""}`}
+                  type="button"
+                  onClick={() => onPinViewChange("friends")}
+                >
                   <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />

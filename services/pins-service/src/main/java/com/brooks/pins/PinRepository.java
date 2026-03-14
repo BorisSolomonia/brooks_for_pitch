@@ -19,6 +19,17 @@ public interface PinRepository extends JpaRepository<PinEntity, UUID> {
       @Param("now") Instant now
   );
 
+  @Query("select p from PinEntity p where p.ownerId = :ownerId and p.expiresAt > :now and p.availableFrom <= :now and "
+      + "function('ST_Intersects', p.geom, function('ST_MakeEnvelope', :minLng, :minLat, :maxLng, :maxLat, 4326)) = true")
+  List<PinEntity> findOwnerPinsInBoundingBox(
+      @Param("ownerId") UUID ownerId,
+      @Param("minLng") double minLng,
+      @Param("minLat") double minLat,
+      @Param("maxLng") double maxLng,
+      @Param("maxLat") double maxLat,
+      @Param("now") Instant now
+  );
+
   List<PinEntity> findByBucketInAndExpiresAtAfterAndAvailableFromBefore(
       List<String> buckets,
       Instant now1,

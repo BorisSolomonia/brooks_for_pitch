@@ -39,9 +39,13 @@ public class PinController {
   }
 
   @GetMapping("/map")
-  public ResponseEntity<MapPinsResponse> mapPins(@RequestParam String bbox) {
-    log.info("map pins request: bbox={}", bbox);
-    return ResponseEntity.ok(pinService.mapPins(bbox));
+  public ResponseEntity<MapPinsResponse> mapPins(
+      @RequestParam String bbox,
+      @RequestParam(required = false) String scope
+  ) {
+    PinMapScope pinMapScope = PinMapScope.fromRequest(scope);
+    log.info("map pins request: bbox={}, scope={}", bbox, pinMapScope);
+    return ResponseEntity.ok(pinService.mapPins(bbox, pinMapScope));
   }
 
   @GetMapping("/candidates")

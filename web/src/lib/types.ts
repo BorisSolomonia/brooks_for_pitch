@@ -37,3 +37,5 @@ export type CityResult = {
 };
 
 export type CityTheme = "default";
+
+export type PinViewScope = "home" | "mine" | "friends";

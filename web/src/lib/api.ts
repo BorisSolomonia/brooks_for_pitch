@@ -1,4 +1,4 @@
-import type { Coordinates, MapPin, PinForm } from "./types";
+import type { Coordinates, MapPin, PinForm, PinViewScope } from "./types";
 import { env } from "./env";
 import { PIN_FORM_SETTINGS } from "./frontendConfig";
 
@@ -42,8 +42,8 @@ export async function checkPinsHealth(): Promise<void> {
   }
 }
 
-export async function fetchMapPins(token: string, bbox: string): Promise<MapPin[]> {
-  const url = `${PINS_API_URL}/pins/map?bbox=${encodeURIComponent(bbox)}`;
+export async function fetchMapPins(token: string, bbox: string, scope: PinViewScope = "home"): Promise<MapPin[]> {
+  const url = `${PINS_API_URL}/pins/map?bbox=${encodeURIComponent(bbox)}&scope=${encodeURIComponent(scope)}`;
   console.debug("[API] fetchMapPins →", url);
   const response = await fetch(url, { headers: jsonHeaders(token) });
   const payload = await handleJson<MapPinsResponse>(response, "fetchMapPins");

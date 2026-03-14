@@ -17,7 +17,7 @@ import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
 import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
-import type { AuthTokens, Coordinates, MapPin, PinForm } from "./lib/types";
+import type { AuthTokens, Coordinates, MapPin, PinForm, PinViewScope } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
 const MapView = lazy(() => import("./components/MapView"));
@@ -45,6 +45,7 @@ export default function AppRedesigned() {
   const ringCompletedRef = useRef(false);
   const [showPins, setShowPins] = useState(true);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
+  const [pinViewScope, setPinViewScope] = useState<PinViewScope>("home");
 
   const [fontSelections, setFontSelections] = useState<Record<FontSlot, string>>({
     display: getDefaultFontId("display"),
@@ -100,7 +101,7 @@ export default function AppRedesigned() {
 
     const refreshPins = async () => {
       try {
-        const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center));
+        const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center), pinViewScope);
         setPins(fetchedPins);
       } catch (error) {
         console.error("Failed to fetch pins:", error);
@@ -108,7 +109,7 @@ export default function AppRedesigned() {
     };
 
     refreshPins();
-  }, [center, token]);
+  }, [center, pinViewScope, token]);
 
   const handleCreatePin = async (form: PinForm) => {
     if (!token) {
@@ -117,12 +118,18 @@ export default function AppRedesigned() {
 
     try {
       await createPin(token.accessToken, form, center);
-      const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center));
+      const fetchedPins = await fetchMapPins(token.accessToken, buildActiveBbox(center), pinViewScope);
       setPins(fetchedPins);
     } catch (error) {
       console.error("Failed to create pin:", error);
       throw error;
     }
+  };
+
+  const handlePinViewChange = (scope: PinViewScope) => {
+    setPinViewScope(scope);
+    setIsDrawerOpen(false);
+    setSelectedPin(null);
   };
 
   const handleSignOut = () => {
@@ -132,6 +139,14 @@ export default function AppRedesigned() {
       }
     });
   };
+
+  const cityLabel = location?.city ?? "Your city";
+  const countryLabel = location?.country ?? "Nearby";
+  const pinViewLabel = pinViewScope === "home"
+    ? "Home"
+    : pinViewScope === "mine"
+      ? "My pins"
+      : "Friends";
 
   if (isLoading) {
     return (
@@ -221,6 +236,62 @@ export default function AppRedesigned() {
           </Suspense>
         </main>
 
+        <section className="hero-shell">
+          <motion.div
+            className="hero-panel"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            <div className="hero-copy">
+              <p className="hero-kicker">BROOKS ATLAS</p>
+              <h1 className="hero-title">
+                Leave a handwritten trace for {cityLabel}.
+              </h1>
+              <p className="hero-lead">
+                Pin a note, shape who can uncover it, and let the map carry it with weight.
+                The city stays visible, but the interface leads with confidence.
+              </p>
+            </div>
+
+            <div className="hero-actions">
+              <button
+                type="button"
+                className="hero-cta"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Start a new note
+              </button>
+              <p className="hero-caption">
+                Hold anywhere on the map or use the main action to drop a mark.
+              </p>
+            </div>
+
+            <div className="hero-meta" aria-label="Atlas summary">
+              <div className="hero-chip">
+                <span className="hero-chip-label">City</span>
+                <strong>{cityLabel}</strong>
+              </div>
+              <div className="hero-chip">
+                <span className="hero-chip-label">Region</span>
+                <strong>{countryLabel}</strong>
+              </div>
+              <div className="hero-chip">
+                <span className="hero-chip-label">Pins</span>
+                <strong>{pins.length}</strong>
+              </div>
+              <div className="hero-chip">
+                <span className="hero-chip-label">View</span>
+                <strong>{pinViewLabel}</strong>
+              </div>
+              <div className="hero-chip">
+                <span className="hero-chip-label">Map</span>
+                <strong>{mapProvider === "google" ? "Google" : "Leaflet"}</strong>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
         <FAB onClick={() => setIsModalOpen(true)} />
 
         <button
@@ -270,6 +341,8 @@ export default function AppRedesigned() {
             setMapProvider(provider);
             setTimeout(() => setIsDrawerOpen(false), 220);
           }}
+          currentPinView={pinViewScope}
+          onPinViewChange={handlePinViewChange}
           onSignOut={handleSignOut}
         />
 
