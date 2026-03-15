@@ -40,7 +40,7 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarPr
         </button>
         <div className="brand-mark">
           <h1 className="brand-title">Brooks</h1>
-          <p className="brand-subtitle">invisible memories</p>
+          <p className="brand-subtitle">leave memories on places</p>
         </div>
       </div>
 

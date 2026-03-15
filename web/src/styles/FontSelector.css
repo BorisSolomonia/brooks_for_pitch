@@ -1,6 +1,6 @@
 .font-selector {
   position: fixed;
-  top: calc(var(--topbar-height) + 14px);
+  top: calc(var(--topbar-height) + 18px);
   right: 14px;
   z-index: 1050;
   border-radius: var(--radius-m);
@@ -25,16 +25,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 15px;
+  padding: 9px 12px;
   border: none;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: var(--size-2xs);
   letter-spacing: 0.02em;
   width: 100%;
   flex-shrink: 0;
+}
+
+@media (max-width: 1023px) {
+  .font-selector {
+    display: none;
+  }
 }
 
 .font-selector-toggle:hover {

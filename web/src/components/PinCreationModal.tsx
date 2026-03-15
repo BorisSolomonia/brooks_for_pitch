@@ -112,13 +112,12 @@ function MeterSection({
               <stop offset="100%" stopColor="var(--cta-bg-end)" />
             </linearGradient>
           </defs>
-          <circle className="meter-track" cx="94" cy="94" r={PIN_CREATION_UI.meterRadius} pathLength="100" />
+          <circle className="meter-track" cx="94" cy="94" r={PIN_CREATION_UI.meterRadius} />
           <circle
             className="meter-fill"
             cx="94"
             cy="94"
             r={PIN_CREATION_UI.meterRadius}
-            pathLength="100"
             strokeDasharray={PIN_CREATION_UI.meterCircumference}
             strokeDashoffset={dashOffset}
             style={{ transform: `rotate(${PIN_CREATION_UI.meterStartAngle}deg)`, transformOrigin: "50% 50%", stroke: `url(#${title}-gradient)` }}
@@ -205,6 +204,9 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const timeDescription = expiresInHours === "permanent"
     ? "The note stays active without expiry"
     : `Expires after ${PIN_DURATION_PRESETS[timeIndex].label.toLowerCase()}`;
+  const audienceSummary = PIN_AUDIENCE_OPTIONS.find(option => option.value === audienceType)?.label ?? "Public";
+  const precisionSummary = mapPrecision === "EXACT" ? "Exact location" : "Blurred location";
+  const revealSummary = revealType === "VISIBLE_ALWAYS" ? "Visible on map" : "Reveal on reach";
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -526,6 +528,17 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
                 <div className="location-info compact-location-info">
                   <span className="eyebrow">Coordinates</span>
                   <strong>{location.lat.toFixed(6)}, {location.lng.toFixed(6)}</strong>
+                </div>
+              </motion.div>
+
+              <motion.div className="submit-summary" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                <span className="submit-summary-label">Ready to post</span>
+                <div className="submit-summary-chips">
+                  <span className="submit-summary-chip">{audienceSummary}</span>
+                  <span className="submit-summary-chip">{PIN_RADIUS_OPTIONS[radiusIndex].label}</span>
+                  <span className="submit-summary-chip">{PIN_DURATION_PRESETS[timeIndex].label}</span>
+                  <span className="submit-summary-chip">{precisionSummary}</span>
+                  <span className="submit-summary-chip">{revealSummary}</span>
                 </div>
               </motion.div>
 

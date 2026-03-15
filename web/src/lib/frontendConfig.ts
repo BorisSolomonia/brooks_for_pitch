@@ -111,8 +111,8 @@ export const PIN_CREATION_UI = {
   meterStroke: 13,
   meterRadius: 74,
   meterCircumference: 2 * Math.PI * 74,
-  meterStartAngle: -126,
-  meterSweep: 252
+  meterStartAngle: -90,
+  meterSweep: 360
 } as const;
 
 export function createDefaultPinForm(): PinForm {

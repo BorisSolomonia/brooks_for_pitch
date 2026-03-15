@@ -126,6 +126,24 @@
   background: rgba(253, 185, 19, 0.15);
 }
 
+.drawer-item-primary {
+  margin: 0 16px 8px;
+  width: calc(100% - 32px);
+  border-radius: var(--radius-m);
+  background: linear-gradient(135deg, var(--cta-bg-start), var(--cta-bg-end));
+  color: var(--cta-text);
+  box-shadow: var(--cta-shadow-rest);
+}
+
+.drawer-item-primary::before {
+  display: none;
+}
+
+.drawer-item-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--cta-shadow-hover);
+}
+
 .theme-item {
   position: relative;
 }

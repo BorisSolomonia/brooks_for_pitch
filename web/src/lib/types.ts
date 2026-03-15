@@ -13,6 +13,10 @@ export type MapPin = {
   id: string;
   location: Coordinates;
   mapPrecision: "EXACT" | "BLURRED";
+  textPreview: string;
+  audienceType: "PRIVATE" | "FRIENDS" | "FOLLOWERS" | "PUBLIC";
+  revealType: "VISIBLE_ALWAYS" | "REACH_TO_REVEAL";
+  owner: boolean;
 };
 
 export type PinForm = {

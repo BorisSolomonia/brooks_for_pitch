@@ -8,6 +8,7 @@ import "../styles/NavigationDrawer.css";
 interface NavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreatePin: () => void;
   currentMapProvider: MapProvider;
   onMapProviderChange: (provider: MapProvider) => void;
   currentPinView: PinViewScope;
@@ -18,6 +19,7 @@ interface NavigationDrawerProps {
 export function NavigationDrawer({
   isOpen,
   onClose,
+  onCreatePin,
   currentMapProvider,
   onMapProviderChange,
   currentPinView,
@@ -73,7 +75,26 @@ export function NavigationDrawer({
                 {...fadeSlideUpProps}
                 transition={{ ...fadeSlideUpProps.transition, delay: MOTION_SETTINGS.drawerSectionDelayStart }}
               >
-                <h3 className="drawer-section-title">Views</h3>
+                <h3 className="drawer-section-title">Do now</h3>
+                <button
+                  className="drawer-item drawer-item-primary"
+                  type="button"
+                  onClick={onCreatePin}
+                >
+                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Leave a memory
+                </button>
+              </motion.section>
+
+              <motion.section
+                className="drawer-section"
+                {...fadeSlideUpProps}
+                transition={{ ...fadeSlideUpProps.transition, delay: MOTION_SETTINGS.drawerSectionDelayStart + 0.03 }}
+              >
+                <h3 className="drawer-section-title">Explore</h3>
                 <button
                   className={`drawer-item ${currentPinView === "home" ? "active" : ""}`}
                   type="button"
@@ -116,7 +137,7 @@ export function NavigationDrawer({
                 {...fadeSlideUpProps}
                 transition={{ ...fadeSlideUpProps.transition, delay: MOTION_SETTINGS.drawerSectionDelayMapProvider }}
               >
-                <h3 className="drawer-section-title">Map provider</h3>
+                <h3 className="drawer-section-title">Preferences</h3>
                 <button
                   className={`drawer-item theme-item ${currentMapProvider === "leaflet" ? "active" : ""}`}
                   onClick={() => onMapProviderChange("leaflet")}

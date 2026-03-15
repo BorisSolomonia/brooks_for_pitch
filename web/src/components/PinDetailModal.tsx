@@ -10,6 +10,16 @@ type PinDetailModalProps = {
 };
 
 export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
+  const audienceLabel = pin?.audienceType === "PRIVATE"
+    ? "Private"
+    : pin?.audienceType === "FRIENDS"
+      ? "Friends"
+      : pin?.audienceType === "FOLLOWERS"
+        ? "Followers"
+        : "Public";
+  const revealLabel = pin?.revealType === "REACH_TO_REVEAL" ? "Reveal on reach" : "Visible on map";
+  const precisionLabel = pin?.mapPrecision === "BLURRED" ? "Blurred map point" : "Exact map point";
+
   return (
     <>
       <AnimatePresence>
@@ -50,32 +60,33 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
               transition={{ staggerChildren: 0.08 }}
             >
               <motion.div
-                className="pin-detail-row"
+                className="pin-detail-hero"
                 variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
                 transition={fadeSlideUpProps.transition}
               >
-                <span className="pin-detail-label">ID</span>
-                <span className="pin-detail-value mono">{pin.id.slice(0, 12)}...</span>
+                <span className="pin-detail-kicker">{pin.owner ? "Your memory" : "Memory nearby"}</span>
+                <p className="pin-detail-preview">{pin.textPreview}</p>
+                <div className="pin-detail-summary">
+                  <span className="pin-detail-chip">{audienceLabel}</span>
+                  <span className="pin-detail-chip">{revealLabel}</span>
+                  <span className="pin-detail-chip">{precisionLabel}</span>
+                </div>
               </motion.div>
               <motion.div
-                className="pin-detail-row"
+                className="pin-detail-meta"
                 variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
                 transition={fadeSlideUpProps.transition}
               >
-                <span className="pin-detail-label">Location</span>
-                <span className="pin-detail-value mono">
-                  {pin.location.lat.toFixed(5)}, {pin.location.lng.toFixed(5)}
-                </span>
-              </motion.div>
-              <motion.div
-                className="pin-detail-row"
-                variants={{ initial: { opacity: 0, y: MOTION_SETTINGS.fadeSlideDistanceSmall }, animate: { opacity: 1, y: 0 } }}
-                transition={fadeSlideUpProps.transition}
-              >
-                <span className="pin-detail-label">Precision</span>
-                <span className="pin-detail-value">
-                  {pin.mapPrecision === "BLURRED" ? "Blurred" : "Exact"}
-                </span>
+                <div className="pin-detail-row">
+                  <span className="pin-detail-label">Location</span>
+                  <span className="pin-detail-value mono">
+                    {pin.location.lat.toFixed(5)}, {pin.location.lng.toFixed(5)}
+                  </span>
+                </div>
+                <div className="pin-detail-row">
+                  <span className="pin-detail-label">Reference</span>
+                  <span className="pin-detail-value mono">{pin.id.slice(0, 12)}...</span>
+                </div>
               </motion.div>
             </motion.div>
           </motion.div>

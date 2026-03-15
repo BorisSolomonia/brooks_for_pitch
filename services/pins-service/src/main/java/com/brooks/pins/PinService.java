@@ -133,7 +133,15 @@ public class PinService {
       PolicyContext context = buildPolicyContext(pin, viewerId, graphView, false, null);
       if (context.decision.allowed()) {
         LocationRequest location = toLocation(pin, pin.getMapPrecision());
-        results.add(new MapPin(pin.getId().toString(), location, pin.getMapPrecision()));
+        results.add(new MapPin(
+            pin.getId().toString(),
+            location,
+            pin.getMapPrecision(),
+            previewText(pin.getText()),
+            pin.getAudienceType(),
+            pin.getRevealType(),
+            isOwner(viewerId, pin)
+        ));
       }
     }
     return new MapPinsResponse(results);
@@ -278,6 +286,21 @@ public class PinService {
     ));
 
     return new PolicyContext(decision, inRevealRadius);
+  }
+
+  private boolean isOwner(UUID viewerId, PinEntity pin) {
+    return viewerId.equals(pin.getOwnerId());
+  }
+
+  private String previewText(String text) {
+    if (text == null || text.isBlank()) {
+      return "Untitled memory";
+    }
+    String normalized = text.trim().replaceAll("\\s+", " ");
+    if (normalized.length() <= 140) {
+      return normalized;
+    }
+    return normalized.substring(0, 137) + "...";
   }
 
   private LocationRequest toLocation(PinEntity pin, MapPrecision precision) {

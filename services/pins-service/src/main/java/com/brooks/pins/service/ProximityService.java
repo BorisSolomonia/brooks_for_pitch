@@ -61,7 +61,11 @@ public class ProximityService {
         results.add(new MapPin(
             pin.getId().toString(),
             location,
-            pin.getMapPrecision()
+            pin.getMapPrecision(),
+            previewText(pin.getText()),
+            pin.getAudienceType(),
+            pin.getRevealType(),
+            viewerId.equals(pin.getOwnerId())
         ));
       }
     }
@@ -86,7 +90,11 @@ public class ProximityService {
       results.add(new MapPin(
           pin.getId().toString(),
           location,
-          pin.getMapPrecision()
+          pin.getMapPrecision(),
+          previewText(pin.getText()),
+          pin.getAudienceType(),
+          pin.getRevealType(),
+          true
       ));
     }
 
@@ -114,7 +122,11 @@ public class ProximityService {
       results.add(new MapPin(
           pin.getId().toString(),
           location,
-          pin.getMapPrecision()
+          pin.getMapPrecision(),
+          previewText(pin.getText()),
+          pin.getAudienceType(),
+          pin.getRevealType(),
+          false
       ));
     }
 
@@ -186,5 +198,16 @@ public class ProximityService {
     }
 
     return new LocationRequest(lat, lng, pin.getAltitudeM());
+  }
+
+  private String previewText(String text) {
+    if (text == null || text.isBlank()) {
+      return "Untitled memory";
+    }
+    String normalized = text.trim().replaceAll("\\s+", " ");
+    if (normalized.length() <= 140) {
+      return normalized;
+    }
+    return normalized.substring(0, 137) + "...";
   }
 }

@@ -113,6 +113,33 @@
   gap: var(--space-xs);
 }
 
+.map-helper-card {
+  position: fixed;
+  left: 50%;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 940;
+  display: grid;
+  gap: 2px;
+  width: min(calc(100vw - 32px), 320px);
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--panel-shadow-rest);
+}
+
+.map-helper-card strong {
+  color: var(--text-strong);
+  font-size: var(--size-xs);
+}
+
+.map-helper-card span {
+  color: var(--text-muted);
+  font-size: var(--size-2xs);
+  line-height: 1.35;
+}
+
 .bottom-bar-primary {
   flex: 1;
   min-height: var(--tap-target-min);
@@ -169,6 +196,12 @@ body.modal-open {
 }
 
 @media (min-width: 768px) {
+  .map-helper-card {
+    bottom: 28px;
+    width: auto;
+    min-width: 280px;
+  }
+
   .pins-toggle {
     left: 24px;
     bottom: 24px;

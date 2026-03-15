@@ -232,12 +232,19 @@ export default function AppRedesigned() {
 
         <div className="bottom-action-bar">
           <button type="button" className="bottom-bar-primary" onClick={() => setIsModalOpen(true)}>
-            Leave Memory
+            Leave a memory
           </button>
           <button type="button" className="bottom-bar-outline" onClick={() => setIsDrawerOpen(true)}>
-            Explore
+            Explore map
           </button>
         </div>
+
+        {!isModalOpen && !isDrawerOpen && !selectedPin && pins.length === 0 ? (
+          <div className="map-helper-card" role="status" aria-live="polite">
+            <strong>Start here</strong>
+            <span>Tap “Leave a memory” or hold anywhere on the map.</span>
+          </div>
+        ) : null}
 
         <button
           className={`pins-toggle${showPins ? "" : " pins-off"}`}
@@ -281,6 +288,10 @@ export default function AppRedesigned() {
         <NavigationDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
+          onCreatePin={() => {
+            setIsDrawerOpen(false);
+            setIsModalOpen(true);
+          }}
           currentMapProvider={mapProvider}
           onMapProviderChange={provider => {
             setMapProvider(provider);
