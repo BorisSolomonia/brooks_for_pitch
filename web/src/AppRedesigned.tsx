@@ -140,14 +140,6 @@ export default function AppRedesigned() {
     });
   };
 
-  const cityLabel = location?.city ?? "Your city";
-  const countryLabel = location?.country ?? "Nearby";
-  const pinViewLabel = pinViewScope === "home"
-    ? "Home"
-    : pinViewScope === "mine"
-      ? "My pins"
-      : "Friends";
-
   if (isLoading) {
     return (
       <motion.div
@@ -235,61 +227,6 @@ export default function AppRedesigned() {
             />
           </Suspense>
         </main>
-
-        <section className="hero-shell">
-          <motion.div
-            className="hero-panel"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55 }}
-          >
-            <div className="hero-copy">
-              <p className="hero-kicker">BROOKS</p>
-              <h1 className="hero-title">
-                Leave a memory in {cityLabel}.
-              </h1>
-              <p className="hero-lead">
-                Pin a memory anywhere on the map. Choose who discovers it and when.
-              </p>
-            </div>
-
-            <div className="hero-actions">
-              <button
-                type="button"
-                className="hero-cta"
-                onClick={() => setIsModalOpen(true)}
-              >
-                Leave a memory
-              </button>
-              <p className="hero-caption">
-                Hold anywhere on the map or tap the button to start.
-              </p>
-            </div>
-
-            <div className="hero-meta" aria-label="Atlas summary">
-              <div className="hero-chip">
-                <span className="hero-chip-label">City</span>
-                <strong>{cityLabel}</strong>
-              </div>
-              <div className="hero-chip">
-                <span className="hero-chip-label">Region</span>
-                <strong>{countryLabel}</strong>
-              </div>
-              <div className="hero-chip">
-                <span className="hero-chip-label">Pins</span>
-                <strong>{pins.length}</strong>
-              </div>
-              <div className="hero-chip">
-                <span className="hero-chip-label">View</span>
-                <strong>{pinViewLabel}</strong>
-              </div>
-              <div className="hero-chip">
-                <span className="hero-chip-label">Map</span>
-                <strong>{mapProvider === "google" ? "Google" : "Leaflet"}</strong>
-              </div>
-            </div>
-          </motion.div>
-        </section>
 
         <FAB onClick={() => setIsModalOpen(true)} />
 
