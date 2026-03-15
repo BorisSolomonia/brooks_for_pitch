@@ -4,7 +4,6 @@ import com.brooks.pins.SocialGraphView;
 import com.brooks.security.SecurityContextUtil;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,6 @@ public class SocialGraphClientImpl implements SocialGraphClient {
   )
   @CircuitBreaker(name = "socialService", fallbackMethod = "fetchGraphViewFallback")
   @Retry(name = "socialService")
-  @TimeLimiter(name = "socialService")
   public SocialGraphView fetchGraphView(UUID viewerId, UUID subjectId) {
     String url = String.format("%s/internal/graph/view?viewerId=%s&subjectId=%s",
         socialBaseUrl, viewerId, subjectId);

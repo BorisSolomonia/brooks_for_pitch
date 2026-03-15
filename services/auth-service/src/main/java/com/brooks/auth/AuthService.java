@@ -6,6 +6,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -65,6 +67,30 @@ public class AuthService {
     return issueTokens(user);
   }
 
+  public List<UserSummaryResponse> searchUsers(String query) {
+    String normalized = query == null ? "" : query.trim();
+    if (normalized.isBlank()) {
+      return List.of();
+    }
+
+    return userRepository.searchActiveUsers(normalized).stream()
+        .limit(20)
+        .map(this::toUserSummary)
+        .toList();
+  }
+
+  public List<UserSummaryResponse> getUserSummaries(List<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+
+    return userRepository.findByIdIn(ids).stream()
+        .filter(user -> user.getDeletedAt() == null && "active".equalsIgnoreCase(user.getStatus()))
+        .sorted(Comparator.comparing(UserEntity::getDisplayName, String.CASE_INSENSITIVE_ORDER))
+        .map(this::toUserSummary)
+        .toList();
+  }
+
   private AuthTokens issueTokens(UserEntity user) {
     String accessToken = jwtService.issueAccessToken(user.getId(), user.getEmail());
     String refreshToken = "refresh-" + UUID.randomUUID();
@@ -87,5 +113,13 @@ public class AuthService {
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA-256 unavailable", e);
     }
+  }
+
+  private UserSummaryResponse toUserSummary(UserEntity user) {
+    return new UserSummaryResponse(
+        user.getId().toString(),
+        user.getHandle(),
+        user.getDisplayName()
+    );
   }
 }

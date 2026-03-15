@@ -2,6 +2,7 @@ package com.brooks.social;
 
 import com.brooks.security.SecurityContextUtil;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,9 +43,52 @@ public class SocialService {
         });
   }
 
+  @Transactional(readOnly = true)
+  public List<FriendshipRecordResponse> friends() {
+    UUID actorId = requireActor();
+    return friendshipRepository.findByUserIdAndStatusOrderByAcceptedAtDesc(actorId, FriendshipStatus.ACCEPTED).stream()
+        .map(friendship -> new FriendshipRecordResponse(
+            friendship.getId().toString(),
+            friendship.getFriendId().toString(),
+            friendship.getStatus().name()
+        ))
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<FriendRequestRecordResponse> incomingFriendRequests() {
+    UUID actorId = requireActor();
+    return friendshipRepository.findByFriendIdAndStatusOrderByRequestedAtDesc(actorId, FriendshipStatus.PENDING).stream()
+        .map(request -> new FriendRequestRecordResponse(
+            request.getId().toString(),
+            request.getUserId().toString(),
+            request.getStatus().name()
+        ))
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<FriendRequestRecordResponse> sentFriendRequests() {
+    UUID actorId = requireActor();
+    return friendshipRepository.findByUserIdAndStatusOrderByRequestedAtDesc(actorId, FriendshipStatus.PENDING).stream()
+        .map(request -> new FriendRequestRecordResponse(
+            request.getId().toString(),
+            request.getFriendId().toString(),
+            request.getStatus().name()
+        ))
+        .toList();
+  }
+
   @Transactional
   public FriendRequestResponse requestFriend(UUID targetUserId) {
     UUID actorId = requireActor();
+    if (actorId.equals(targetUserId)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot friend yourself");
+    }
+    if (friendshipRepository.findByUserIdAndFriendId(actorId, targetUserId).isPresent()) {
+      FriendshipEntity existing = friendshipRepository.findByUserIdAndFriendId(actorId, targetUserId).orElseThrow();
+      return new FriendRequestResponse(existing.getId().toString(), existing.getStatus().name());
+    }
     FriendshipEntity request = new FriendshipEntity();
     request.setUserId(actorId);
     request.setFriendId(targetUserId);
@@ -78,6 +122,54 @@ public class SocialService {
         });
 
     return new FriendshipResponse(request.getId().toString(), request.getStatus().name());
+  }
+
+  @Transactional
+  public void declineFriend(UUID requestId) {
+    UUID actorId = requireActor();
+    FriendshipEntity request = friendshipRepository.findById(requestId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Friend request not found"));
+    if (!actorId.equals(request.getFriendId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to decline");
+    }
+    friendshipRepository.delete(request);
+  }
+
+  @Transactional
+  public void removeFriend(UUID userId) {
+    UUID actorId = requireActor();
+    friendshipRepository.findByUserIdAndFriendId(actorId, userId).ifPresent(friendshipRepository::delete);
+    friendshipRepository.findByUserIdAndFriendId(userId, actorId).ifPresent(friendshipRepository::delete);
+  }
+
+  @Transactional(readOnly = true)
+  public List<FollowRecordResponse> following() {
+    UUID actorId = requireActor();
+    return followRepository.findByFollowerIdAndStatusOrderByIdDesc(actorId, FollowStatus.ACTIVE).stream()
+        .map(follow -> new FollowRecordResponse(
+            follow.getId().toString(),
+            follow.getFolloweeId().toString(),
+            follow.getStatus().name()
+        ))
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<FollowRecordResponse> followers() {
+    UUID actorId = requireActor();
+    return followRepository.findByFolloweeIdAndStatusOrderByIdDesc(actorId, FollowStatus.ACTIVE).stream()
+        .map(follow -> new FollowRecordResponse(
+            follow.getId().toString(),
+            follow.getFollowerId().toString(),
+            follow.getStatus().name()
+        ))
+        .toList();
+  }
+
+  @Transactional
+  public void unfollow(UUID targetUserId) {
+    UUID actorId = requireActor();
+    followRepository.findByFollowerIdAndFolloweeId(actorId, targetUserId).ifPresent(followRepository::delete);
   }
 
   @Transactional

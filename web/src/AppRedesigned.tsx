@@ -6,6 +6,7 @@ import { FAB } from "./components/FAB";
 import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
 import { PinDetailModal } from "./components/PinDetailModal";
+import { SocialPanel } from "./components/SocialPanel";
 import { MapChargeRing } from "./components/MapChargeRing";
 import { SketchOverlay } from "./components/SketchOverlay";
 import { GrainOverlay } from "./components/GrainOverlay";
@@ -41,6 +42,7 @@ export default function AppRedesigned() {
   const [pins, setPins] = useState<MapPin[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSocialOpen, setIsSocialOpen] = useState(false);
   const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
   const ringCompletedRef = useRef(false);
   const [showPins, setShowPins] = useState(true);
@@ -85,7 +87,7 @@ export default function AppRedesigned() {
       try {
         const accessToken = await getAccessTokenSilently();
         setToken({ accessToken, refreshToken: "", expiresIn: 3600 });
-        checkPinsHealth();
+        checkPinsHealth(accessToken);
       } catch (error) {
         console.error("Failed to get token:", error);
       }
@@ -242,7 +244,7 @@ export default function AppRedesigned() {
         {!isModalOpen && !isDrawerOpen && !selectedPin && pins.length === 0 ? (
           <div className="map-helper-card" role="status" aria-live="polite">
             <strong>Start here</strong>
-            <span>Tap “Leave a memory” or hold anywhere on the map.</span>
+            <span>Tap “Leave a memory”, hold on the map, or open People to add friends.</span>
           </div>
         ) : null}
 
@@ -292,6 +294,10 @@ export default function AppRedesigned() {
             setIsDrawerOpen(false);
             setIsModalOpen(true);
           }}
+          onOpenPeople={() => {
+            setIsDrawerOpen(false);
+            setIsSocialOpen(true);
+          }}
           currentMapProvider={mapProvider}
           onMapProviderChange={provider => {
             setMapProvider(provider);
@@ -312,6 +318,16 @@ export default function AppRedesigned() {
         <PinDetailModal
           pin={selectedPin}
           onClose={() => setSelectedPin(null)}
+        />
+
+        <SocialPanel
+          isOpen={isSocialOpen}
+          token={token.accessToken}
+          onClose={() => setIsSocialOpen(false)}
+          onUseFriendsPins={() => {
+            setPinViewScope("friends");
+            setIsSocialOpen(false);
+          }}
         />
 
         <Suspense fallback={null}>

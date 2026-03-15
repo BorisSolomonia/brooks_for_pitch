@@ -1,6 +1,7 @@
 package com.brooks.social;
 
 import java.util.UUID;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +20,34 @@ public class SocialController {
     this.socialService = socialService;
   }
 
+  @GetMapping("/friends")
+  public ResponseEntity<List<FriendshipRecordResponse>> friends() {
+    return ResponseEntity.ok(socialService.friends());
+  }
+
+  @GetMapping("/friends/requests/incoming")
+  public ResponseEntity<List<FriendRequestRecordResponse>> incomingFriendRequests() {
+    return ResponseEntity.ok(socialService.incomingFriendRequests());
+  }
+
+  @GetMapping("/friends/requests/sent")
+  public ResponseEntity<List<FriendRequestRecordResponse>> sentFriendRequests() {
+    return ResponseEntity.ok(socialService.sentFriendRequests());
+  }
+
   @PostMapping("/follow/{userId}")
   public ResponseEntity<FollowResponse> follow(@PathVariable UUID userId) {
     return ResponseEntity.ok(socialService.follow(userId));
+  }
+
+  @GetMapping("/following")
+  public ResponseEntity<List<FollowRecordResponse>> following() {
+    return ResponseEntity.ok(socialService.following());
+  }
+
+  @GetMapping("/followers")
+  public ResponseEntity<List<FollowRecordResponse>> followers() {
+    return ResponseEntity.ok(socialService.followers());
   }
 
   @PostMapping("/friends/request/{userId}")
@@ -32,6 +58,24 @@ public class SocialController {
   @PostMapping("/friends/accept/{requestId}")
   public ResponseEntity<FriendshipResponse> acceptFriend(@PathVariable UUID requestId) {
     return ResponseEntity.ok(socialService.acceptFriend(requestId));
+  }
+
+  @PostMapping("/friends/decline/{requestId}")
+  public ResponseEntity<Void> declineFriend(@PathVariable UUID requestId) {
+    socialService.declineFriend(requestId);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/friends/remove/{userId}")
+  public ResponseEntity<Void> removeFriend(@PathVariable UUID userId) {
+    socialService.removeFriend(userId);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/unfollow/{userId}")
+  public ResponseEntity<Void> unfollow(@PathVariable UUID userId) {
+    socialService.unfollow(userId);
+    return ResponseEntity.ok().build();
   }
 
   @PutMapping("/relationships/{userId}/preferences")

@@ -5,7 +5,6 @@ import com.brooks.pins.ListMembershipResponse;
 import com.brooks.security.SecurityContextUtil;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -50,7 +49,6 @@ public class ListsClientImpl implements ListsClient {
   )
   @CircuitBreaker(name = "listsService", fallbackMethod = "isUserInAnyListFallback")
   @Retry(name = "listsService")
-  @TimeLimiter(name = "listsService")
   public boolean isUserInAnyList(UUID userId, List<String> listIds) {
     if (listIds == null || listIds.isEmpty()) {
       return false;

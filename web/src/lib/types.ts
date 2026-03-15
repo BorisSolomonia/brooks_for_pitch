@@ -43,3 +43,27 @@ export type CityResult = {
 export type CityTheme = "default";
 
 export type PinViewScope = "home" | "mine" | "friends";
+
+export type UserSummary = {
+  userId: string;
+  handle: string;
+  displayName: string;
+};
+
+export type FriendRequestRecord = {
+  requestId: string;
+  userId: string;
+  status: string;
+};
+
+export type FriendshipRecord = {
+  friendshipId: string;
+  userId: string;
+  status: string;
+};
+
+export type FollowRecord = {
+  followId: string;
+  userId: string;
+  status: string;
+};

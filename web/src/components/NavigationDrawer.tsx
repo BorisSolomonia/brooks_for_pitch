@@ -9,6 +9,7 @@ interface NavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onCreatePin: () => void;
+  onOpenPeople: () => void;
   currentMapProvider: MapProvider;
   onMapProviderChange: (provider: MapProvider) => void;
   currentPinView: PinViewScope;
@@ -20,6 +21,7 @@ export function NavigationDrawer({
   isOpen,
   onClose,
   onCreatePin,
+  onOpenPeople,
   currentMapProvider,
   onMapProviderChange,
   currentPinView,
@@ -129,6 +131,19 @@ export function NavigationDrawer({
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                   Friends' pins
+                </button>
+                <button
+                  className="drawer-item"
+                  type="button"
+                  onClick={onOpenPeople}
+                >
+                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
+                    <circle cx="9" cy="8" r="3" />
+                    <path d="M4 19c1.1-3 3.3-4.5 6.7-4.5 3.1 0 5.4 1.5 6.4 4.5" />
+                    <path d="M18 8v6" />
+                    <path d="M15 11h6" />
+                  </svg>
+                  People
                 </button>
               </motion.section>
 
