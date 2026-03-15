@@ -13,7 +13,7 @@
 }
 
 .pin-detail-body {
-  padding: 18px 20px 26px;
+  padding: var(--space-s) var(--space-m) 26px;
   display: grid;
   gap: 14px;
   position: relative;
@@ -34,12 +34,12 @@
 
 .pin-detail-label {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: var(--size-xs);
   letter-spacing: 0.02em;
   color: var(--text-dim);
 }
 
 .pin-detail-value {
   color: var(--text-strong);
-  font-size: 0.96rem;
+  font-size: var(--size-s);
 }

@@ -47,7 +47,7 @@
   color: var(--text-muted);
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
-  font-size: 0.72rem;
+  font-size: var(--size-2xs);
   animation: blurIn 900ms var(--ease-emphasized) both;
   animation-delay: 200ms;
 }
@@ -68,14 +68,14 @@
   z-index: 950;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  height: 42px;
-  padding: 0 15px;
+  gap: var(--space-xs);
+  height: var(--tap-target-min);
+  padding: 0 var(--space-s);
   border-radius: var(--radius-pill);
   border: 1px solid var(--glass-border);
   background: rgba(255, 255, 255, 0.92);
   color: var(--text-primary);
-  font-size: 0.8rem;
+  font-size: var(--size-xs);
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -106,22 +106,22 @@
   right: 0;
   bottom: 0;
   z-index: 960;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-xs) var(--space-s) calc(var(--space-xs) + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.96);
   border-top: 1px solid var(--glass-border);
   box-shadow: 0 -2px 12px rgba(107, 142, 158, 0.10);
-  gap: 10px;
+  gap: var(--space-xs);
 }
 
 .bottom-bar-primary {
   flex: 1;
-  min-height: 48px;
+  min-height: var(--tap-target-min);
   border: none;
   border-radius: 12px;
   background: #FDB913;
   color: #2C2416;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--size-s);
   cursor: pointer;
   box-shadow: var(--cta-shadow-rest);
   transition: box-shadow var(--motion-fast) var(--ease-standard);
@@ -133,13 +133,13 @@
 
 .bottom-bar-outline {
   flex: 1;
-  min-height: 48px;
+  min-height: var(--tap-target-min);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.90);
   color: var(--text-primary);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--size-s);
   cursor: pointer;
   transition: background var(--motion-fast) var(--ease-standard);
 }

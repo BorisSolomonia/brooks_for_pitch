@@ -53,6 +53,20 @@
   --radius-xl: 26px;
   --radius-pill: 999px;
 
+  /* Fibonacci-leaning type and spacing scale, constrained to Apple-like readability */
+  --size-2xs: 0.6875rem;
+  --size-xs: 0.8125rem;
+  --size-s: 1rem;
+  --size-m: 1.3125rem;
+  --size-l: 2.125rem;
+  --size-xl: 3.4375rem;
+  --space-2xs: 5px;
+  --space-xs: 8px;
+  --space-s: 13px;
+  --space-m: 21px;
+  --space-l: 34px;
+  --tap-target-min: 44px;
+
   --motion-fast: 260ms;
   --motion-base: 480ms;
   --motion-slow: 860ms;
@@ -101,7 +115,7 @@ body {
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: var(--size-s);
   background: var(--bg-0);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -153,7 +167,7 @@ select {
 .eyebrow {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: var(--size-xs);
   letter-spacing: 0.04em;
   color: var(--text-dim);
 }

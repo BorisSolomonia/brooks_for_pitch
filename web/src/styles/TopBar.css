@@ -5,7 +5,7 @@
   right: 0;
   height: var(--topbar-height);
   z-index: 1000;
-  padding: 0 16px;
+  padding: 0 var(--space-s);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,12 +18,12 @@
 .command-bar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-xs);
 }
 
 .command-btn {
-  width: 42px;
-  height: 42px;
+  width: var(--tap-target-min);
+  height: var(--tap-target-min);
   border-radius: var(--radius-pill);
   border: 1px solid var(--glass-border);
   background: rgba(255, 255, 255, 0.90);
@@ -54,7 +54,7 @@
 .brand-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: var(--size-m);
   font-weight: 700;
   background: linear-gradient(135deg, var(--text-strong), var(--accent-primary));
   -webkit-background-clip: text;
@@ -65,7 +65,7 @@
 
 .brand-subtitle {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: var(--size-2xs);
   color: var(--text-dim);
   letter-spacing: 0.02em;
 }
@@ -75,15 +75,15 @@
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: var(--tap-target-min);
+  height: var(--tap-target-min);
   border-radius: var(--radius-pill);
   border: 1px solid rgba(253, 185, 19, 0.30);
   background: #FDB913;
   color: #2C2416;
   font-weight: 700;
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: var(--size-xs);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -126,10 +126,11 @@
 .user-menu-name {
   font-weight: 700;
   color: var(--text-strong);
+  font-size: var(--size-s);
 }
 
 .user-menu-email {
-  font-size: 0.82rem;
+  font-size: var(--size-xs);
   color: var(--text-muted);
 }
 
@@ -143,6 +144,7 @@
   gap: 8px;
   padding: 13px 16px;
   cursor: pointer;
+  font-size: var(--size-xs);
 }
 
 .user-menu-item:hover {
@@ -162,6 +164,6 @@
 
 @media (max-width: 620px) {
   .brand-title {
-    font-size: 1.05rem;
+    font-size: var(--size-s);
   }
 }
