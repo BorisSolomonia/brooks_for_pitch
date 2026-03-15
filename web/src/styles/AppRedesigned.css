@@ -8,6 +8,7 @@
 }
 
 .hero-shell {
+  display: none;
   position: fixed;
   top: calc(var(--topbar-height) + 18px);
   left: 18px;
@@ -290,6 +291,12 @@ body.modal-open {
   .pins-toggle {
     left: 24px;
     bottom: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-shell {
+    display: block;
   }
 }
 

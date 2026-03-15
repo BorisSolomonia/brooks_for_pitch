@@ -79,6 +79,42 @@ export const PIN_RADIUS_OPTIONS = [
   { label: "5 km", value: 5000 }
 ] as const;
 
+export const PIN_AUDIENCE_OPTIONS = [
+  {
+    value: "PRIVATE",
+    label: "Private",
+    description: "Only you",
+    icon: "lock"
+  },
+  {
+    value: "FRIENDS",
+    label: "Friends",
+    description: "Trusted circle",
+    icon: "friends"
+  },
+  {
+    value: "FOLLOWERS",
+    label: "Followers",
+    description: "Your audience",
+    icon: "followers"
+  },
+  {
+    value: "PUBLIC",
+    label: "Public",
+    description: "Everyone nearby",
+    icon: "public"
+  }
+] as const;
+
+export const PIN_CREATION_UI = {
+  meterSize: 188,
+  meterStroke: 13,
+  meterRadius: 74,
+  meterCircumference: 2 * Math.PI * 74,
+  meterStartAngle: -126,
+  meterSweep: 252
+} as const;
+
 export function createDefaultPinForm(): PinForm {
   return {
     text: "",
