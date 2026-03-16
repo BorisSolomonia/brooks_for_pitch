@@ -17,7 +17,7 @@ import { buildActiveBbox, type MapProvider } from "./lib/frontendConfig";
 import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
-import { fetchMapPins, createPin, checkPinsHealth } from "./lib/api";
+import { fetchMapPins, createPin, checkPinsHealth, fetchIncomingFriendRequests } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, PinViewScope } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
@@ -48,6 +48,7 @@ export default function AppRedesigned() {
   const [showPins, setShowPins] = useState(true);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [pinViewScope, setPinViewScope] = useState<PinViewScope>("home");
+  const [incomingRequestCount, setIncomingRequestCount] = useState(0);
 
   const [fontSelections, setFontSelections] = useState<Record<FontSlot, string>>({
     display: getDefaultFontId("display"),
@@ -88,6 +89,9 @@ export default function AppRedesigned() {
         const accessToken = await getAccessTokenSilently();
         setToken({ accessToken, refreshToken: "", expiresIn: 3600 });
         checkPinsHealth(accessToken);
+        fetchIncomingFriendRequests(accessToken)
+          .then(requests => setIncomingRequestCount(requests.length))
+          .catch(() => {});
       } catch (error) {
         console.error("Failed to get token:", error);
       }
@@ -198,6 +202,8 @@ export default function AppRedesigned() {
         <SketchOverlay />
         <TopBar
           onMenuClick={() => setIsDrawerOpen(true)}
+          onPeopleClick={() => setIsSocialOpen(true)}
+          friendRequestCount={incomingRequestCount}
           userName={user?.name}
           userEmail={user?.email}
           onSignOut={handleSignOut}
@@ -236,8 +242,11 @@ export default function AppRedesigned() {
           <button type="button" className="bottom-bar-primary" onClick={() => setIsModalOpen(true)}>
             Leave a memory
           </button>
+          <button type="button" className="bottom-bar-outline" onClick={() => setIsSocialOpen(true)}>
+            People
+          </button>
           <button type="button" className="bottom-bar-outline" onClick={() => setIsDrawerOpen(true)}>
-            Explore map
+            Explore
           </button>
         </div>
 

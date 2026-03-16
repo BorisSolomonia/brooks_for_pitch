@@ -4,12 +4,14 @@ import "../styles/TopBar.css";
 
 interface TopBarProps {
   onMenuClick: () => void;
+  onPeopleClick?: () => void;
+  friendRequestCount?: number;
   userName?: string;
   userEmail?: string;
   onSignOut: () => void;
 }
 
-export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarProps) {
+export function TopBar({ onMenuClick, onPeopleClick, friendRequestCount = 0, userName, userEmail, onSignOut }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuId = useId();
 
@@ -45,6 +47,17 @@ export function TopBar({ onMenuClick, userName, userEmail, onSignOut }: TopBarPr
       </div>
 
       <div className="command-bar-right">
+        {onPeopleClick && (
+          <button className="command-btn" onClick={onPeopleClick} aria-label="People">
+            <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
+              <circle cx="9" cy="8" r="3" />
+              <path d="M4 19c1.1-3 3.3-4.5 6.7-4.5 3.1 0 5.4 1.5 6.4 4.5" />
+              <path d="M18 8v6" />
+              <path d="M15 11h6" />
+            </svg>
+            {friendRequestCount > 0 && <span className="topbar-badge" />}
+          </button>
+        )}
         <div className="user-menu-container">
           <button
             className="user-avatar"

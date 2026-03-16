@@ -42,5 +42,7 @@ export const env = {
   leafletTileUrl: readOptional("VITE_LEAFLET_TILE_URL"),
   leafletAttribution: readOptional("VITE_LEAFLET_ATTRIBUTION"),
   defaultCenterLat: readNumber("VITE_DEFAULT_CENTER_LAT"),
-  defaultCenterLng: readNumber("VITE_DEFAULT_CENTER_LNG")
+  defaultCenterLng: readNumber("VITE_DEFAULT_CENTER_LNG"),
+  socialApiUrl: readOptional("VITE_SOCIAL_API_URL"),
+  authApiUrl: readOptional("VITE_AUTH_API_URL"),
 };

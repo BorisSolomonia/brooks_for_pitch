@@ -12,8 +12,8 @@ import { env } from "./env";
 import { PIN_FORM_SETTINGS } from "./frontendConfig";
 
 const PINS_API_URL = env.pinsApiUrl;
-const AUTH_API_URL = `${PINS_API_URL}/auth`;
-const SOCIAL_API_URL = `${PINS_API_URL}/social`;
+const AUTH_API_URL = env.authApiUrl ?? `${PINS_API_URL}/auth`;
+const SOCIAL_API_URL = env.socialApiUrl ?? `${PINS_API_URL}/social`;
 
 type MapPinsResponse = {
   pins: MapPin[];
