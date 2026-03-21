@@ -18,7 +18,7 @@ Why this matters:
 - each service can own its schema/tables
 - failures are easier to isolate
 
-## 2. Define Contracts Before Code.
+## 2. Define Contracts Before Code..
 Create endpoint contracts first (OpenAPI or written API docs).
 Define:
 - request/response shapes
