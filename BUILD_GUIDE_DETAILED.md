@@ -4,7 +4,7 @@ This guide explains how to build a system like Brooks, then how to build this sp
 
 ## Part A. How to Think About Building This Kind of App
 
-## 1. Start With Bounded Features
+## 1. Start With Bounded Features.
 Break product behavior into domains first:
 - Identity/Auth
 - Social graph
@@ -18,7 +18,7 @@ Why this matters:
 - each service can own its schema/tables
 - failures are easier to isolate
 
-## 2. Define Contracts Before Code
+## 2. Define Contracts Before Code.
 Create endpoint contracts first (OpenAPI or written API docs).
 Define:
 - request/response shapes
