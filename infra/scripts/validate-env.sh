@@ -109,6 +109,48 @@ for key in "${required_keys[@]}"; do
   [ -n "$val" ] || { echo "Missing ${key}"; exit 1; }
 done
 
+db_max_pool_size="$(get_env DB_MAX_POOL_SIZE)"
+db_min_idle="$(get_env DB_MIN_IDLE)"
+db_connection_timeout_ms="$(get_env DB_CONNECTION_TIMEOUT_MS)"
+flyway_connect_retries="$(get_env FLYWAY_CONNECT_RETRIES)"
+
+echo "$db_max_pool_size" | grep -Eq '^[0-9]+$' || {
+  echo "DB_MAX_POOL_SIZE must be an integer"
+  exit 1
+}
+echo "$db_min_idle" | grep -Eq '^[0-9]+$' || {
+  echo "DB_MIN_IDLE must be an integer"
+  exit 1
+}
+echo "$db_connection_timeout_ms" | grep -Eq '^[0-9]+$' || {
+  echo "DB_CONNECTION_TIMEOUT_MS must be an integer"
+  exit 1
+}
+echo "$flyway_connect_retries" | grep -Eq '^[0-9]+$' || {
+  echo "FLYWAY_CONNECT_RETRIES must be an integer"
+  exit 1
+}
+
+if [ "$db_max_pool_size" -lt 2 ]; then
+  echo "DB_MAX_POOL_SIZE must be at least 2 for reliable Spring Boot + Flyway startup"
+  exit 1
+fi
+
+if [ "$db_min_idle" -gt "$db_max_pool_size" ]; then
+  echo "DB_MIN_IDLE cannot be greater than DB_MAX_POOL_SIZE"
+  exit 1
+fi
+
+if [ "$db_connection_timeout_ms" -lt 10000 ]; then
+  echo "DB_CONNECTION_TIMEOUT_MS is too low"
+  exit 1
+fi
+
+if [ "$flyway_connect_retries" -lt 30 ]; then
+  echo "FLYWAY_CONNECT_RETRIES must be at least 30"
+  exit 1
+fi
+
 auth0_issuer="$(get_env AUTH0_ISSUER_URI)"
 vite_auth0_domain="$(get_env VITE_AUTH0_DOMAIN)"
 auth0_audience="$(get_env AUTH0_AUDIENCE)"
