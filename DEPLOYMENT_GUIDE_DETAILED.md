@@ -5,7 +5,7 @@ This document explains deployment architecture, exact deployment flow for this r
 ## 1. Deployment Architecture.
 
 Current target architecture:
-- GitHub Actions builds service images
+- GitHub Actions builds service images.
 - images pushed to Google Artifact Registry
 - VM pulls and runs containers with `docker compose`
 - Caddy exposes public HTTPS routes
@@ -13,7 +13,7 @@ Current target architecture:
 
 Flow:
 1. Push code to `main`/`master`
-2. CI job performs SSH handshake with VM
+2. CI job performs SSH handshake with VM.
 3. CI loads env from GCP Secret Manager
 4. CI builds and pushes backend + frontend images
 5. CI uploads compose and env files to VM
