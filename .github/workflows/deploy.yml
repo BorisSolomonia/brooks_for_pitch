@@ -144,6 +144,32 @@ jobs:
             [ -n "$val" ] || { echo "Missing ${key}"; exit 1; }
           done
 
+          auth0_issuer="$(grep -E '^AUTH0_ISSUER_URI=' .env.production | cut -d'=' -f2- || true)"
+          vite_auth0_domain="$(grep -E '^VITE_AUTH0_DOMAIN=' .env.production | cut -d'=' -f2- || true)"
+          auth0_audience="$(grep -E '^AUTH0_AUDIENCE=' .env.production | cut -d'=' -f2- || true)"
+          vite_auth0_audience="$(grep -E '^VITE_AUTH0_AUDIENCE=' .env.production | cut -d'=' -f2- || true)"
+
+          echo "$auth0_issuer" | grep -Eq '^https://[^/]+/+$' || {
+            echo "AUTH0_ISSUER_URI must be a valid issuer URL ending with /";
+            exit 1;
+          }
+          echo "$auth0_issuer" | grep -Eq 'your-tenant|example\.com|replace-me' && {
+            echo "AUTH0_ISSUER_URI still contains a placeholder value";
+            exit 1;
+          }
+          echo "$vite_auth0_domain" | grep -Eq 'your-tenant|example\.com|replace-me' && {
+            echo "VITE_AUTH0_DOMAIN still contains a placeholder value";
+            exit 1;
+          }
+          echo "$auth0_audience" | grep -Eq 'example\.com|replace-me|your-tenant' && {
+            echo "AUTH0_AUDIENCE still contains a placeholder value";
+            exit 1;
+          }
+          echo "$vite_auth0_audience" | grep -Eq 'example\.com|replace-me|your-tenant' && {
+            echo "VITE_AUTH0_AUDIENCE still contains a placeholder value";
+            exit 1;
+          }
+
       - name: Configure Docker for Artifact Registry
         run: |
           set -euo pipefail
