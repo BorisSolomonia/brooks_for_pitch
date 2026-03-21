@@ -166,6 +166,24 @@ public class SocialService {
         .toList();
   }
 
+  @Transactional(readOnly = true)
+  public ProfileRelationshipSummaryResponse profileSummary(UUID userId) {
+    UUID actorId = requireActor();
+    boolean self = actorId.equals(userId);
+
+    return new ProfileRelationshipSummaryResponse(
+        userId.toString(),
+        self,
+        friendshipRepository.findByUserIdAndFriendIdAndStatus(actorId, userId, FriendshipStatus.ACCEPTED).isPresent(),
+        followRepository.findByFollowerIdAndFolloweeId(actorId, userId).isPresent(),
+        friendshipRepository.findByUserIdAndFriendIdAndStatus(userId, actorId, FriendshipStatus.PENDING).isPresent(),
+        friendshipRepository.findByUserIdAndFriendIdAndStatus(actorId, userId, FriendshipStatus.PENDING).isPresent(),
+        friendshipRepository.countByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED),
+        followRepository.countByFolloweeIdAndStatus(userId, FollowStatus.ACTIVE),
+        followRepository.countByFollowerIdAndStatus(userId, FollowStatus.ACTIVE)
+    );
+  }
+
   @Transactional
   public void unfollow(UUID targetUserId) {
     UUID actorId = requireActor();

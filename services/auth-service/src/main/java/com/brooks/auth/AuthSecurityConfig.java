@@ -76,7 +76,7 @@ public class AuthSecurityConfig {
   ) {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(List.of(origins.split(",")));
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);

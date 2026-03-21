@@ -50,6 +50,11 @@ public class SocialController {
     return ResponseEntity.ok(socialService.followers());
   }
 
+  @GetMapping("/relationships/{userId}/summary")
+  public ResponseEntity<ProfileRelationshipSummaryResponse> profileSummary(@PathVariable UUID userId) {
+    return ResponseEntity.ok(socialService.profileSummary(userId));
+  }
+
   @PostMapping("/friends/request/{userId}")
   public ResponseEntity<FriendRequestResponse> requestFriend(@PathVariable UUID userId) {
     return ResponseEntity.ok(socialService.requestFriend(userId));

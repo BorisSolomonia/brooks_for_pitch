@@ -18,6 +18,24 @@ public class UserEntity extends BaseEntity {
   @Column(nullable = false, length = 120)
   private String displayName;
 
+  @Column(length = 500)
+  private String avatarUrl;
+
+  @Column(length = 280)
+  private String bio;
+
+  @Column(columnDefinition = "TEXT")
+  private String about;
+
+  @Column(length = 80)
+  private String pronouns;
+
+  @Column(length = 120)
+  private String locationLabel;
+
+  @Column(length = 320)
+  private String websiteUrl;
+
   @Column(nullable = false)
   private String passwordHash;
 
@@ -48,6 +66,54 @@ public class UserEntity extends BaseEntity {
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
+  }
+
+  public String getAvatarUrl() {
+    return avatarUrl;
+  }
+
+  public void setAvatarUrl(String avatarUrl) {
+    this.avatarUrl = avatarUrl;
+  }
+
+  public String getBio() {
+    return bio;
+  }
+
+  public void setBio(String bio) {
+    this.bio = bio;
+  }
+
+  public String getAbout() {
+    return about;
+  }
+
+  public void setAbout(String about) {
+    this.about = about;
+  }
+
+  public String getPronouns() {
+    return pronouns;
+  }
+
+  public void setPronouns(String pronouns) {
+    this.pronouns = pronouns;
+  }
+
+  public String getLocationLabel() {
+    return locationLabel;
+  }
+
+  public void setLocationLabel(String locationLabel) {
+    this.locationLabel = locationLabel;
+  }
+
+  public String getWebsiteUrl() {
+    return websiteUrl;
+  }
+
+  public void setWebsiteUrl(String websiteUrl) {
+    this.websiteUrl = websiteUrl;
   }
 
   public String getPasswordHash() {

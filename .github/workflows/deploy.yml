@@ -139,7 +139,7 @@ jobs:
             fi
           done
 
-          for key in BROOKS_DOMAIN AUTH0_ISSUER_URI AUTH0_AUDIENCE BROOKS_WEB_ORIGINS REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS INTERNAL_SERVICE_NAME INTERNAL_SERVICE_KEY SOCIAL_SERVICE_URL LISTS_SERVICE_URL BROOKS_BUCKET_SIZE_DEG BROOKS_CLEANUP_ENABLED BROOKS_CLEANUP_BATCH_SIZE BROOKS_CLEANUP_RETENTION_DAYS BROOKS_CLEANUP_CRON MEDIA_UPLOAD_BASE_URL BROOKS_JWT_ISSUER BROOKS_JWT_SECRET BROOKS_JWT_ACCESS_TTL BROOKS_JWT_REFRESH_TTL VITE_AUTH0_DOMAIN VITE_AUTH0_CLIENT_ID VITE_AUTH0_AUDIENCE VITE_AUTH0_REDIRECT_URI VITE_PINS_API_URL VITE_MAP_PROVIDER VITE_REVERSE_GEOCODE_URL VITE_LEAFLET_TILE_URL VITE_LEAFLET_ATTRIBUTION VITE_DEFAULT_CENTER_LAT VITE_DEFAULT_CENTER_LNG; do
+          for key in BROOKS_DOMAIN BROOKS_AUTH_CLAIM_NAMESPACE AUTH0_ISSUER_URI AUTH0_AUDIENCE BROOKS_WEB_ORIGINS AUTH_SERVICE_HOST AUTH_SERVICE_PORT SOCIAL_SERVICE_HOST SOCIAL_SERVICE_PORT LISTS_SERVICE_HOST LISTS_SERVICE_PORT PINS_SERVICE_HOST PINS_SERVICE_PORT MEDIA_SERVICE_HOST MEDIA_SERVICE_PORT MODERATION_SERVICE_HOST MODERATION_SERVICE_PORT NOTIFICATIONS_SERVICE_HOST NOTIFICATIONS_SERVICE_PORT FRONTEND_HOST FRONTEND_PORT REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS INTERNAL_SERVICE_NAME INTERNAL_SERVICE_KEY BROOKS_BUCKET_SIZE_DEG BROOKS_CLEANUP_ENABLED BROOKS_CLEANUP_BATCH_SIZE BROOKS_CLEANUP_RETENTION_DAYS BROOKS_CLEANUP_CRON MEDIA_UPLOAD_BASE_URL BROOKS_JWT_ISSUER BROOKS_JWT_SECRET BROOKS_JWT_ACCESS_TTL BROOKS_JWT_REFRESH_TTL DB_KEEPALIVE_TIME_MS VITE_AUTH0_DOMAIN VITE_AUTH0_CLIENT_ID VITE_AUTH0_AUDIENCE VITE_AUTH0_REDIRECT_URI VITE_PINS_API_URL VITE_MAP_PROVIDER VITE_REVERSE_GEOCODE_URL VITE_LEAFLET_TILE_URL VITE_LEAFLET_ATTRIBUTION VITE_DEFAULT_CENTER_LAT VITE_DEFAULT_CENTER_LNG; do
             val="$(grep -E "^${key}=" .env.production | cut -d'=' -f2- || true)"
             [ -n "$val" ] || { echo "Missing ${key}"; exit 1; }
           done
@@ -205,6 +205,7 @@ jobs:
             --build-arg VITE_LEAFLET_ATTRIBUTION="$(get_env VITE_LEAFLET_ATTRIBUTION)" \
             --build-arg VITE_DEFAULT_CENTER_LAT="$(get_env VITE_DEFAULT_CENTER_LAT)" \
             --build-arg VITE_DEFAULT_CENTER_LNG="$(get_env VITE_DEFAULT_CENTER_LNG)" \
+            --build-arg FRONTEND_PORT="$(get_env FRONTEND_PORT)" \
             -f web/Dockerfile \
             -t "${IMAGE_PATH}:${GITHUB_SHA}" \
             -t "${IMAGE_PATH}:latest" \
@@ -321,7 +322,7 @@ jobs:
               s#[?&]$##g;
             }' /opt/brooks/.env
 
-            for key in BROOKS_DOMAIN REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
+            for key in BROOKS_DOMAIN BROOKS_AUTH_CLAIM_NAMESPACE AUTH_SERVICE_HOST AUTH_SERVICE_PORT SOCIAL_SERVICE_HOST SOCIAL_SERVICE_PORT LISTS_SERVICE_HOST LISTS_SERVICE_PORT PINS_SERVICE_HOST PINS_SERVICE_PORT MEDIA_SERVICE_HOST MEDIA_SERVICE_PORT MODERATION_SERVICE_HOST MODERATION_SERVICE_PORT NOTIFICATIONS_SERVICE_HOST NOTIFICATIONS_SERVICE_PORT FRONTEND_HOST FRONTEND_PORT REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_CACHE_TTL_SECONDS AUTH_DB_URL AUTH_DB_USER AUTH_DB_PASSWORD SOCIAL_DB_URL SOCIAL_DB_USER SOCIAL_DB_PASSWORD LISTS_DB_URL LISTS_DB_USER LISTS_DB_PASSWORD PINS_DB_URL PINS_DB_USER PINS_DB_PASSWORD MODERATION_DB_URL MODERATION_DB_USER MODERATION_DB_PASSWORD; do
               val="$(grep -E "^${key}=" /opt/brooks/.env | cut -d'=' -f2- || true)"
               if [ -z "${val}" ]; then
                 echo "Missing required env var in /opt/brooks/.env: ${key}"
@@ -346,6 +347,7 @@ jobs:
             grep -q '^DB_MAX_POOL_SIZE=' /opt/brooks/.env.runtime || echo 'DB_MAX_POOL_SIZE=2' >> /opt/brooks/.env.runtime
             grep -q '^DB_MIN_IDLE=' /opt/brooks/.env.runtime || echo 'DB_MIN_IDLE=0' >> /opt/brooks/.env.runtime
             grep -q '^DB_CONNECTION_TIMEOUT_MS=' /opt/brooks/.env.runtime || echo 'DB_CONNECTION_TIMEOUT_MS=60000' >> /opt/brooks/.env.runtime
+            grep -q '^DB_KEEPALIVE_TIME_MS=' /opt/brooks/.env.runtime || echo 'DB_KEEPALIVE_TIME_MS=30000' >> /opt/brooks/.env.runtime
             grep -q '^FLYWAY_CONNECT_RETRIES=' /opt/brooks/.env.runtime || echo 'FLYWAY_CONNECT_RETRIES=30' >> /opt/brooks/.env.runtime
             printf "%s\n" \
               "BROOKS_AUTH_IMAGE=${AUTH_IMAGE}" \
@@ -419,6 +421,11 @@ jobs:
             # Service ports are `expose`d (not `ports`-mapped), so localhost:808X
             # is NOT accessible from the host. Use each container's Docker bridge
             # IP instead, which is directly routable on Linux.
+            get_env() {
+              local key="$1"
+              grep -E "^${key}=" /opt/brooks/.env.runtime | cut -d'=' -f2- | tail -n 1
+            }
+
             check_container() {
               local container="$1"
               local port="$2"
@@ -449,13 +456,13 @@ jobs:
               echo "$container OK"
             }
 
-            check_container "brooks-auth-service"          "8081"
-            check_container "brooks-social-service"        "8082"
-            check_container "brooks-lists-service"         "8083"
-            check_container "brooks-pins-service"          "8084"
-            check_container "brooks-media-service"         "8085"
-            check_container "brooks-moderation-service"    "8086"
-            check_container "brooks-notifications-service" "8087"
+            check_container "brooks-auth-service"          "$(get_env AUTH_SERVICE_PORT)"
+            check_container "brooks-social-service"        "$(get_env SOCIAL_SERVICE_PORT)"
+            check_container "brooks-lists-service"         "$(get_env LISTS_SERVICE_PORT)"
+            check_container "brooks-pins-service"          "$(get_env PINS_SERVICE_PORT)"
+            check_container "brooks-media-service"         "$(get_env MEDIA_SERVICE_PORT)"
+            check_container "brooks-moderation-service"    "$(get_env MODERATION_SERVICE_PORT)"
+            check_container "brooks-notifications-service" "$(get_env NOTIFICATIONS_SERVICE_PORT)"
 
             # Caddy publishes port 80:80, so localhost works here.
             # This is the real end-to-end check Cloudflare cares about.

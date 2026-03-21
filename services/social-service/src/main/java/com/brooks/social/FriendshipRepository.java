@@ -11,4 +11,5 @@ public interface FriendshipRepository extends JpaRepository<FriendshipEntity, UU
   List<FriendshipEntity> findByUserIdAndStatusOrderByAcceptedAtDesc(UUID userId, FriendshipStatus status);
   List<FriendshipEntity> findByFriendIdAndStatusOrderByRequestedAtDesc(UUID friendId, FriendshipStatus status);
   List<FriendshipEntity> findByUserIdAndStatusOrderByRequestedAtDesc(UUID userId, FriendshipStatus status);
+  long countByUserIdAndStatus(UUID userId, FriendshipStatus status);
 }

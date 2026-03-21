@@ -16,16 +16,18 @@ services:
       args:
         SERVICE_DIR: services/auth-service
     environment:
-      SERVER_PORT: "8081"
+      SERVER_PORT: ${AUTH_SERVICE_PORT?AUTH_SERVICE_PORT must be set in .env file}
       AUTH_DB_URL: ${AUTH_DB_URL?AUTH_DB_URL must be set in .env file}
       AUTH_DB_USER: ${AUTH_DB_USER?AUTH_DB_USER must be set in .env file}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD?AUTH_DB_PASSWORD must be set in .env file}
       SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE: ${DB_MAX_POOL_SIZE:-2}
       SPRING_DATASOURCE_HIKARI_MINIMUMIDLE: ${DB_MIN_IDLE:-0}
       SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+      SPRING_DATASOURCE_HIKARI_KEEPALIVETIME: ${DB_KEEPALIVE_TIME_MS?DB_KEEPALIVE_TIME_MS must be set in .env file}
       SPRING_FLYWAY_CONNECT_RETRIES: ${FLYWAY_CONNECT_RETRIES:-10}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_JWT_ISSUER: ${BROOKS_JWT_ISSUER?BROOKS_JWT_ISSUER must be set in .env file}
       BROOKS_JWT_SECRET: ${BROOKS_JWT_SECRET?BROOKS_JWT_SECRET must be set in .env file}
       BROOKS_JWT_ACCESS_TTL: ${BROOKS_JWT_ACCESS_TTL?BROOKS_JWT_ACCESS_TTL must be set in .env file}
@@ -37,7 +39,7 @@ services:
     depends_on:
       - redis
     ports:
-      - "8081:8081"
+      - "${AUTH_SERVICE_PORT?AUTH_SERVICE_PORT must be set in .env file}:${AUTH_SERVICE_PORT?AUTH_SERVICE_PORT must be set in .env file}"
 
   social-service:
     build:
@@ -46,16 +48,18 @@ services:
       args:
         SERVICE_DIR: services/social-service
     environment:
-      SERVER_PORT: "8082"
+      SERVER_PORT: ${SOCIAL_SERVICE_PORT?SOCIAL_SERVICE_PORT must be set in .env file}
       SOCIAL_DB_URL: ${SOCIAL_DB_URL?SOCIAL_DB_URL must be set in .env file}
       SOCIAL_DB_USER: ${SOCIAL_DB_USER?SOCIAL_DB_USER must be set in .env file}
       SOCIAL_DB_PASSWORD: ${SOCIAL_DB_PASSWORD?SOCIAL_DB_PASSWORD must be set in .env file}
       SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE: ${DB_MAX_POOL_SIZE:-2}
       SPRING_DATASOURCE_HIKARI_MINIMUMIDLE: ${DB_MIN_IDLE:-0}
       SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+      SPRING_DATASOURCE_HIKARI_KEEPALIVETIME: ${DB_KEEPALIVE_TIME_MS?DB_KEEPALIVE_TIME_MS must be set in .env file}
       SPRING_FLYWAY_CONNECT_RETRIES: ${FLYWAY_CONNECT_RETRIES:-10}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS?INTERNAL_SERVICE_KEYS must be set in .env file}
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES?INTERNAL_SERVICE_ALLOWED_NAMES must be set in .env file}
@@ -63,7 +67,7 @@ services:
     depends_on:
       - redis
     ports:
-      - "8082:8082"
+      - "${SOCIAL_SERVICE_PORT?SOCIAL_SERVICE_PORT must be set in .env file}:${SOCIAL_SERVICE_PORT?SOCIAL_SERVICE_PORT must be set in .env file}"
 
   lists-service:
     build:
@@ -72,16 +76,18 @@ services:
       args:
         SERVICE_DIR: services/lists-service
     environment:
-      SERVER_PORT: "8083"
+      SERVER_PORT: ${LISTS_SERVICE_PORT?LISTS_SERVICE_PORT must be set in .env file}
       LISTS_DB_URL: ${LISTS_DB_URL?LISTS_DB_URL must be set in .env file}
       LISTS_DB_USER: ${LISTS_DB_USER?LISTS_DB_USER must be set in .env file}
       LISTS_DB_PASSWORD: ${LISTS_DB_PASSWORD?LISTS_DB_PASSWORD must be set in .env file}
       SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE: ${DB_MAX_POOL_SIZE:-2}
       SPRING_DATASOURCE_HIKARI_MINIMUMIDLE: ${DB_MIN_IDLE:-0}
       SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+      SPRING_DATASOURCE_HIKARI_KEEPALIVETIME: ${DB_KEEPALIVE_TIME_MS?DB_KEEPALIVE_TIME_MS must be set in .env file}
       SPRING_FLYWAY_CONNECT_RETRIES: ${FLYWAY_CONNECT_RETRIES:-10}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEYS: ${INTERNAL_SERVICE_KEYS?INTERNAL_SERVICE_KEYS must be set in .env file}
       INTERNAL_SERVICE_ALLOWED_NAMES: ${INTERNAL_SERVICE_ALLOWED_NAMES?INTERNAL_SERVICE_ALLOWED_NAMES must be set in .env file}
@@ -89,7 +95,7 @@ services:
     depends_on:
       - redis
     ports:
-      - "8083:8083"
+      - "${LISTS_SERVICE_PORT?LISTS_SERVICE_PORT must be set in .env file}:${LISTS_SERVICE_PORT?LISTS_SERVICE_PORT must be set in .env file}"
 
   pins-service:
     build:
@@ -98,18 +104,20 @@ services:
       args:
         SERVICE_DIR: services/pins-service
     environment:
-      SERVER_PORT: "8084"
+      SERVER_PORT: ${PINS_SERVICE_PORT?PINS_SERVICE_PORT must be set in .env file}
       PINS_DB_URL: ${PINS_DB_URL?PINS_DB_URL must be set in .env file}
       PINS_DB_USER: ${PINS_DB_USER?PINS_DB_USER must be set in .env file}
       PINS_DB_PASSWORD: ${PINS_DB_PASSWORD?PINS_DB_PASSWORD must be set in .env file}
       SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE: ${DB_MAX_POOL_SIZE:-2}
       SPRING_DATASOURCE_HIKARI_MINIMUMIDLE: ${DB_MIN_IDLE:-0}
       SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+      SPRING_DATASOURCE_HIKARI_KEEPALIVETIME: ${DB_KEEPALIVE_TIME_MS?DB_KEEPALIVE_TIME_MS must be set in .env file}
       SPRING_FLYWAY_CONNECT_RETRIES: ${FLYWAY_CONNECT_RETRIES:-10}
-      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL?SOCIAL_SERVICE_URL must be set in .env file}
-      LISTS_SERVICE_URL: ${LISTS_SERVICE_URL?LISTS_SERVICE_URL must be set in .env file}
+      SOCIAL_SERVICE_URL: http://${SOCIAL_SERVICE_HOST?SOCIAL_SERVICE_HOST must be set in .env file}:${SOCIAL_SERVICE_PORT?SOCIAL_SERVICE_PORT must be set in .env file}
+      LISTS_SERVICE_URL: http://${LISTS_SERVICE_HOST?LISTS_SERVICE_HOST must be set in .env file}:${LISTS_SERVICE_PORT?LISTS_SERVICE_PORT must be set in .env file}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY?INTERNAL_SERVICE_KEY must be set in .env file}
       INTERNAL_SERVICE_NAME: ${INTERNAL_SERVICE_NAME?INTERNAL_SERVICE_NAME must be set in .env file}
@@ -127,7 +135,7 @@ services:
       - lists-service
       - redis
     ports:
-      - "8084:8084"
+      - "${PINS_SERVICE_PORT?PINS_SERVICE_PORT must be set in .env file}:${PINS_SERVICE_PORT?PINS_SERVICE_PORT must be set in .env file}"
 
   media-service:
     build:
@@ -136,12 +144,14 @@ services:
       args:
         SERVICE_DIR: services/media-service
     environment:
+      SERVER_PORT: ${MEDIA_SERVICE_PORT?MEDIA_SERVICE_PORT must be set in .env file}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
       MEDIA_UPLOAD_BASE_URL: ${MEDIA_UPLOAD_BASE_URL?MEDIA_UPLOAD_BASE_URL must be set in .env file}
     ports:
-      - "8085:8085"
+      - "${MEDIA_SERVICE_PORT?MEDIA_SERVICE_PORT must be set in .env file}:${MEDIA_SERVICE_PORT?MEDIA_SERVICE_PORT must be set in .env file}"
 
   moderation-service:
     build:
@@ -150,21 +160,23 @@ services:
       args:
         SERVICE_DIR: services/moderation-service
     environment:
-      SERVER_PORT: "8086"
+      SERVER_PORT: ${MODERATION_SERVICE_PORT?MODERATION_SERVICE_PORT must be set in .env file}
       MODERATION_DB_URL: ${MODERATION_DB_URL?MODERATION_DB_URL must be set in .env file}
       MODERATION_DB_USER: ${MODERATION_DB_USER?MODERATION_DB_USER must be set in .env file}
       MODERATION_DB_PASSWORD: ${MODERATION_DB_PASSWORD?MODERATION_DB_PASSWORD must be set in .env file}
       SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE: ${DB_MAX_POOL_SIZE:-2}
       SPRING_DATASOURCE_HIKARI_MINIMUMIDLE: ${DB_MIN_IDLE:-0}
       SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+      SPRING_DATASOURCE_HIKARI_KEEPALIVETIME: ${DB_KEEPALIVE_TIME_MS?DB_KEEPALIVE_TIME_MS must be set in .env file}
       SPRING_FLYWAY_CONNECT_RETRIES: ${FLYWAY_CONNECT_RETRIES:-10}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     depends_on:
       - redis
     ports:
-      - "8086:8086"
+      - "${MODERATION_SERVICE_PORT?MODERATION_SERVICE_PORT must be set in .env file}:${MODERATION_SERVICE_PORT?MODERATION_SERVICE_PORT must be set in .env file}"
 
   notifications-service:
     build:
@@ -173,11 +185,13 @@ services:
       args:
         SERVICE_DIR: services/notifications-service
     environment:
+      SERVER_PORT: ${NOTIFICATIONS_SERVICE_PORT?NOTIFICATIONS_SERVICE_PORT must be set in .env file}
       AUTH0_ISSUER_URI: ${AUTH0_ISSUER_URI?AUTH0_ISSUER_URI must be set in .env file}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE?AUTH0_AUDIENCE must be set in .env file}
+      BROOKS_AUTH_CLAIM_NAMESPACE: ${BROOKS_AUTH_CLAIM_NAMESPACE?BROOKS_AUTH_CLAIM_NAMESPACE must be set in .env file}
       BROOKS_WEB_ORIGINS: ${BROOKS_WEB_ORIGINS?BROOKS_WEB_ORIGINS must be set in .env file}
     ports:
-      - "8087:8087"
+      - "${NOTIFICATIONS_SERVICE_PORT?NOTIFICATIONS_SERVICE_PORT must be set in .env file}:${NOTIFICATIONS_SERVICE_PORT?NOTIFICATIONS_SERVICE_PORT must be set in .env file}"
     depends_on:
       - redis
 
@@ -198,11 +212,12 @@ services:
         VITE_LEAFLET_ATTRIBUTION: ${VITE_LEAFLET_ATTRIBUTION?VITE_LEAFLET_ATTRIBUTION must be set in .env file}
         VITE_DEFAULT_CENTER_LAT: ${VITE_DEFAULT_CENTER_LAT?VITE_DEFAULT_CENTER_LAT must be set in .env file}
         VITE_DEFAULT_CENTER_LNG: ${VITE_DEFAULT_CENTER_LNG?VITE_DEFAULT_CENTER_LNG must be set in .env file}
+        FRONTEND_PORT: ${FRONTEND_PORT?FRONTEND_PORT must be set in .env file}
     depends_on:
       - auth-service
       - pins-service
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT?FRONTEND_PORT must be set in .env file}:${FRONTEND_PORT?FRONTEND_PORT must be set in .env file}"
 
 volumes:
   brooks-redis-data:

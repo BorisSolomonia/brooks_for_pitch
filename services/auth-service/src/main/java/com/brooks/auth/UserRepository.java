@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
   Optional<UserEntity> findByEmail(String email);
+  Optional<UserEntity> findByHandleIgnoreCase(String handle);
 
   List<UserEntity> findByIdIn(List<UUID> ids);
 

@@ -1,12 +1,12 @@
 package com.brooks.pins;
 
-public record MapPin(
+public record ProfileMemoryCard(
     String id,
-    String ownerId,
     LocationRequest location,
     MapPrecision mapPrecision,
     String textPreview,
     AudienceType audienceType,
     RevealType revealType,
+    String createdAt,
     boolean owner
 ) {}

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
+﻿import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { TopBar } from "./components/TopBar";
@@ -7,6 +7,7 @@ import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
 import { PinDetailModal } from "./components/PinDetailModal";
 import { SocialPanel } from "./components/SocialPanel";
+import { ProfileScreen } from "./components/ProfileScreen";
 import { MapChargeRing } from "./components/MapChargeRing";
 import { SketchOverlay } from "./components/SketchOverlay";
 import { GrainOverlay } from "./components/GrainOverlay";
@@ -17,8 +18,8 @@ import { buildActiveBbox, type MapProvider } from "./lib/frontendConfig";
 import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
-import { fetchMapPins, createPin, checkPinsHealth, fetchIncomingFriendRequests } from "./lib/api";
-import type { AuthTokens, Coordinates, MapPin, PinForm, PinViewScope } from "./lib/types";
+import { fetchMapPins, createPin, checkPinsHealth, fetchIncomingFriendRequests, fetchMyProfile } from "./lib/api";
+import type { AuthTokens, Coordinates, MapPin, PinForm, PinViewScope, UserProfile } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
 const MapView = lazy(() => import("./components/MapView"));
@@ -43,12 +44,14 @@ export default function AppRedesigned() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
+  const [activeProfileUserId, setActiveProfileUserId] = useState<string | null>(null);
   const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
   const ringCompletedRef = useRef(false);
   const [showPins, setShowPins] = useState(true);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [pinViewScope, setPinViewScope] = useState<PinViewScope>("home");
   const [incomingRequestCount, setIncomingRequestCount] = useState(0);
+  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
 
   const [fontSelections, setFontSelections] = useState<Record<FontSlot, string>>({
     display: getDefaultFontId("display"),
@@ -89,6 +92,9 @@ export default function AppRedesigned() {
         const accessToken = await getAccessTokenSilently();
         setToken({ accessToken, refreshToken: "", expiresIn: 3600 });
         checkPinsHealth(accessToken);
+        fetchMyProfile(accessToken)
+          .then(profile => setCurrentProfile(profile))
+          .catch(() => {});
         fetchIncomingFriendRequests(accessToken)
           .then(requests => setIncomingRequestCount(requests.length))
           .catch(() => {});
@@ -203,9 +209,11 @@ export default function AppRedesigned() {
         <TopBar
           onMenuClick={() => setIsDrawerOpen(true)}
           onPeopleClick={() => setIsSocialOpen(true)}
+          onProfileClick={() => currentProfile?.userId && setActiveProfileUserId(currentProfile.userId)}
           friendRequestCount={incomingRequestCount}
-          userName={user?.name}
+          userName={currentProfile?.displayName ?? user?.name}
           userEmail={user?.email}
+          userAvatarUrl={currentProfile?.avatarUrl}
           onSignOut={handleSignOut}
         />
 
@@ -253,7 +261,7 @@ export default function AppRedesigned() {
         {!isModalOpen && !isDrawerOpen && !selectedPin && pins.length === 0 ? (
           <div className="map-helper-card" role="status" aria-live="polite">
             <strong>Start here</strong>
-            <span>Tap “Leave a memory”, hold on the map, or open People to add friends.</span>
+            <span>Tap "Leave a memory", hold on the map, or open People to add friends.</span>
           </div>
         ) : null}
 
@@ -327,15 +335,33 @@ export default function AppRedesigned() {
         <PinDetailModal
           pin={selectedPin}
           onClose={() => setSelectedPin(null)}
+          onOpenProfile={userId => setActiveProfileUserId(userId)}
         />
 
         <SocialPanel
           isOpen={isSocialOpen}
           token={token.accessToken}
           onClose={() => setIsSocialOpen(false)}
+          onOpenProfile={userId => {
+            setIsSocialOpen(false);
+            setActiveProfileUserId(userId);
+          }}
           onUseFriendsPins={() => {
             setPinViewScope("friends");
             setIsSocialOpen(false);
+          }}
+        />
+
+        <ProfileScreen
+          isOpen={!!activeProfileUserId}
+          token={token.accessToken}
+          userId={activeProfileUserId}
+          mapProvider={mapProvider}
+          onClose={() => setActiveProfileUserId(null)}
+          onProfileUpdated={profile => setCurrentProfile(profile)}
+          onUseFriendsPins={() => {
+            setPinViewScope("friends");
+            setActiveProfileUserId(null);
           }}
         />
 

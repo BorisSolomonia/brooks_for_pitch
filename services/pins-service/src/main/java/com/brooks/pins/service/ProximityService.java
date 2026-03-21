@@ -60,6 +60,7 @@ public class ProximityService {
         LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
         results.add(new MapPin(
             pin.getId().toString(),
+            pin.getOwnerId().toString(),
             location,
             pin.getMapPrecision(),
             previewText(pin.getText()),
@@ -89,6 +90,7 @@ public class ProximityService {
       LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
       results.add(new MapPin(
           pin.getId().toString(),
+          pin.getOwnerId().toString(),
           location,
           pin.getMapPrecision(),
           previewText(pin.getText()),
@@ -121,6 +123,7 @@ public class ProximityService {
       LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
       results.add(new MapPin(
           pin.getId().toString(),
+          pin.getOwnerId().toString(),
           location,
           pin.getMapPrecision(),
           previewText(pin.getText()),

@@ -60,6 +60,15 @@
   font-size: var(--size-2xs);
 }
 
+.pin-detail-profile-link {
+  padding: 7px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  font-size: var(--size-2xs);
+}
+
 .pin-detail-meta {
   display: grid;
   gap: 2px;

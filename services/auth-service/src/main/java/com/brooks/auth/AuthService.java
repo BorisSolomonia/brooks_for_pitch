@@ -1,6 +1,7 @@
 package com.brooks.auth;
 
 import com.brooks.security.JwtService;
+import com.brooks.security.SecurityContextUtil;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,6 +96,54 @@ public class AuthService {
         .toList();
   }
 
+  @Transactional
+  public UserProfileResponse currentProfile() {
+    return toUserProfile(requireCurrentUserEntity());
+  }
+
+  @Transactional(readOnly = true)
+  public UserProfileResponse profileById(UUID userId) {
+    return toUserProfile(findActiveUser(userId));
+  }
+
+  @Transactional(readOnly = true)
+  public UserProfileResponse profileByHandle(String handle) {
+    return toUserProfile(
+        userRepository.findByHandleIgnoreCase(handle)
+            .filter(user -> user.getDeletedAt() == null && "active".equalsIgnoreCase(user.getStatus()))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"))
+    );
+  }
+
+  @Transactional
+  public UserProfileResponse updateCurrentProfile(UpdateUserProfileRequest request) {
+    UserEntity user = requireCurrentUserEntity();
+
+    String nextHandle = normalize(request.handle());
+    if (!nextHandle.isBlank() && !nextHandle.equalsIgnoreCase(user.getHandle())) {
+      userRepository.findByHandleIgnoreCase(nextHandle)
+          .filter(existing -> !existing.getId().equals(user.getId()))
+          .ifPresent(existing -> {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Handle already in use");
+          });
+      user.setHandle(nextHandle);
+    }
+
+    String nextDisplayName = normalize(request.displayName());
+    if (!nextDisplayName.isBlank()) {
+      user.setDisplayName(nextDisplayName);
+    }
+
+    user.setAvatarUrl(normalizeNullable(request.avatarUrl()));
+    user.setBio(normalizeNullable(request.bio()));
+    user.setAbout(normalizeNullable(request.about()));
+    user.setPronouns(normalizeNullable(request.pronouns()));
+    user.setLocationLabel(normalizeNullable(request.locationLabel()));
+    user.setWebsiteUrl(normalizeNullable(request.websiteUrl()));
+
+    return toUserProfile(userRepository.save(user));
+  }
+
   private AuthTokens issueTokens(UserEntity user) {
     String accessToken = jwtService.issueAccessToken(user.getId(), user.getEmail());
     String refreshToken = "refresh-" + UUID.randomUUID();
@@ -121,5 +174,113 @@ public class AuthService {
         user.getHandle(),
         user.getDisplayName()
     );
+  }
+
+  private UserProfileResponse toUserProfile(UserEntity user) {
+    return new UserProfileResponse(
+        user.getId().toString(),
+        user.getHandle(),
+        user.getDisplayName(),
+        user.getAvatarUrl(),
+        user.getBio(),
+        user.getAbout(),
+        user.getPronouns(),
+        user.getLocationLabel(),
+        user.getWebsiteUrl()
+    );
+  }
+
+  private UserEntity findActiveUser(UUID userId) {
+    return userRepository.findById(userId)
+        .filter(user -> user.getDeletedAt() == null && "active".equalsIgnoreCase(user.getStatus()))
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  }
+
+  private UserEntity requireCurrentUserEntity() {
+    UUID actorId = requireActor();
+    return userRepository.findById(actorId)
+        .filter(user -> user.getDeletedAt() == null && "active".equalsIgnoreCase(user.getStatus()))
+        .orElseGet(() -> userRepository.save(createUserFromJwt(actorId, currentJwt())));
+  }
+
+  private UUID requireActor() {
+    UUID actorId = SecurityContextUtil.currentUserId();
+    if (actorId == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing user context");
+    }
+    return actorId;
+  }
+
+  private UserEntity createUserFromJwt(UUID actorId, Jwt jwt) {
+    UserEntity user = new UserEntity();
+    String email = firstClaim(jwt, "email");
+    String nickname = firstClaim(jwt, "preferred_username", "nickname");
+    String name = firstClaim(jwt, "name", "given_name");
+
+    String handleBase = normalizeHandle(nickname, email, actorId);
+
+    user.setId(actorId);
+    user.setEmail(email != null && !email.isBlank() ? email : actorId + "@brooks.local");
+    user.setHandle(uniqueHandle(handleBase, actorId));
+    user.setDisplayName(name != null && !name.isBlank() ? name : handleBase);
+    user.setPasswordHash("{external-auth}");
+    user.setStatus("ACTIVE");
+    return user;
+  }
+
+  private Jwt currentJwt() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+      return jwtAuthenticationToken.getToken();
+    }
+    Object principal = authentication == null ? null : authentication.getPrincipal();
+    if (principal instanceof Jwt jwt) {
+      return jwt;
+    }
+    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT context");
+  }
+
+  private String firstClaim(Jwt jwt, String... keys) {
+    for (String key : keys) {
+      String value = jwt.getClaimAsString(key);
+      if (value != null && !value.isBlank()) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  private String normalizeHandle(String nickname, String email, UUID actorId) {
+    String source = nickname;
+    if (source == null || source.isBlank()) {
+      source = email != null && email.contains("@") ? email.substring(0, email.indexOf('@')) : "user-" + actorId.toString().substring(0, 8);
+    }
+    String normalized = source.toLowerCase().replaceAll("[^a-z0-9_.]", "");
+    if (normalized.length() < 2) {
+      normalized = "user" + actorId.toString().replace("-", "").substring(0, 6);
+    }
+    return normalized.substring(0, Math.min(normalized.length(), 32));
+  }
+
+  private String uniqueHandle(String base, UUID actorId) {
+    String candidate = base;
+    int suffix = 1;
+    while (userRepository.findByHandleIgnoreCase(candidate)
+        .filter(existing -> !existing.getId().equals(actorId))
+        .isPresent()) {
+      String tail = String.valueOf(suffix++);
+      int maxBaseLength = Math.max(2, 32 - tail.length());
+      candidate = base.substring(0, Math.min(base.length(), maxBaseLength)) + tail;
+    }
+    return candidate;
+  }
+
+  private String normalize(String value) {
+    return value == null ? "" : value.trim();
+  }
+
+  private String normalizeNullable(String value) {
+    String normalized = normalize(value);
+    return normalized.isBlank() ? null : normalized;
   }
 }

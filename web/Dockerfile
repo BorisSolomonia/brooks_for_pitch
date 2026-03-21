@@ -22,6 +22,7 @@ ARG VITE_LEAFLET_TILE_URL
 ARG VITE_LEAFLET_ATTRIBUTION
 ARG VITE_DEFAULT_CENTER_LAT
 ARG VITE_DEFAULT_CENTER_LNG
+ARG FRONTEND_PORT=3000
 
 # Set environment variables for build
 ENV VITE_AUTH0_DOMAIN=${VITE_AUTH0_DOMAIN}
@@ -43,18 +44,21 @@ RUN npm run build
 # Production stage with nginx
 FROM nginx:alpine
 
+ARG FRONTEND_PORT=3000
+ENV FRONTEND_PORT=${FRONTEND_PORT}
+
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Copy built application from builder stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+  CMD-SHELL wget --no-verbose --tries=1 --spider http://127.0.0.1:${FRONTEND_PORT}/ || exit 1
 
-# Expose port 3000
-EXPOSE 3000
+# Expose frontend port
+EXPOSE ${FRONTEND_PORT}
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "envsubst '$FRONTEND_PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

@@ -32,7 +32,7 @@ services:
 
   # Spring Boot Backend
   brooks-backend:
-    image: us-central1-docker.pkg.dev/brooks-485009/brooksar/brooks-backend:latest
+    image: ${BROOKS_BACKEND_IMAGE?BROOKS_BACKEND_IMAGE must be set in .env file}
     container_name: brooks-backend
     restart: unless-stopped
     depends_on:
@@ -54,9 +54,9 @@ services:
       - brooks-network
       - web
     expose:
-      - "8080"
+      - "${SERVER_PORT?SERVER_PORT must be set in .env file}"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${SERVER_PORT}/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -72,7 +72,7 @@ services:
 
   # React Frontend
   brooks-frontend:
-    image: us-central1-docker.pkg.dev/brooks-485009/brooksar/brooks-frontend:latest
+    image: ${BROOKS_FRONTEND_IMAGE?BROOKS_FRONTEND_IMAGE must be set in .env file}
     container_name: brooks-frontend
     restart: unless-stopped
     depends_on:
@@ -80,9 +80,9 @@ services:
     networks:
       - web
     expose:
-      - "3000"
+      - "${FRONTEND_PORT?FRONTEND_PORT must be set in .env file}"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${FRONTEND_PORT}/health"]
       interval: 30s
       timeout: 10s
       retries: 3

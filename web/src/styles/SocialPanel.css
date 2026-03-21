@@ -125,6 +125,15 @@
   line-height: 1.35;
 }
 
+.social-user-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
 .social-actions-row {
   display: flex;
   flex-wrap: wrap;

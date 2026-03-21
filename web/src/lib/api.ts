@@ -6,8 +6,13 @@ import type {
   MapPin,
   PinForm,
   PinViewScope,
+  ProfileMapSummary,
+  ProfileMemoryCard,
+  ProfileRelationshipSummary,
+  UpdateUserProfile,
   UserSummary
 } from "./types";
+import type { UserProfile } from "./types";
 import { env } from "./env";
 import { PIN_FORM_SETTINGS } from "./frontendConfig";
 
@@ -17,6 +22,10 @@ const SOCIAL_API_URL = env.socialApiUrl ?? `${PINS_API_URL}/social`;
 
 type MapPinsResponse = {
   pins: MapPin[];
+};
+
+type ProfileMemoriesResponse = {
+  memories: ProfileMemoryCard[];
 };
 
 function jsonHeaders(token?: string) {
@@ -122,6 +131,29 @@ export async function fetchUserSummaries(token: string, ids: string[]): Promise<
   return handleJson<UserSummary[]>(response, "fetchUserSummaries");
 }
 
+export async function fetchMyProfile(token: string): Promise<UserProfile> {
+  const response = await fetch(`${AUTH_API_URL}/users/me/profile`, {
+    headers: jsonHeaders(token)
+  });
+  return handleJson<UserProfile>(response, "fetchMyProfile");
+}
+
+export async function fetchUserProfile(token: string, userId: string): Promise<UserProfile> {
+  const response = await fetch(`${AUTH_API_URL}/users/${encodeURIComponent(userId)}/profile`, {
+    headers: jsonHeaders(token)
+  });
+  return handleJson<UserProfile>(response, "fetchUserProfile");
+}
+
+export async function updateMyProfile(token: string, profile: UpdateUserProfile): Promise<UserProfile> {
+  const response = await fetch(`${AUTH_API_URL}/users/me/profile`, {
+    method: "PATCH",
+    headers: jsonHeaders(token),
+    body: JSON.stringify(profile)
+  });
+  return handleJson<UserProfile>(response, "updateMyProfile");
+}
+
 export async function fetchFriends(token: string): Promise<FriendshipRecord[]> {
   const response = await fetch(`${SOCIAL_API_URL}/friends`, { headers: jsonHeaders(token) });
   return handleJson<FriendshipRecord[]>(response, "fetchFriends");
@@ -145,6 +177,13 @@ export async function fetchFollowing(token: string): Promise<FollowRecord[]> {
 export async function fetchFollowers(token: string): Promise<FollowRecord[]> {
   const response = await fetch(`${SOCIAL_API_URL}/followers`, { headers: jsonHeaders(token) });
   return handleJson<FollowRecord[]>(response, "fetchFollowers");
+}
+
+export async function fetchProfileRelationshipSummary(token: string, userId: string): Promise<ProfileRelationshipSummary> {
+  const response = await fetch(`${SOCIAL_API_URL}/relationships/${encodeURIComponent(userId)}/summary`, {
+    headers: jsonHeaders(token)
+  });
+  return handleJson<ProfileRelationshipSummary>(response, "fetchProfileRelationshipSummary");
 }
 
 export async function requestFriend(token: string, userId: string): Promise<void> {
@@ -199,4 +238,27 @@ export async function unfollowUser(token: string, userId: string): Promise<void>
   if (!response.ok) {
     await handleJson(response, "unfollowUser");
   }
+}
+
+export async function fetchProfileFeaturedMemories(token: string, userId: string): Promise<ProfileMemoryCard[]> {
+  const response = await fetch(`${PINS_API_URL}/pins/profiles/${encodeURIComponent(userId)}/featured`, {
+    headers: jsonHeaders(token)
+  });
+  const payload = await handleJson<ProfileMemoriesResponse>(response, "fetchProfileFeaturedMemories");
+  return payload.memories ?? [];
+}
+
+export async function fetchProfileRecentMemories(token: string, userId: string): Promise<ProfileMemoryCard[]> {
+  const response = await fetch(`${PINS_API_URL}/pins/profiles/${encodeURIComponent(userId)}/recent`, {
+    headers: jsonHeaders(token)
+  });
+  const payload = await handleJson<ProfileMemoriesResponse>(response, "fetchProfileRecentMemories");
+  return payload.memories ?? [];
+}
+
+export async function fetchProfileMapSummary(token: string, userId: string): Promise<ProfileMapSummary> {
+  const response = await fetch(`${PINS_API_URL}/pins/profiles/${encodeURIComponent(userId)}/map-summary`, {
+    headers: jsonHeaders(token)
+  });
+  return handleJson<ProfileMapSummary>(response, "fetchProfileMapSummary");
 }

@@ -5,13 +5,15 @@ import "../styles/TopBar.css";
 interface TopBarProps {
   onMenuClick: () => void;
   onPeopleClick?: () => void;
+  onProfileClick?: () => void;
   friendRequestCount?: number;
   userName?: string;
   userEmail?: string;
+  userAvatarUrl?: string | null;
   onSignOut: () => void;
 }
 
-export function TopBar({ onMenuClick, onPeopleClick, friendRequestCount = 0, userName, userEmail, onSignOut }: TopBarProps) {
+export function TopBar({ onMenuClick, onPeopleClick, onProfileClick, friendRequestCount = 0, userName, userEmail, userAvatarUrl, onSignOut }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuId = useId();
 
@@ -67,7 +69,9 @@ export function TopBar({ onMenuClick, onPeopleClick, friendRequestCount = 0, use
             aria-expanded={showUserMenu}
             aria-controls={menuId}
           >
-            {getInitials(userName, userEmail)}
+            {userAvatarUrl
+              ? <img src={userAvatarUrl} alt={userName || "User"} className="user-avatar-image" />
+              : getInitials(userName, userEmail)}
           </button>
 
           {showUserMenu ? (
@@ -78,6 +82,22 @@ export function TopBar({ onMenuClick, onPeopleClick, friendRequestCount = 0, use
                   <div className="user-menu-name">{userName || "User"}</div>
                   <div className="user-menu-email">{userEmail}</div>
                 </div>
+                {onProfileClick ? (
+                  <button
+                    className="user-menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      onProfileClick();
+                      setShowUserMenu(false);
+                    }}
+                  >
+                    <svg width={ICON_SIZES.small} height={ICON_SIZES.small} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M5 20c1.2-3.5 3.6-5.2 7-5.2 3.4 0 5.8 1.7 7 5.2" />
+                    </svg>
+                    Profile
+                  </button>
+                ) : null}
                 <button
                   className="user-menu-item"
                   role="menuitem"

@@ -1,65 +1,51 @@
-# Brooks App — origin server behind Cloudflare
-#
-# SSL modes:
-#   Flexible    → Cloudflare connects to origin on :80  (HTTP only)
-#   Full        → Cloudflare connects on :443, accepts any cert
-#   Full Strict → Cloudflare connects on :443, requires a valid cert
-#                 ✅ we use a Cloudflare Origin Certificate for this
-#
-# auto_https off  — disables ACME/Let's Encrypt (Cloudflare handles public TLS)
-# tls <cert> <key> — uses the Cloudflare Origin Certificate mounted at deploy time
+# Brooks App origin server behind Cloudflare
+# Cloudflare handles public TLS; Caddy terminates the origin certificate only.
 
 {
   auto_https off
 }
 
-# ── Shared routes (imported by both HTTP and HTTPS blocks) ──────────────────
 (app_routes) {
   encode gzip zstd
 
-  # Lightweight health check — deploy pipeline and load balancers use this
   @health path /health
   respond @health "OK" 200
 
-  # API routes
   handle_path /api/auth/* {
-    reverse_proxy auth-service:8081
+    reverse_proxy {$AUTH_SERVICE_HOST}:{$AUTH_SERVICE_PORT}
   }
 
   handle_path /api/social/* {
-    reverse_proxy social-service:8082
+    reverse_proxy {$SOCIAL_SERVICE_HOST}:{$SOCIAL_SERVICE_PORT}
   }
 
   handle_path /api/lists/* {
-    reverse_proxy lists-service:8083
+    reverse_proxy {$LISTS_SERVICE_HOST}:{$LISTS_SERVICE_PORT}
   }
 
-  # Strip /api so pins-service receives /pins/...
   handle /api/pins* {
     uri strip_prefix /api
-    reverse_proxy pins-service:8084
+    reverse_proxy {$PINS_SERVICE_HOST}:{$PINS_SERVICE_PORT}
   }
 
   handle_path /api/media/* {
-    reverse_proxy media-service:8085
+    reverse_proxy {$MEDIA_SERVICE_HOST}:{$MEDIA_SERVICE_PORT}
   }
 
   handle_path /api/moderation/* {
-    reverse_proxy moderation-service:8086
+    reverse_proxy {$MODERATION_SERVICE_HOST}:{$MODERATION_SERVICE_PORT}
   }
 
   handle_path /api/notifications/* {
-    reverse_proxy notifications-service:8087
+    reverse_proxy {$NOTIFICATIONS_SERVICE_HOST}:{$NOTIFICATIONS_SERVICE_PORT}
   }
 
-  # Management actuator (primary = pins-service)
   handle /actuator/* {
-    reverse_proxy pins-service:8084
+    reverse_proxy {$PINS_SERVICE_HOST}:{$PINS_SERVICE_PORT}
   }
 
-  # React SPA — catch-all
   handle {
-    reverse_proxy frontend:3000
+    reverse_proxy {$FRONTEND_HOST}:{$FRONTEND_PORT}
   }
 
   header {
@@ -72,7 +58,6 @@
   }
 }
 
-# ── HTTP — Cloudflare "Flexible" SSL ────────────────────────────────────────
 http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
   log {
     output stdout
@@ -82,7 +67,6 @@ http://{$BROOKS_DOMAIN}, http://www.{$BROOKS_DOMAIN}, :80 {
   import app_routes
 }
 
-# ── HTTPS — Cloudflare "Full Strict" (Origin Certificate, no ACME) ──────────
 https://{$BROOKS_DOMAIN}, https://www.{$BROOKS_DOMAIN} {
   log {
     output stdout

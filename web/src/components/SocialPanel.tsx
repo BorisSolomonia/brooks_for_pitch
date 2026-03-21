@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ï»¿import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   acceptFriend,
@@ -26,6 +26,7 @@ type SocialPanelProps = {
   token: string | null;
   onClose: () => void;
   onUseFriendsPins: () => void;
+  onOpenProfile: (userId: string) => void;
 };
 
 type RelationMap = Record<string, UserSummary>;
@@ -34,7 +35,7 @@ function uniqIds(ids: string[]) {
   return Array.from(new Set(ids.filter(Boolean)));
 }
 
-export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: SocialPanelProps) {
+export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins, onOpenProfile }: SocialPanelProps) {
   const [tab, setTab] = useState<SocialTab>("people");
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserSummary[]>([]);
@@ -262,16 +263,16 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                       value={query}
                       onChange={event => setQuery(event.target.value)}
                     />
-                    <p className="form-hint">Find people first. Friends power the Friends&apos; pins view.</p>
+                    <p className="form-hint">Find people first. Friends power the Friends' pins view.</p>
                   </div>
                   <div className="social-list">
                     {query.trim() && searchResults.length === 0 ? <div className="social-empty">No people matched your search.</div> : null}
                     {searchResults.map(user => (
                       <div key={user.userId} className="social-card">
-                        <div>
+                        <button type="button" className="social-user-link" onClick={() => onOpenProfile(user.userId)}>
                           <strong>{user.displayName}</strong>
                           <span>@{user.handle}</span>
-                        </div>
+                        </button>
                         {renderSearchAction(user)}
                       </div>
                     ))}
@@ -294,10 +295,10 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                     {!friends.length ? <div className="social-empty">No friends yet. Use Find people to send requests.</div> : null}
                     {friends.map(item => (
                       <div key={item.friendshipId} className="social-card">
-                        <div>
+                        <button type="button" className="social-user-link" onClick={() => onOpenProfile(item.userId)}>
                           <strong>{renderUserName(item.userId)}</strong>
                           <span>Friend</span>
-                        </div>
+                        </button>
                         <button
                           type="button"
                           className="social-mini"
@@ -323,10 +324,10 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                       {!incoming.length ? <div className="social-empty">No incoming requests.</div> : null}
                       {incoming.map(item => (
                         <div key={item.requestId} className="social-card compact-card">
-                          <div>
+                          <button type="button" className="social-user-link" onClick={() => onOpenProfile(item.userId)}>
                             <strong>{renderUserName(item.userId)}</strong>
                             <span>Wants to be friends</span>
-                          </div>
+                          </button>
                           <div className="social-actions-row">
                             <button type="button" className="social-mini primary" disabled={actionId === item.requestId} onClick={() => handleAction(item.requestId, () => acceptFriend(token!, item.requestId))}>Accept</button>
                             <button type="button" className="social-mini" disabled={actionId === item.requestId} onClick={() => handleAction(item.requestId, () => declineFriend(token!, item.requestId))}>Decline</button>
@@ -344,10 +345,10 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                       {!sent.length ? <div className="social-empty">No pending requests sent.</div> : null}
                       {sent.map(item => (
                         <div key={item.requestId} className="social-card compact-card">
-                          <div>
+                          <button type="button" className="social-user-link" onClick={() => onOpenProfile(item.userId)}>
                             <strong>{renderUserName(item.userId)}</strong>
                             <span>Pending</span>
-                          </div>
+                          </button>
                           <span className="social-badge muted">Waiting</span>
                         </div>
                       ))}
@@ -367,10 +368,10 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                       {!following.length ? <div className="social-empty">You are not following anyone yet.</div> : null}
                       {following.map(item => (
                         <div key={item.followId} className="social-card compact-card">
-                          <div>
+                          <button type="button" className="social-user-link" onClick={() => onOpenProfile(item.userId)}>
                             <strong>{renderUserName(item.userId)}</strong>
                             <span>Following</span>
-                          </div>
+                          </button>
                           <button type="button" className="social-mini" disabled={actionId === item.followId} onClick={() => handleAction(item.followId, () => unfollowUser(token!, item.userId))}>Unfollow</button>
                         </div>
                       ))}
@@ -385,10 +386,10 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                       {!followers.length ? <div className="social-empty">No followers yet.</div> : null}
                       {followers.map(item => (
                         <div key={item.followId} className="social-card compact-card">
-                          <div>
+                          <button type="button" className="social-user-link" onClick={() => onOpenProfile(item.userId)}>
                             <strong>{renderUserName(item.userId)}</strong>
                             <span>Follows you</span>
-                          </div>
+                          </button>
                           {friendIds.has(item.userId)
                             ? <span className="social-badge">Friend</span>
                             : <button type="button" className="social-mini primary" disabled={actionId === item.userId} onClick={() => handleAction(item.userId, () => requestFriend(token!, item.userId))}>Add friend</button>}
@@ -399,7 +400,7 @@ export function SocialPanel({ isOpen, token, onClose, onUseFriendsPins }: Social
                 </div>
               ) : null}
 
-              {loading ? <div className="social-loading">Refreshing relationships…</div> : null}
+              {loading ? <div className="social-loading">Refreshing relationships...</div> : null}
             </div>
           </motion.section>
         )}

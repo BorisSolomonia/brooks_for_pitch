@@ -36,6 +36,18 @@ public interface PinRepository extends JpaRepository<PinEntity, UUID> {
       Instant now2
   );
 
+  List<PinEntity> findByOwnerIdAndExpiresAtAfterAndAvailableFromBeforeOrderByCreatedAtDesc(
+      UUID ownerId,
+      Instant now1,
+      Instant now2
+  );
+
+  long countByOwnerIdAndExpiresAtAfterAndAvailableFromBefore(
+      UUID ownerId,
+      Instant now1,
+      Instant now2
+  );
+
   /**
    * Deletes expired pins in batches.
    * Used by the cleanup job to remove old pins.

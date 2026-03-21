@@ -7,9 +7,10 @@ import "../styles/PinDetailModal.css";
 type PinDetailModalProps = {
   pin: MapPin | null;
   onClose: () => void;
+  onOpenProfile?: (userId: string) => void;
 };
 
-export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
+export function PinDetailModal({ pin, onClose, onOpenProfile }: PinDetailModalProps) {
   const audienceLabel = pin?.audienceType === "PRIVATE"
     ? "Private"
     : pin?.audienceType === "FRIENDS"
@@ -70,6 +71,11 @@ export function PinDetailModal({ pin, onClose }: PinDetailModalProps) {
                   <span className="pin-detail-chip">{audienceLabel}</span>
                   <span className="pin-detail-chip">{revealLabel}</span>
                   <span className="pin-detail-chip">{precisionLabel}</span>
+                  {!pin.owner && onOpenProfile ? (
+                    <button type="button" className="pin-detail-profile-link" onClick={() => onOpenProfile(pin.ownerId)}>
+                      View profile
+                    </button>
+                  ) : null}
                 </div>
               </motion.div>
               <motion.div

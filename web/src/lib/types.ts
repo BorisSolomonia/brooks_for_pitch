@@ -11,6 +11,7 @@ export type Coordinates = {
 
 export type MapPin = {
   id: string;
+  ownerId: string;
   location: Coordinates;
   mapPrecision: "EXACT" | "BLURRED";
   textPreview: string;
@@ -48,6 +49,57 @@ export type UserSummary = {
   userId: string;
   handle: string;
   displayName: string;
+};
+
+export type UserProfile = {
+  userId: string;
+  handle: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  about?: string | null;
+  pronouns?: string | null;
+  locationLabel?: string | null;
+  websiteUrl?: string | null;
+};
+
+export type UpdateUserProfile = {
+  handle?: string;
+  displayName?: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  about?: string | null;
+  pronouns?: string | null;
+  locationLabel?: string | null;
+  websiteUrl?: string | null;
+};
+
+export type ProfileRelationshipSummary = {
+  userId: string;
+  self: boolean;
+  friend: boolean;
+  following: boolean;
+  incomingFriendRequest: boolean;
+  outgoingFriendRequest: boolean;
+  friendCount: number;
+  followerCount: number;
+  followingCount: number;
+};
+
+export type ProfileMemoryCard = {
+  id: string;
+  location: Coordinates;
+  mapPrecision: "EXACT" | "BLURRED";
+  textPreview: string;
+  audienceType: "PRIVATE" | "FRIENDS" | "FOLLOWERS" | "PUBLIC";
+  revealType: "VISIBLE_ALWAYS" | "REACH_TO_REVEAL";
+  createdAt: string;
+  owner: boolean;
+};
+
+export type ProfileMapSummary = {
+  totalCount: number;
+  markers: Coordinates[];
 };
 
 export type FriendRequestRecord = {

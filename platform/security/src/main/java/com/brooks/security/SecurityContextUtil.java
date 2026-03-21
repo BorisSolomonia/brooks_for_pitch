@@ -60,13 +60,17 @@ public final class SecurityContextUtil {
   }
 
   private static UUID resolveUserId(Jwt jwt) {
-    String userId = firstClaim(jwt, List.of(
-        "https://brooksweb.uk/user_id",
-        "https://brooksweb.uk/uid",
-        "user_id",
-        "uid",
-        "sub"
-    ));
+    String claimNamespace = System.getenv("BROOKS_AUTH_CLAIM_NAMESPACE");
+    List<String> claimKeys = new java.util.ArrayList<>();
+    if (claimNamespace != null && !claimNamespace.trim().isEmpty()) {
+      String normalizedNamespace = claimNamespace.trim();
+      claimKeys.add(normalizedNamespace + "/user_id");
+      claimKeys.add(normalizedNamespace + "/uid");
+    }
+    claimKeys.add("user_id");
+    claimKeys.add("uid");
+    claimKeys.add("sub");
+    String userId = firstClaim(jwt, claimKeys);
     if (userId == null || userId.isBlank()) {
       return null;
     }

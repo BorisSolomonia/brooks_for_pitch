@@ -135,6 +135,7 @@ public class PinService {
         LocationRequest location = toLocation(pin, pin.getMapPrecision());
         results.add(new MapPin(
             pin.getId().toString(),
+            pin.getOwnerId().toString(),
             location,
             pin.getMapPrecision(),
             previewText(pin.getText()),
