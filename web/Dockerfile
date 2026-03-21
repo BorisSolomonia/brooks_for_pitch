@@ -55,7 +55,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD-SHELL wget --no-verbose --tries=1 --spider http://127.0.0.1:${FRONTEND_PORT}/ || exit 1
+  CMD /bin/sh -c "wget --no-verbose --tries=1 --spider http://127.0.0.1:${FRONTEND_PORT}/ || exit 1"
 
 # Expose frontend port
 EXPOSE ${FRONTEND_PORT}
