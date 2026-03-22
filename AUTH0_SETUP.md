@@ -13,7 +13,7 @@ Auth0 provides authentication and authorization for the Brooks app. You'll need:
 - **Auth0 Application** (Single Page Application) - For frontend authentication
 - **Auth0 API** - For backend authorization
 
-## Step 1: Create Auth0 Account
+## Step 1: Create Auth0 Account.
 
 1. Go to https://auth0.com
 2. Click **Sign Up** (it's free to start)
@@ -33,7 +33,7 @@ Auth0 provides authentication and authorization for the Brooks app. You'll need:
    - **Application Type**: **Single Page Web Applications**
    - Click **Create**
 
-### 2.2 Configure Application Settings
+### 2.2 Configure Application Settings.
 
 After creation, go to the **Settings** tab:
 
@@ -82,7 +82,7 @@ Scroll down to **Advanced Settings**:
 
 4. Click **Save Changes** at the bottom
 
-### 2.3 Note Your Application Credentials
+### 2.3 Note Your Application Credentials.
 
 From the **Settings** tab, copy these values (you'll need them later):
 
