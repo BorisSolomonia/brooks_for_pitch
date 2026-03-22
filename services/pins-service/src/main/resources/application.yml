@@ -29,11 +29,11 @@ brooks:
   cache:
     ttl-seconds: ${REDIS_CACHE_TTL_SECONDS}
   social:
-    base-url: ${SOCIAL_SERVICE_URL}
+    base-url: ${SOCIAL_SERVICE_URL:http://${SOCIAL_SERVICE_HOST:social-service}:${SOCIAL_SERVICE_PORT:8082}}
   lists:
-    base-url: ${LISTS_SERVICE_URL}
+    base-url: ${LISTS_SERVICE_URL:http://${LISTS_SERVICE_HOST:lists-service}:${LISTS_SERVICE_PORT:8083}}
   notifications:
-    base-url: ${NOTIFICATIONS_SERVICE_URL}
+    base-url: ${NOTIFICATIONS_SERVICE_URL:http://${NOTIFICATIONS_SERVICE_HOST:notifications-service}:${NOTIFICATIONS_SERVICE_PORT:8087}}
     reveal-title: ${BROOKS_NOTIFICATION_REVEAL_TITLE:A hidden memory was revealed!}
     reveal-body: ${BROOKS_NOTIFICATION_REVEAL_BODY:You discovered a memory nearby}
     reveal-type: ${BROOKS_NOTIFICATION_REVEAL_TYPE:PIN_REVEALED}
