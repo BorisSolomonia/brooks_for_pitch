@@ -1,4 +1,5 @@
 import type {
+  AppNotification,
   Coordinates,
   FollowRecord,
   FriendRequestRecord,
@@ -9,6 +10,7 @@ import type {
   ProfileMapSummary,
   ProfileMemoryCard,
   ProfileRelationshipSummary,
+  ProximityCheckResponse,
   UpdateUserProfile,
   UserSummary
 } from "./types";
@@ -19,6 +21,7 @@ import { PIN_FORM_SETTINGS } from "./frontendConfig";
 const PINS_API_URL = env.pinsApiUrl;
 const AUTH_API_URL = env.authApiUrl ?? `${PINS_API_URL}/auth`;
 const SOCIAL_API_URL = env.socialApiUrl ?? `${PINS_API_URL}/social`;
+const NOTIFICATIONS_API_URL = env.notificationsApiUrl ?? `${PINS_API_URL}/notifications`;
 
 type MapPinsResponse = {
   pins: MapPin[];
@@ -97,6 +100,7 @@ export async function createPin(
       altitudeM: null
     },
     ...(form.notifyRadiusM && form.notifyRadiusM > 0 ? { notifyRadiusM: form.notifyRadiusM } : {}),
+    ...(form.notifyRadiusM && form.notifyRadiusM > 0 && form.revealType === "REACH_TO_REVEAL" ? { revealRadiusM: form.notifyRadiusM } : {}),
     ...(form.revealAt ? { revealAt: new Date(form.revealAt).toISOString() } : {})
   };
 
@@ -261,4 +265,38 @@ export async function fetchProfileMapSummary(token: string, userId: string): Pro
     headers: jsonHeaders(token)
   });
   return handleJson<ProfileMapSummary>(response, "fetchProfileMapSummary");
+}
+
+export async function proximityCheck(token: string, location: Coordinates): Promise<ProximityCheckResponse> {
+  const response = await fetch(`${PINS_API_URL}/pins/proximity-check`, {
+    method: "POST",
+    headers: jsonHeaders(token),
+    body: JSON.stringify({ location: { lat: location.lat, lng: location.lng } })
+  });
+  return handleJson<ProximityCheckResponse>(response, "proximityCheck");
+}
+
+export async function fetchNotifications(token: string): Promise<AppNotification[]> {
+  const response = await fetch(`${NOTIFICATIONS_API_URL}`, {
+    headers: jsonHeaders(token)
+  });
+  return handleJson<AppNotification[]>(response, "fetchNotifications");
+}
+
+export async function fetchUnreadNotificationCount(token: string): Promise<number> {
+  const response = await fetch(`${NOTIFICATIONS_API_URL}/unread-count`, {
+    headers: jsonHeaders(token)
+  });
+  const data = await handleJson<{ count: number }>(response, "fetchUnreadNotificationCount");
+  return data.count;
+}
+
+export async function markNotificationRead(token: string, id: string): Promise<void> {
+  const response = await fetch(`${NOTIFICATIONS_API_URL}/${encodeURIComponent(id)}/read`, {
+    method: "POST",
+    headers: jsonHeaders(token)
+  });
+  if (!response.ok) {
+    await handleJson(response, "markNotificationRead");
+  }
 }

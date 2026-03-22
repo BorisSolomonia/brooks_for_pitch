@@ -68,6 +68,14 @@ public class PinController {
     return ResponseEntity.ok(pinService.checkReveal(id, request));
   }
 
+  @PostMapping("/proximity-check")
+  public ResponseEntity<ProximityCheckResponse> proximityCheck(
+      @Valid @RequestBody ProximityCheckRequest request
+  ) {
+    log.info("proximity check request: lat={}, lng={}", request.location().lat(), request.location().lng());
+    return ResponseEntity.ok(pinService.proximityCheck(request));
+  }
+
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     log.info("delete pin request: pinId={}", id);

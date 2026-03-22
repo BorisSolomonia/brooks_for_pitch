@@ -106,6 +106,11 @@ export const PIN_AUDIENCE_OPTIONS = [
   }
 ] as const;
 
+export const PROXIMITY_SETTINGS = {
+  pollIntervalMs: 30_000,
+  geolocationTimeoutMs: 10_000,
+} as const;
+
 export const PIN_CREATION_UI = {
   meterSize: 188,
   meterStroke: 13,

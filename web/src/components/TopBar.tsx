@@ -5,15 +5,17 @@ import "../styles/TopBar.css";
 interface TopBarProps {
   onMenuClick: () => void;
   onPeopleClick?: () => void;
+  onNotificationsClick?: () => void;
   onProfileClick?: () => void;
   friendRequestCount?: number;
+  unreadNotificationCount?: number;
   userName?: string;
   userEmail?: string;
   userAvatarUrl?: string | null;
   onSignOut: () => void;
 }
 
-export function TopBar({ onMenuClick, onPeopleClick, onProfileClick, friendRequestCount = 0, userName, userEmail, userAvatarUrl, onSignOut }: TopBarProps) {
+export function TopBar({ onMenuClick, onPeopleClick, onNotificationsClick, onProfileClick, friendRequestCount = 0, unreadNotificationCount = 0, userName, userEmail, userAvatarUrl, onSignOut }: TopBarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuId = useId();
 
@@ -58,6 +60,15 @@ export function TopBar({ onMenuClick, onPeopleClick, onProfileClick, friendReque
               <path d="M15 11h6" />
             </svg>
             {friendRequestCount > 0 && <span className="topbar-badge" />}
+          </button>
+        )}
+        {onNotificationsClick && (
+          <button className="command-btn" onClick={onNotificationsClick} aria-label="Notifications">
+            <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            {unreadNotificationCount > 0 && <span className="topbar-badge" />}
           </button>
         )}
         <div className="user-menu-container">

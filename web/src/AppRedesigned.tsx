@@ -7,18 +7,20 @@ import { NavigationDrawer } from "./components/NavigationDrawer";
 import { PinCreationModal } from "./components/PinCreationModal";
 import { PinDetailModal } from "./components/PinDetailModal";
 import { SocialPanel } from "./components/SocialPanel";
+import { NotificationsPanel } from "./components/NotificationsPanel";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { MapChargeRing } from "./components/MapChargeRing";
 import { SketchOverlay } from "./components/SketchOverlay";
 import { GrainOverlay } from "./components/GrainOverlay";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
+import { useProximityCheck } from "./hooks/useProximityCheck";
 import { env } from "./lib/env";
 import { buildActiveBbox, type MapProvider } from "./lib/frontendConfig";
 import { applyTheme } from "./lib/theme";
 import { getDefaultFontId, applyFont } from "./lib/fonts";
 import type { FontSlot } from "./lib/fonts";
-import { fetchMapPins, createPin, checkPinsHealth, fetchIncomingFriendRequests, fetchMyProfile } from "./lib/api";
+import { fetchMapPins, createPin, checkPinsHealth, fetchIncomingFriendRequests, fetchMyProfile, fetchUnreadNotificationCount } from "./lib/api";
 import type { AuthTokens, Coordinates, MapPin, PinForm, PinViewScope, UserProfile } from "./lib/types";
 import "./styles/AppRedesigned.css";
 
@@ -44,6 +46,8 @@ export default function AppRedesigned() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [activeProfileUserId, setActiveProfileUserId] = useState<string | null>(null);
   const [chargeTarget, setChargeTarget] = useState<{ coords: Coordinates; x: number; y: number } | null>(null);
   const ringCompletedRef = useRef(false);
@@ -61,6 +65,19 @@ export default function AppRedesigned() {
 
   const [mapProvider, setMapProvider] = useState<MapProvider>(env.mapProvider);
   const { location } = useCityTheme();
+
+  useProximityCheck({
+    token: token?.accessToken ?? null,
+    onPinsRevealed: (revealed) => {
+      // Refresh pins on map when new pins are revealed
+      if (token) {
+        fetchMapPins(token.accessToken, buildActiveBbox(center), pinViewScope)
+          .then(setPins)
+          .catch(() => {});
+      }
+      setUnreadNotificationCount(prev => prev + revealed.length);
+    },
+  });
 
   useEffect(() => {
     applyTheme("default");
@@ -97,6 +114,9 @@ export default function AppRedesigned() {
           .catch(() => {});
         fetchIncomingFriendRequests(accessToken)
           .then(requests => setIncomingRequestCount(requests.length))
+          .catch(() => {});
+        fetchUnreadNotificationCount(accessToken)
+          .then(count => setUnreadNotificationCount(count))
           .catch(() => {});
       } catch (error) {
         console.error("Failed to get token:", error);
@@ -209,8 +229,10 @@ export default function AppRedesigned() {
         <TopBar
           onMenuClick={() => setIsDrawerOpen(true)}
           onPeopleClick={() => setIsSocialOpen(true)}
+          onNotificationsClick={() => setIsNotificationsOpen(true)}
           onProfileClick={() => currentProfile?.userId && setActiveProfileUserId(currentProfile.userId)}
           friendRequestCount={incomingRequestCount}
+          unreadNotificationCount={unreadNotificationCount}
           userName={currentProfile?.displayName ?? user?.name}
           userEmail={user?.email}
           userAvatarUrl={currentProfile?.avatarUrl}
@@ -330,6 +352,7 @@ export default function AppRedesigned() {
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleCreatePin}
           location={center}
+          token={token.accessToken}
         />
 
         <PinDetailModal
@@ -350,6 +373,13 @@ export default function AppRedesigned() {
             setPinViewScope("friends");
             setIsSocialOpen(false);
           }}
+        />
+
+        <NotificationsPanel
+          isOpen={isNotificationsOpen}
+          token={token.accessToken}
+          onClose={() => setIsNotificationsOpen(false)}
+          onNotificationRead={() => setUnreadNotificationCount(prev => Math.max(0, prev - 1))}
         />
 
         <ProfileScreen

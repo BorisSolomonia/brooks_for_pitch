@@ -1,3 +1,15 @@
+spring:
+  datasource:
+    url: ${NOTIFICATIONS_DB_URL}
+    username: ${NOTIFICATIONS_DB_USER}
+    password: ${NOTIFICATIONS_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
 server:
   port: ${SERVER_PORT:${NOTIFICATIONS_SERVICE_PORT:8087}}
 
@@ -15,3 +27,13 @@ brooks:
   web:
     origins: ${BROOKS_WEB_ORIGINS}
 
+internal:
+  service:
+    keys: ${INTERNAL_SERVICE_KEYS}
+    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES:}
+    key-map: ${INTERNAL_SERVICE_KEY_MAP:}
+
+logging:
+  level:
+    root: INFO
+    com.brooks.notifications: INFO

@@ -5,7 +5,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,15 +21,18 @@ import org.springframework.stereotype.Service;
 public class ProximityService {
   private final PinRepository pinRepository;
   private final PinAccessService pinAccessService;
+  private final PinNotificationStateRepository pinNotificationStateRepository;
   private final LocationBucket locationBucket;
 
   public ProximityService(
       PinRepository pinRepository,
       PinAccessService pinAccessService,
+      PinNotificationStateRepository pinNotificationStateRepository,
       LocationBucket locationBucket
   ) {
     this.pinRepository = pinRepository;
     this.pinAccessService = pinAccessService;
+    this.pinNotificationStateRepository = pinNotificationStateRepository;
     this.locationBucket = locationBucket;
   }
 
@@ -51,12 +56,22 @@ public class ProximityService {
     Map<UUID, PinAccessService.AccessEvaluationResult> accessResults =
         pinAccessService.evaluateBatch(pins, viewerId, false);
 
+    // Filter unrevealed REACH_TO_REVEAL pins for non-owners
+    Set<UUID> unlockedIds = getUnlockedReachToRevealIds(pins, accessResults, viewerId);
+
     // Build response with access-controlled pins
     List<MapPin> results = new ArrayList<>();
     for (PinEntity pin : pins) {
       PinAccessService.AccessEvaluationResult result = accessResults.get(pin.getId());
 
       if (result.isAllowed()) {
+        // Hide unrevealed REACH_TO_REVEAL pins from non-owners
+        if (pin.getRevealType() == RevealType.REACH_TO_REVEAL
+            && !viewerId.equals(pin.getOwnerId())
+            && !unlockedIds.contains(pin.getId())) {
+          continue;
+        }
+
         LocationRequest location = applyMapPrecision(pin, pin.getMapPrecision());
         results.add(new MapPin(
             pin.getId().toString(),
@@ -112,11 +127,20 @@ public class ProximityService {
     Map<UUID, PinAccessService.AccessEvaluationResult> accessResults =
         pinAccessService.evaluateBatch(pins, viewerId, false);
 
+    // Filter unrevealed REACH_TO_REVEAL pins for non-owners
+    Set<UUID> unlockedIds = getUnlockedReachToRevealIds(pins, accessResults, viewerId);
+
     List<MapPin> results = new ArrayList<>();
     for (PinEntity pin : pins) {
       PinAccessService.AccessEvaluationResult result = accessResults.get(pin.getId());
 
       if (!result.isAllowed() || viewerId.equals(pin.getOwnerId()) || !result.graphView().friend()) {
+        continue;
+      }
+
+      // Hide unrevealed REACH_TO_REVEAL pins
+      if (pin.getRevealType() == RevealType.REACH_TO_REVEAL
+          && !unlockedIds.contains(pin.getId())) {
         continue;
       }
 
@@ -212,5 +236,35 @@ public class ProximityService {
       return normalized;
     }
     return normalized.substring(0, 137) + "...";
+  }
+
+  /**
+   * Returns IDs of REACH_TO_REVEAL pins that the viewer has already unlocked.
+   */
+  private Set<UUID> getUnlockedReachToRevealIds(
+      List<PinEntity> pins,
+      Map<UUID, PinAccessService.AccessEvaluationResult> accessResults,
+      UUID viewerId
+  ) {
+    List<UUID> reachToRevealPinIds = pins.stream()
+        .filter(pin -> pin.getRevealType() == RevealType.REACH_TO_REVEAL)
+        .filter(pin -> !viewerId.equals(pin.getOwnerId()))
+        .filter(pin -> {
+          PinAccessService.AccessEvaluationResult result = accessResults.get(pin.getId());
+          return result != null && result.isAllowed();
+        })
+        .map(PinEntity::getId)
+        .collect(Collectors.toList());
+
+    if (reachToRevealPinIds.isEmpty()) {
+      return Set.of();
+    }
+
+    return pinNotificationStateRepository
+        .findByUserIdAndPinIdIn(viewerId, reachToRevealPinIds)
+        .stream()
+        .filter(state -> state.getUnlockedAt() != null)
+        .map(PinNotificationStateEntity::getPinId)
+        .collect(Collectors.toSet());
   }
 }

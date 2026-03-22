@@ -1,13 +1,21 @@
 package com.brooks.pins;
 
+import com.brooks.pins.client.NotificationsClient;
 import com.brooks.pins.service.PinAccessService;
 import com.brooks.pins.service.ProximityService;
 import com.brooks.security.SecurityContextUtil;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,11 +31,14 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @Service
 public class PinServiceRefactored {
+  private static final Logger log = LoggerFactory.getLogger(PinServiceRefactored.class);
+
   private final PinRepository pinRepository;
   private final PinAclRepository pinAclRepository;
   private final PinNotificationStateRepository pinNotificationStateRepository;
   private final PinAccessService pinAccessService;
   private final ProximityService proximityService;
+  private final NotificationsClient notificationsClient;
   private final LocationBucket locationBucket;
   private final GeometryFactory geometryFactory;
 
@@ -37,6 +48,7 @@ public class PinServiceRefactored {
       PinNotificationStateRepository pinNotificationStateRepository,
       PinAccessService pinAccessService,
       ProximityService proximityService,
+      NotificationsClient notificationsClient,
       @Value("${brooks.proximity.bucket-size-deg}") double bucketSizeDeg
   ) {
     this.pinRepository = pinRepository;
@@ -44,6 +56,7 @@ public class PinServiceRefactored {
     this.pinNotificationStateRepository = pinNotificationStateRepository;
     this.pinAccessService = pinAccessService;
     this.proximityService = proximityService;
+    this.notificationsClient = notificationsClient;
     this.locationBucket = new LocationBucket(bucketSizeDeg);
     this.geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
   }
@@ -104,6 +117,97 @@ public class PinServiceRefactored {
 
     List<PinCandidate> candidates = proximityService.findCandidatesInBucket(viewerId, bucket);
     return new PinCandidatesResponse(candidates);
+  }
+
+  /**
+   * Batch proximity check: finds REACH_TO_REVEAL pins near the viewer
+   * that haven't been unlocked yet, unlocks them, sends notifications,
+   * and returns newly revealed pins.
+   */
+  @Transactional
+  public ProximityCheckResponse proximityCheck(ProximityCheckRequest request) {
+    UUID viewerId = requireActor();
+    LocationRequest viewerLocation = request.location();
+    String bucket = locationBucket.bucket(viewerLocation.lat(), viewerLocation.lng());
+    Instant now = Instant.now();
+
+    // Query neighboring buckets for candidate pins
+    List<String> buckets = locationBucket.neighbors(bucket);
+    List<PinEntity> candidatePins = pinRepository.findByBucketInAndExpiresAtAfterAndAvailableFromBefore(
+        buckets, now, now
+    );
+
+    // Filter to REACH_TO_REVEAL pins not owned by viewer
+    List<PinEntity> reachToRevealPins = candidatePins.stream()
+        .filter(pin -> pin.getRevealType() == RevealType.REACH_TO_REVEAL)
+        .filter(pin -> !viewerId.equals(pin.getOwnerId()))
+        .collect(Collectors.toList());
+
+    if (reachToRevealPins.isEmpty()) {
+      return new ProximityCheckResponse(List.of());
+    }
+
+    // Batch evaluate access control
+    Map<UUID, PinAccessService.AccessEvaluationResult> accessResults =
+        pinAccessService.evaluateBatch(reachToRevealPins, viewerId, false);
+
+    // Filter to allowed pins
+    List<PinEntity> allowedPins = reachToRevealPins.stream()
+        .filter(pin -> {
+          PinAccessService.AccessEvaluationResult result = accessResults.get(pin.getId());
+          return result != null && result.isAllowed();
+        })
+        .collect(Collectors.toList());
+
+    if (allowedPins.isEmpty()) {
+      return new ProximityCheckResponse(List.of());
+    }
+
+    // Check which are already unlocked
+    List<UUID> allowedPinIds = allowedPins.stream().map(PinEntity::getId).collect(Collectors.toList());
+    Set<UUID> alreadyUnlocked = pinNotificationStateRepository
+        .findByUserIdAndPinIdIn(viewerId, allowedPinIds)
+        .stream()
+        .filter(state -> state.getUnlockedAt() != null)
+        .map(PinNotificationStateEntity::getPinId)
+        .collect(Collectors.toSet());
+
+    // For each not-yet-unlocked pin, check distance
+    List<ProximityCheckResponse.RevealedPin> revealed = new ArrayList<>();
+    for (PinEntity pin : allowedPins) {
+      if (alreadyUnlocked.contains(pin.getId())) {
+        continue;
+      }
+
+      LocationRequest pinLocation = new LocationRequest(
+          pin.getGeom().getY(),
+          pin.getGeom().getX(),
+          pin.getAltitudeM()
+      );
+
+      Integer effectiveRadius = pin.getRevealRadiusM() != null
+          ? pin.getRevealRadiusM()
+          : pin.getNotifyRadiusM();
+
+      if (effectiveRadius == null) {
+        continue;
+      }
+
+      double distance = GeoUtil.distanceMeters(viewerLocation, pinLocation);
+      if (distance <= effectiveRadius) {
+        boolean firstReveal = recordUnlock(pin.getId(), viewerId);
+        if (firstReveal) {
+          notificationsClient.sendRevealNotification(viewerId, pin.getId(), pin.getOwnerId());
+        }
+        revealed.add(new ProximityCheckResponse.RevealedPin(
+            pin.getId().toString(),
+            pin.getText(),
+            pin.getLinkUrl()
+        ));
+      }
+    }
+
+    return new ProximityCheckResponse(revealed);
   }
 
   /**
@@ -245,15 +349,19 @@ public class PinServiceRefactored {
     }
   }
 
-  private void recordUnlock(UUID pinId, UUID userId) {
-    PinNotificationStateEntity state = pinNotificationStateRepository
-        .findByPinIdAndUserId(pinId, userId)
-        .orElseGet(PinNotificationStateEntity::new);
-
+  private boolean recordUnlock(UUID pinId, UUID userId) {
+    Optional<PinNotificationStateEntity> existing =
+        pinNotificationStateRepository.findByPinIdAndUserId(pinId, userId);
+    if (existing.isPresent() && existing.get().getUnlockedAt() != null) {
+      return false; // Already unlocked
+    }
+    PinNotificationStateEntity state = existing.orElseGet(PinNotificationStateEntity::new);
     state.setPinId(pinId);
     state.setUserId(userId);
     state.setUnlockedAt(Instant.now());
+    state.setLastNotifiedAt(Instant.now());
     pinNotificationStateRepository.save(state);
+    return true; // First reveal
   }
 
   private double[] parseBbox(String bbox) {

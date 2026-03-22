@@ -119,3 +119,23 @@ export type FollowRecord = {
   userId: string;
   status: string;
 };
+
+export type RevealedPin = {
+  id: string;
+  text: string;
+  linkUrl?: string;
+};
+
+export type ProximityCheckResponse = {
+  revealed: RevealedPin[];
+};
+
+export type AppNotification = {
+  id: string;
+  type: string;
+  referenceId: string;
+  title: string;
+  body: string;
+  read: boolean;
+  createdAt: string;
+};

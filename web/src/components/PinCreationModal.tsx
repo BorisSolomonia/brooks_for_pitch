@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeSlideUpProps } from "./MotionWrappers";
+import { RecipientPicker } from "./RecipientPicker";
 import type { PinForm as PinFormType, Coordinates } from "../lib/types";
 import {
   MOTION_SETTINGS,
@@ -34,6 +35,7 @@ interface PinCreationModalProps {
   onClose: () => void;
   onSubmit: (form: PinFormType) => Promise<void>;
   location: Coordinates;
+  token?: string;
 }
 
 function clampIndex(index: number, maxIndex: number) {
@@ -158,7 +160,7 @@ function MeterSection({
   );
 }
 
-export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCreationModalProps) {
+export function PinCreationModal({ isOpen, onClose, onSubmit, location, token }: PinCreationModalProps) {
   const [text, setText] = useState("");
   const [audienceType, setAudienceType] = useState<AudienceType>("PUBLIC");
   const [revealType, setRevealType] = useState<RevealType>("VISIBLE_ALWAYS");
@@ -171,6 +173,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
   const [sendToPeople, setSendToPeople] = useState(false);
   const [recipientInput, setRecipientInput] = useState("");
   const [externalRecipientInput, setExternalRecipientInput] = useState("");
+  const [pickerRecipientIds, setPickerRecipientIds] = useState<string[]>([]);
   const [mediaType, setMediaType] = useState<MediaType>("NONE");
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -229,6 +232,13 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
 
     setIsSubmitting(true);
     try {
+      // Determine recipient IDs: prefer picker for FRIENDS/FOLLOWERS, fallback to manual input for vault
+      const effectiveRecipientIds = (audienceType === "FRIENDS" || audienceType === "FOLLOWERS") && pickerRecipientIds.length > 0
+        ? pickerRecipientIds
+        : sendToPeople
+          ? recipientInput.split(",").map(value => value.trim()).filter(Boolean)
+          : [];
+
       await onSubmit({
         text: text.trim(),
         audienceType,
@@ -239,9 +249,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
         mediaType,
         notifyRadiusM,
         revealAt: timeCapsule ? revealAt : undefined,
-        recipientIds: sendToPeople
-          ? recipientInput.split(",").map(value => value.trim()).filter(Boolean)
-          : [],
+        recipientIds: effectiveRecipientIds,
         externalRecipients: sendToPeople
           ? externalRecipientInput.split(",").map(value => value.trim()).filter(Boolean)
           : []
@@ -259,6 +267,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
       setRecipientInput("");
       setExternalRecipientInput("");
       setRecipientError(null);
+      setPickerRecipientIds([]);
       setMediaType("NONE");
       setAdvancedOpen(false);
       onClose();
@@ -366,6 +375,21 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location }: PinCre
                   ))}
                 </div>
               </motion.div>
+
+              {token && (audienceType === "FRIENDS" || audienceType === "FOLLOWERS") && (
+                <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
+                  <div className="section-copy compact">
+                    <p className="section-kicker">Recipients</p>
+                    <h3>Choose who sees this</h3>
+                  </div>
+                  <RecipientPicker
+                    token={token}
+                    audienceType={audienceType}
+                    selectedIds={pickerRecipientIds}
+                    onChange={setPickerRecipientIds}
+                  />
+                </motion.div>
+              )}
 
               <motion.div className="form-group" variants={formGroupVariants} transition={fadeSlideUpProps.transition}>
                 <MeterSection

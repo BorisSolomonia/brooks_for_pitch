@@ -33,6 +33,7 @@ public class NotificationsSecurityConfig {
             org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/internal/**").permitAll()
             .anyRequest().authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
     return http.build();

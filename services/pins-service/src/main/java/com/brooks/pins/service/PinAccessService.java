@@ -229,10 +229,13 @@ public class PinAccessService {
       return GeoUtil.withinPolygon(viewerPoint, pin.getMysteryGeom());
     }
 
-    // Check circular reveal radius
-    if (pin.getRevealRadiusM() != null) {
+    // Check circular reveal radius (fall back to notifyRadiusM)
+    Integer effectiveRadius = pin.getRevealRadiusM() != null
+        ? pin.getRevealRadiusM()
+        : pin.getNotifyRadiusM();
+    if (effectiveRadius != null) {
       double distance = GeoUtil.distanceMeters(viewerLocation, pinLocation);
-      return distance <= pin.getRevealRadiusM();
+      return distance <= effectiveRadius;
     }
 
     return false; // REACH_TO_REVEAL without radius or polygon

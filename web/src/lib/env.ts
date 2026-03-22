@@ -45,4 +45,5 @@ export const env = {
   defaultCenterLng: readNumber("VITE_DEFAULT_CENTER_LNG"),
   socialApiUrl: readOptional("VITE_SOCIAL_API_URL"),
   authApiUrl: readOptional("VITE_AUTH_API_URL"),
+  notificationsApiUrl: readOptional("VITE_NOTIFICATIONS_API_URL"),
 };

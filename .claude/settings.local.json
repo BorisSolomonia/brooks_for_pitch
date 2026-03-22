@@ -50,7 +50,8 @@
       "Bash(npm run build:*)",
       "WebFetch(domain:www.meetcleo.com)",
       "mcp__plugin_figma_figma__get_design_context",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mvn compile:*)"
     ]
   }
 }

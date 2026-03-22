@@ -32,6 +32,11 @@ brooks:
     base-url: ${SOCIAL_SERVICE_URL}
   lists:
     base-url: ${LISTS_SERVICE_URL}
+  notifications:
+    base-url: ${NOTIFICATIONS_SERVICE_URL}
+    reveal-title: ${BROOKS_NOTIFICATION_REVEAL_TITLE:A hidden memory was revealed!}
+    reveal-body: ${BROOKS_NOTIFICATION_REVEAL_BODY:You discovered a memory nearby}
+    reveal-type: ${BROOKS_NOTIFICATION_REVEAL_TYPE:PIN_REVEALED}
   proximity:
     bucket-size-deg: ${BROOKS_BUCKET_SIZE_DEG}
   cleanup:
@@ -81,6 +86,9 @@ resilience4j:
       listsService:
         baseConfig: default
         waitDurationInOpenState: 10s
+      notificationsService:
+        baseConfig: default
+        waitDurationInOpenState: 10s
   retry:
     configs:
       default:
@@ -91,6 +99,8 @@ resilience4j:
         baseConfig: default
       listsService:
         baseConfig: default
+      notificationsService:
+        baseConfig: default
   timelimiter:
     configs:
       default:
@@ -99,4 +109,6 @@ resilience4j:
       socialService:
         baseConfig: default
       listsService:
+        baseConfig: default
+      notificationsService:
         baseConfig: default
