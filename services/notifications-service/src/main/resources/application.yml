@@ -29,8 +29,8 @@ brooks:
 
 internal:
   service:
-    keys: ${INTERNAL_SERVICE_KEYS}
-    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES:}
+    keys: ${INTERNAL_SERVICE_KEYS:${INTERNAL_SERVICE_KEY:default-change-me}}
+    allowed-names: ${INTERNAL_SERVICE_ALLOWED_NAMES:pins-service}
     key-map: ${INTERNAL_SERVICE_KEY_MAP:}
 
 logging:
