@@ -10,8 +10,6 @@ import { SocialPanel } from "./components/SocialPanel";
 import { NotificationsPanel } from "./components/NotificationsPanel";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { MapChargeRing } from "./components/MapChargeRing";
-import { SketchOverlay } from "./components/SketchOverlay";
-import { GrainOverlay } from "./components/GrainOverlay";
 import AuthGate from "./components/AuthGate";
 import { useCityTheme } from "./hooks/useCityTheme";
 import { useProximityCheck } from "./hooks/useProximityCheck";
@@ -190,7 +188,6 @@ export default function AppRedesigned() {
   if (!isAuthenticated) {
     return (
       <>
-        <GrainOverlay />
         <AuthGate
           isLoading={isLoading}
           error={authError?.message ?? null}
@@ -224,8 +221,6 @@ export default function AppRedesigned() {
   return (
     <AnimatePresence mode="wait">
       <div className="app-redesigned">
-        <GrainOverlay />
-        <SketchOverlay />
         <TopBar
           onMenuClick={() => setIsDrawerOpen(true)}
           onPeopleClick={() => setIsSocialOpen(true)}
@@ -244,7 +239,7 @@ export default function AppRedesigned() {
             fallback={
               <div className="map-google-fallback">
                 <p>Loading map surface...</p>
-                <p>The atlas is assembling your city view.</p>
+                <p>Preparing the archive around you.</p>
               </div>
             }
           >
@@ -282,8 +277,8 @@ export default function AppRedesigned() {
 
         {!isModalOpen && !isDrawerOpen && !selectedPin && pins.length === 0 ? (
           <div className="map-helper-card" role="status" aria-live="polite">
-            <strong>Start here</strong>
-            <span>Tap "Leave a memory", hold on the map, or open People to add friends.</span>
+            <strong>Begin your archive</strong>
+            <span>Leave a memory, press and hold on the map, or open People to build your circle.</span>
           </div>
         ) : null}
 
@@ -294,16 +289,9 @@ export default function AppRedesigned() {
           aria-pressed={showPins}
         >
           {showPins ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
+            <span className="material-symbols-outlined">visibility</span>
           ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-              <line x1="1" y1="1" x2="23" y2="23" />
-            </svg>
+            <span className="material-symbols-outlined">visibility_off</span>
           )}
           <span>{showPins ? "Pins" : "Hidden"}</span>
         </button>

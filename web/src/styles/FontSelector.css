@@ -3,10 +3,10 @@
   top: calc(var(--topbar-height) + 18px);
   right: 14px;
   z-index: 1050;
-  border-radius: var(--radius-m);
+  border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: var(--panel-shadow-rest);
+  background: rgba(252, 249, 245, 0.88);
+  box-shadow: none;
   max-width: 310px;
   max-height: calc(100vh - var(--topbar-height) - 32px);
   display: flex;
@@ -15,7 +15,7 @@
 }
 
 .font-selector.collapsed {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-l);
   max-width: none;
   max-height: none;
   width: auto;
@@ -31,8 +31,9 @@
   color: var(--text-primary);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: var(--size-2xs);
-  letter-spacing: 0.02em;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   width: 100%;
   flex-shrink: 0;
 }
@@ -63,11 +64,12 @@
 .font-slot-label {
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.03em;
-  color: var(--text-dim);
+  letter-spacing: 0.14em;
+  color: var(--accent-secondary);
+  text-transform: uppercase;
   position: sticky;
   top: 0;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(252, 249, 245, 0.94);
   padding: 4px 0;
   z-index: 1;
 }
@@ -80,12 +82,12 @@
 
 .font-option {
   padding: 6px 10px;
-  border-radius: var(--radius-s);
+  border-radius: var(--radius-l);
   border: 1px solid var(--glass-border);
   background: var(--field-bg);
   color: var(--text-primary);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   transition: background var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard);
@@ -97,8 +99,8 @@
 }
 
 .font-option.active {
-  background: #FDB913;
-  color: #2C2416;
+  background: var(--accent-primary);
+  color: var(--cta-text);
   border-color: transparent;
   box-shadow: var(--cta-shadow-rest);
 }

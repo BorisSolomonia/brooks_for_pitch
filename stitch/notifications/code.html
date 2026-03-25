@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f6f3ee",
+              "surface-container-highest": "#e4e3da",
+              "surface": "#fcf9f5",
+              "tertiary-fixed-dim": "#edd6be",
+              "on-primary-fixed": "#27453c",
+              "secondary-fixed": "#e5e2de",
+              "primary-fixed-dim": "#badccf",
+              "on-secondary": "#fcf8f4",
+              "surface-container": "#f0eee8",
+              "primary-fixed": "#c8eadd",
+              "on-background": "#32332d",
+              "inverse-on-surface": "#9e9d99",
+              "secondary-container": "#e5e2de",
+              "surface-container-high": "#eae8e1",
+              "tertiary-dim": "#61503d",
+              "inverse-surface": "#0e0e0c",
+              "error-dim": "#4e0309",
+              "on-primary-fixed-variant": "#436258",
+              "tertiary": "#6d5c49",
+              "surface-bright": "#fcf9f5",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "on-surface-variant": "#5f5f59",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "primary": "#46645b",
+              "on-secondary-fixed-variant": "#5c5b58",
+              "error-container": "#fe8983",
+              "tertiary-container": "#fce4cb",
+              "primary-dim": "#3a584f",
+              "on-secondary-container": "#52524f",
+              "inverse-primary": "#d6f8eb",
+              "on-tertiary-container": "#63523f",
+              "on-surface": "#32332d",
+              "surface-dim": "#dbdad1",
+              "on-primary-container": "#39584e",
+              "secondary": "#605f5c",
+              "surface-tint": "#46645b",
+              "outline": "#7b7b74",
+              "tertiary-fixed": "#fce4cb",
+              "background": "#fcf9f5",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed": "#403f3d",
+              "secondary-dim": "#545350",
+              "surface-variant": "#e4e3da",
+              "on-tertiary": "#fff7f3",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "outline-variant": "#b3b2ab",
+              "error": "#9f403d",
+              "on-error-container": "#752121"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #fcf9f5;
+        color: #32332d;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar: suppressed for notifications panel in favor of specific header, but used as logic anchor -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f5]/80 dark:bg-[#32332d]/80 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#fcf9f5] transition-colors duration-300">
+<span class="material-symbols-outlined text-[#46645b]">close</span>
+</button>
+<h1 class="font-serif text-2xl italic text-[#32332d] dark:text-[#fcf9f5]">Brooks</h1>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label text-[10px] tracking-widest uppercase text-tertiary">Activity Feed</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a young woman with a thoughtful expression in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF8cOxbzKk-lvGrTY_q44IciwFQ9g4jnE8eHfncu8BsLkT1U0HmjBndJ9EcCexcXoRB4kToXJ4d57CSIfthxvHrEN11x4CzSi4du-gf5tdukYedOuhCqBUwrHhXIk8-gumJdFMOBikeBvp-zJaOHnezsx4sqgbfyHQy6fwze0aC8QoQXgSif6JWOIet-e8yunzPRoGFKRU2uFyhl97Xrwqqx-OrM4XC5GbNNBt2KcqdjbIuovjUZoDnGhV-nFemo_m7rH_cwgYyf1P"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Editorial Header -->
+<div class="mb-12">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-tertiary mb-2 block">Chronicle</span>
+<h2 class="font-headline text-5xl font-light text-on-surface leading-tight">Recent Archives</h2>
+</div>
+<!-- Notifications Container -->
+<div class="flex flex-col gap-6">
+<!-- Proximity Alert (Unread) -->
+<div class="group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-500 ease-in-out hover:scale-[1.01] border-l-4 border-primary">
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">location_on</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label text-[10px] tracking-widest uppercase text-primary font-bold">Proximity Alert</span>
+<span class="font-label text-[10px] text-tertiary">2m ago</span>
+</div>
+<p class="font-headline text-xl text-on-surface mb-2">A memory is buried nearby</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">You are standing within 50 meters of "The Summer of '94" archive. The ink is waiting to be read.</p>
+<div class="mt-4 flex gap-3">
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity">Reveal Now</button>
+<button class="text-primary px-4 py-2 rounded-lg text-xs font-semibold hover:bg-surface-container transition-colors">Dismiss</button>
+</div>
+</div>
+</div>
+<!-- Unread Indicator -->
+<div class="absolute top-6 right-6 w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<!-- Memory Reveal (Read) -->
+<div class="group relative bg-surface-container-low p-6 rounded-xl transition-all duration-500 ease-in-out">
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden grayscale opacity-60">
+<img alt="Vintage Photo" class="w-full h-full object-cover" data-alt="Grainy film photograph of a coastal landscape with old wooden pier at dusk, melancholic mood" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT73kxpxdlyMJbVmJYKaqNQIg7f6uL5EmltPvYKPknLE6H9WHRqa1Poyz2u6HUc1PO60SCUZ9PRUe0IgJGMvJgjUHm9JnJ9eYrdvw7IUMMVl82We6NajBhYroUnVY24xIMh-jbxRfS1vI6_A49xm116i8ikZwS8ZixmdjYG7QYZXLbjnFo1yFJEwrTOVH2kv5z6yaVI8ov4uShWWDEGe_dD4Nyz6N9AoWdFGviS9AnToHo8mDuzTWLkNmHJgSLPONwOBW-RjJkgtuA"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label text-[10px] tracking-widest uppercase text-tertiary">Shared Archive</span>
+<span class="font-label text-[10px] text-tertiary">1h ago</span>
+</div>
+<p class="font-headline text-xl text-on-surface mb-1">Elena unlocked a story</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed italic">"The pier looked exactly as I remembered it..."</p>
+</div>
+</div>
+</div>
+<!-- Friend Request (Unread) -->
+<div class="group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-500 ease-in-out hover:scale-[1.01] border-l-4 border-primary">
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary-container ring-offset-2">
+<img alt="Marcus" class="w-full h-full object-cover" data-alt="Close up of a man with a beard and glasses smiling warmly, soft studio lighting on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Ou7Ez2M6UW_Gx2UVf86nc-rCJzLANYuKpDN0C1cbVPa_hWtZziFeZHWVK3zsznRNHxUbhS6oKO4Jpxo2yoIZ5CRXRlmB2zJUFmoHk9IBIeoA168zRFFP9nYdEYRbDId-fv-PRZ2FiUpsP6fEL4ryowkX6p6O_RTPnPV5V6WUIXxrnIceaeiZg6Iq-RHfNC72hzBAG-A2t9-cob5wDhQx9n0lCroor9bQ8NnnFuEyrLKBBDdadfQYvOco19Iw212_-WGfag1D-JrP"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label text-[10px] tracking-widest uppercase text-primary font-bold">New Archivist</span>
+<span class="font-label text-[10px] text-tertiary">3h ago</span>
+</div>
+<p class="font-headline text-xl text-on-surface mb-2">Marcus sent a request</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Marcus wants to collaborate on your "West Coast Travels" collection.</p>
+<div class="mt-4 flex gap-3">
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg text-xs font-semibold">Accept</button>
+<button class="bg-surface-container-highest text-on-surface px-6 py-2 rounded-lg text-xs font-semibold">Decline</button>
+</div>
+</div>
+</div>
+<div class="absolute top-6 right-6 w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<!-- System Alert (Read) -->
+<div class="group relative bg-surface-container-low p-6 rounded-xl">
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center opacity-70">
+<span class="material-symbols-outlined text-tertiary">auto_stories</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label text-[10px] tracking-widest uppercase text-tertiary">Monthly Digest</span>
+<span class="font-label text-[10px] text-tertiary">Yesterday</span>
+</div>
+<p class="font-headline text-xl text-on-surface mb-1">October 2023 Curated</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Your digital journal for the past month has been bound and archived. 12 new memories preserved.</p>
+</div>
+</div>
+</div>
+<!-- Proximity Alert (Unread) - Asymmetric Layout -->
+<div class="flex justify-end w-full mt-4">
+<div class="group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-500 ease-in-out hover:scale-[1.01] border-l-4 border-primary w-11/12 shadow-[0_20px_40px_rgba(50,51,45,0.03)]">
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label text-[10px] tracking-widest uppercase text-primary font-bold">Echo Found</span>
+<span class="font-label text-[10px] text-tertiary">5h ago</span>
+</div>
+<p class="font-headline text-xl text-on-surface mb-2">A shared echo at "The Old Library"</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Three people you follow have recently archived memories at your current location.</p>
+</div>
+</div>
+<div class="absolute top-6 right-6 w-2 h-2 rounded-full bg-primary"></div>
+</div>
+</div>
+</div>
+<!-- Footer / Load More -->
+<div class="mt-16 flex flex-col items-center gap-4">
+<div class="w-px h-12 bg-outline-variant opacity-20"></div>
+<button class="font-label text-[10px] tracking-[0.3em] uppercase text-tertiary hover:text-primary transition-colors duration-300">
+                View Older Archives
+            </button>
+</div>
+</main>
+<!-- BottomNavBar: Fixed position using style_shell_layout logic -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 bg-[#fcf9f5]/90 dark:bg-[#32332d]/90 backdrop-blur-lg shadow-[0_-4px_24px_rgba(50,51,45,0.04)] rounded-t-3xl z-50">
+<a class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#46645b]/10 dark:bg-[#46645b]/30 text-[#46645b] dark:text-[#fcf9f5] rounded-full p-3 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Profile</span>
+</a>
+</nav>
+<!-- Contextual Floating Action Button suppressed as per rules for Notification/Detail screens -->
+</body></html>

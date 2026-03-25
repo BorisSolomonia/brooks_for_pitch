@@ -12,8 +12,8 @@ export type FontOption = {
 const FONT_CSS_BASE = "https://fonts.googleapis.com/css2";
 
 const GOOGLE_FONT_HREFS = {
-  inter: `${FONT_CSS_BASE}?family=Inter:wght@400;500;600&display=swap`,
-  merriweather: `${FONT_CSS_BASE}?family=Merriweather:wght@400;700&display=swap`,
+  manrope: `${FONT_CSS_BASE}?family=Manrope:wght@400;500;600;700&display=swap`,
+  newsreader: `${FONT_CSS_BASE}?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&display=swap`,
 } as const satisfies Record<string, string>;
 
 const loadedFontHrefs = new Set<string>();
@@ -36,14 +36,14 @@ function ensureGoogleFontLoaded(href?: string) {
 }
 
 export const FONT_OPTIONS: FontOption[] = [
-  { id: "merriweather", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif display" },
-  { id: "inter-display", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern display" },
+  { id: "newsreader-display", label: "Newsreader", family: '"Newsreader", Georgia, serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.newsreader, origin: "Editorial serif display" },
+  { id: "manrope-display", label: "Manrope", family: '"Manrope", system-ui, sans-serif', slot: "display", googleHref: GOOGLE_FONT_HREFS.manrope, origin: "Editorial sans display" },
 
-  { id: "inter-body", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern body text" },
-  { id: "merriweather-body", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif body text" },
+  { id: "manrope-body", label: "Manrope", family: '"Manrope", system-ui, sans-serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.manrope, origin: "Editorial sans body text" },
+  { id: "newsreader-body", label: "Newsreader", family: '"Newsreader", Georgia, serif', slot: "body", googleHref: GOOGLE_FONT_HREFS.newsreader, origin: "Literary serif body text" },
 
-  { id: "inter-mono", label: "Inter", family: '"Inter", system-ui, sans-serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.inter, origin: "Clean modern labels" },
-  { id: "merriweather-mono", label: "Merriweather", family: '"Merriweather", Georgia, serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.merriweather, origin: "Classic serif labels" },
+  { id: "manrope-label", label: "Manrope", family: '"Manrope", system-ui, sans-serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.manrope, origin: "Editorial labels" },
+  { id: "newsreader-label", label: "Newsreader", family: '"Newsreader", Georgia, serif', slot: "mono", googleHref: GOOGLE_FONT_HREFS.newsreader, origin: "Serif labels" },
 ];
 
 const CSS_VAR_MAP: Record<FontSlot, string> = {
@@ -69,9 +69,9 @@ export function getDefaultFontId(slot: FontSlot): string {
       return match.id;
     }
   }
-  if (slot === "display") return "merriweather";
-  if (slot === "body") return "inter-body";
-  return "inter-mono";
+  if (slot === "display") return "newsreader-display";
+  if (slot === "body") return "manrope-body";
+  return "manrope-label";
 }
 
 export function applyFont(slot: FontSlot, fontId: string) {

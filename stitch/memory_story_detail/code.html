@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#436258",
+              "on-secondary-container": "#52524f",
+              "tertiary-container": "#fce4cb",
+              "primary-fixed-dim": "#badccf",
+              "surface-bright": "#fcf9f5",
+              "outline": "#7b7b74",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "surface-container-highest": "#e4e3da",
+              "surface-container-low": "#f6f3ee",
+              "on-secondary-fixed-variant": "#5c5b58",
+              "on-surface-variant": "#5f5f59",
+              "surface-dim": "#dbdad1",
+              "on-tertiary-container": "#63523f",
+              "on-secondary": "#fcf8f4",
+              "on-tertiary": "#fff7f3",
+              "inverse-on-surface": "#9e9d99",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "inverse-surface": "#0e0e0c",
+              "primary": "#46645b",
+              "outline-variant": "#b3b2ab",
+              "on-error-container": "#752121",
+              "tertiary-fixed": "#fce4cb",
+              "error-dim": "#4e0309",
+              "surface-variant": "#e4e3da",
+              "tertiary-fixed-dim": "#edd6be",
+              "primary-fixed": "#c8eadd",
+              "secondary-container": "#e5e2de",
+              "surface-container": "#f0eee8",
+              "error": "#9f403d",
+              "on-primary-container": "#39584e",
+              "tertiary-dim": "#61503d",
+              "on-background": "#32332d",
+              "on-primary-fixed": "#27453c",
+              "on-secondary-fixed": "#403f3d",
+              "surface-tint": "#46645b",
+              "secondary-dim": "#545350",
+              "primary-dim": "#3a584f",
+              "error-container": "#fe8983",
+              "surface-container-high": "#eae8e1",
+              "secondary-fixed": "#e5e2de",
+              "on-surface": "#32332d",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "inverse-primary": "#d6f8eb",
+              "surface-container-lowest": "#ffffff",
+              "background": "#fcf9f5",
+              "surface": "#fcf9f5",
+              "tertiary": "#6d5c49",
+              "secondary": "#605f5c"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrim-overlay {
+            background: linear-gradient(to bottom, rgba(50,51,45,0.4) 0%, rgba(50,51,45,0) 30%, rgba(50,51,45,0) 60%, rgba(252,249,245,1) 95%);
+        }
+        .text-shadow-sm {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar (Contextual Suppression of Shell - Task Focused) -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 transition-all duration-300">
+<button aria-label="Close" class="flex h-12 w-12 items-center justify-center rounded-full bg-surface/20 text-on-primary backdrop-blur-md hover:bg-surface/40 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="flex gap-3">
+<button aria-label="Share" class="flex h-12 w-12 items-center justify-center rounded-full bg-surface/20 text-on-primary backdrop-blur-md hover:bg-surface/40 transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button aria-label="Save to Favorites" class="flex h-12 w-12 items-center justify-center rounded-full bg-surface/20 text-on-primary backdrop-blur-md hover:bg-surface/40 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<main class="relative min-h-screen">
+<!-- Hero Media Section -->
+<section class="relative h-[751px] w-full overflow-hidden">
+<img alt="Memory Background" class="absolute inset-0 h-full w-full object-cover" data-alt="Dreamy wide landscape of a quiet Italian coastal village at dusk, soft warm lights flickering in windows, deep blue sea meeting pale sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADd1gHaC4fC5v2gtC0SU1MGa2kzfA00sc-89qVpU99Fp2CxrJnZx3MHCysqdDSXQlq5V-T7KhAMbt0QV5itv9FcP3l4aeoMMvOxcrmM8S-Qg1bhKgnXBbojtVUJggofg7Y7WuYLmTo24jINIty2b0Hc60e2jQIMOAcmeKla91zmGxgSvTnnMytKRYNNgPUFhBHHkve4JQniRRjyYkD1JStqEl3h0I1xrNlSZtI5NVnSUwocfWv6k9vRbxpzJq9vuJs_85LPFxBjthb"/>
+<!-- Scrim for legibility and transition to content -->
+<div class="scrim-overlay absolute inset-0"></div>
+<!-- Hero Text Overlay (Asymmetric Alignment) -->
+<div class="absolute bottom-12 left-0 right-0 px-8 md:px-24">
+<div class="max-w-4xl">
+<p class="mb-4 font-label text-xs uppercase tracking-[0.3em] text-on-primary-fixed-variant md:text-sm">
+                        Pinned Artifact — Archive #0824
+                    </p>
+<h1 class="font-headline text-5xl font-extralight italic tracking-tight text-on-background md:text-8xl leading-tight">
+                        The Blue Hour in <br/> Vernazza
+                    </h1>
+</div>
+</div>
+</section>
+<!-- Memory Detail Content -->
+<article class="bg-surface px-8 pb-32 md:px-24">
+<div class="grid grid-cols-1 gap-12 lg:grid-cols-12">
+<!-- Metadata Sidebar (Editorial Style) -->
+<aside class="lg:col-span-4 lg:pt-4">
+<div class="sticky top-24 space-y-12">
+<!-- Location/Time Cluster -->
+<div class="space-y-6">
+<div>
+<h4 class="font-label text-[10px] uppercase tracking-widest text-tertiary mb-2">Location</h4>
+<div class="flex items-center gap-2 group cursor-pointer">
+<span class="material-symbols-outlined text-primary text-sm">location_on</span>
+<p class="font-body text-base text-on-surface-variant group-hover:text-primary transition-colors">Cinque Terre, Italy</p>
+</div>
+</div>
+<div>
+<h4 class="font-label text-[10px] uppercase tracking-widest text-tertiary mb-2">Temporal Point</h4>
+<p class="font-body text-base text-on-surface-variant italic">October 14th, 1998 — 18:42</p>
+</div>
+<div>
+<h4 class="font-label text-[10px] uppercase tracking-widest text-tertiary mb-2">Contributor</h4>
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Author" data-alt="Portrait of an elderly woman with silver hair and warm eyes, soft cinematic lighting, profile view." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4UNt1yGlqS0nz0Efijk7kPvOi-EXHpfup48iIJcmptW9eXU53Xido5gmwAQj2WTCAyqTSx0BvKIxW2bjjlg_JoOc4JHz-ciRgtQBgtTm0T_WHMx7qwFrqIffhmKzRVdGhdXvYtr6EudH6p0_F7RrvDC_VedGmK-FzJLARYJBAKMTXreD6ENyPhwcPdCrvcbXfz_798Xe6tSSq0YI17hShfYhc2Giykkhz5p_oCcQ1gV7mlHrXh1pV1jgwMcN9434Lgp0Y9dSWa3gq"/>
+</div>
+<p class="font-body text-sm font-medium text-on-surface">Elena Moretti</p>
+</div>
+</div>
+</div>
+<!-- Technical Tags (Archive Chips) -->
+<div class="flex flex-wrap gap-2">
+<span class="rounded-full bg-secondary-container px-3 py-1 font-label text-[10px] tracking-wider text-on-secondary-container">35MM FILM</span>
+<span class="rounded-full bg-secondary-container px-3 py-1 font-label text-[10px] tracking-wider text-on-secondary-container">TRAVEL</span>
+<span class="rounded-full bg-secondary-container px-3 py-1 font-label text-[10px] tracking-wider text-on-secondary-container">EVENING</span>
+</div>
+</div>
+</aside>
+<!-- Memory Narrative Body -->
+<div class="lg:col-span-8">
+<div class="max-w-2xl">
+<p class="mb-12 font-headline text-2xl leading-relaxed text-on-surface-variant md:text-3xl italic font-light">
+                            "The sea didn't sound like the ocean we knew back home. It was a rhythmic pulse, a heartbeat against the stones of the harbor."
+                        </p>
+<div class="space-y-8 font-body text-lg leading-[1.8] text-on-surface text-justify md:text-xl">
+<p>
+                                We sat on the warm stone wall until the sun dipped completely below the horizon, watching the sky transform from a dusty gold to this impossible, vibrant indigo. This is the color I remember most—the blue hour that seems to exist only in memories and old postcards.
+                            </p>
+<!-- Inset Image (Asymmetry) -->
+<div class="my-16 -mx-4 md:-mx-12">
+<figure class="relative group">
+<img alt="Secondary Memory View" class="rounded-xl shadow-lg transition-transform duration-700 group-hover:scale-[1.02]" data-alt="Close up of a small wooden boat bobbing in dark blue water, reflecting yellow village lights, textured wood and peeling paint." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg_Gg77EMXN7ABPLfJPrBTGFexQ49AuX14sZTc7V3XAX6E2W8HY0JCu2F61HZHPjLGqFAwfkBnr7DFJ8yTNpUvwgrM3WKOS7YL6Pd45_FN5b-yzJIfuXGJZ0qQt4GyRNeLCkOlfeUQbg37u-XleGT9HZmWCjRrVnpgGs17gt1Tq_Bd45GVC-kHLWB5RYw6_EUfjHquIxjpAIWDsXjHrXe9spOk9k9vLOq6p0dkBWPd7BPfjfnrhQH9fSN-n2vsp9Wbhx3KBUchqjuu"/>
+<figcaption class="mt-4 font-label text-[10px] italic text-tertiary text-right tracking-widest">FIG. 2 — THE HARBOR AT REST</figcaption>
+</figure>
+</div>
+<p>
+                                Everything felt slower then. No phones were buzzing, no one was rushing to capture the perfect shot for an audience. We were just there, inhaling the salt air and the scent of fried calamari drifting from the trattoria behind us. 
+                            </p>
+<p>
+                                I remember the way the light caught the peeling pastel paint of the buildings—pinks and oranges that felt like they had been sun-bleached for centuries. It was the first time I understood that silence wasn't the absence of sound, but the presence of peace.
+                            </p>
+</div>
+<!-- Footer Sign-off -->
+<div class="mt-20 border-t border-outline-variant/20 pt-12 text-center">
+<div class="inline-block px-8 py-4 bg-surface-container-low rounded-xl">
+<p class="font-label text-xs text-tertiary tracking-[0.2em] mb-2 uppercase">End of Record</p>
+<p class="font-headline text-lg italic text-primary">Preserved in Brooks Archive</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+<!-- Contextual Floating Action - Back to Collection (Not a Top-Level Nav) -->
+<div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-50">
+<button class="flex items-center gap-3 px-8 py-4 bg-primary text-on-primary rounded-full shadow-2xl hover:scale-105 transition-all duration-300 group">
+<span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
+<span class="font-label text-xs font-bold tracking-widest uppercase">Return to Archive</span>
+</button>
+</div>
+</body></html>

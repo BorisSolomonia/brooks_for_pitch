@@ -23,7 +23,7 @@ import type {
   UserProfile
 } from "../lib/types";
 import type { MapProvider } from "../lib/frontendConfig";
-import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS } from "../lib/frontendConfig";
+import { MOTION_SETTINGS } from "../lib/frontendConfig";
 import { env } from "../lib/env";
 import "../styles/ProfileScreen.css";
 import MapView from "./MapView";
@@ -194,9 +194,7 @@ export function ProfileScreen({
           >
             <header className="profile-screen-header">
               <button type="button" className="profile-back" onClick={onClose}>
-                <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
+                <span className="material-symbols-outlined">arrow_back</span>
               </button>
               <div>
                 <p className="eyebrow">Profile</p>

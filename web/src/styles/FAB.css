@@ -6,26 +6,26 @@
   min-width: 58px;
   height: 58px;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 16px;
   padding: 0 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  background: #FDB913;
-  color: #2C2416;
-  font-family: var(--font-serif);
+  background: linear-gradient(135deg, var(--cta-bg-start), var(--cta-bg-end));
+  color: var(--cta-text);
+  font-family: var(--font-mono);
   font-weight: 600;
-  letter-spacing: 0.01em;
-  box-shadow: 0 4px 16px rgba(253, 185, 19, 0.35);
+  letter-spacing: 0.02em;
+  box-shadow: var(--cta-shadow-rest);
   transition: transform var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .fab:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(253, 185, 19, 0.45);
+  box-shadow: var(--cta-shadow-hover);
 }
 
 .fab-spotlight {
@@ -38,7 +38,10 @@
 
 .fab-label {
   display: none;
-  font-family: var(--font-serif);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
 }
 
 @keyframes inkPulse {

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useSpotlight } from '../hooks/useSpotlight';
-import { ICON_SIZES, ICON_STROKES } from '../lib/frontendConfig';
 import '../styles/FAB.css';
 
 interface FABProps {
@@ -23,20 +22,7 @@ export function FAB({ onClick, label = 'Leave a Mark' }: FABProps) {
       whileTap={{ scale: 0.95 }}
     >
       <span className="fab-spotlight" aria-hidden="true" />
-      <svg
-        className="fab-icon"
-        width={ICON_SIZES.fab}
-        height={ICON_SIZES.fab}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={ICON_STROKES.shell}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
+      <span className="material-symbols-outlined fab-icon">edit_note</span>
       <span className="fab-label">{label}</span>
     </motion.button>
   );

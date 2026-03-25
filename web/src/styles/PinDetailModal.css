@@ -3,47 +3,49 @@
   left: 50%;
   bottom: 0;
   z-index: 1400;
-  width: min(440px, 94vw);
+  width: min(520px, 94vw);
   transform: translateX(-50%);
-  border-radius: 26px 26px 0 0;
+  border-radius: 18px 18px 0 0;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: var(--panel-shadow-strong);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--panel-shadow-rest);
   overflow: hidden;
 }
 
 .pin-detail-body {
-  padding: var(--space-s) var(--space-m) 26px;
+  padding: 18px 18px 28px;
   display: grid;
-  gap: 14px;
+  gap: 18px;
   position: relative;
   z-index: 1;
 }
 
 .pin-detail-hero {
   display: grid;
-  gap: 10px;
-  padding: var(--space-s);
-  border-radius: var(--radius-l);
+  gap: 12px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--panel-shadow-rest);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: none;
 }
 
 .pin-detail-kicker {
   margin: 0;
-  color: var(--text-dim);
+  color: var(--accent-secondary);
   font-family: var(--font-mono);
-  font-size: var(--size-2xs);
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.16em;
 }
 
 .pin-detail-preview {
   margin: 0;
   color: var(--text-strong);
-  font-size: var(--size-s);
-  line-height: 1.5;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 400;
+  line-height: 1.35;
 }
 
 .pin-detail-summary {
@@ -53,20 +55,24 @@
 }
 
 .pin-detail-chip {
-  padding: 7px 10px;
-  border-radius: var(--radius-pill);
+  padding: 8px 11px;
+  border-radius: var(--radius-l);
   background: var(--surface-hover);
   color: var(--text-primary);
-  font-size: var(--size-2xs);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .pin-detail-profile-link {
-  padding: 7px 10px;
-  border-radius: var(--radius-pill);
+  padding: 8px 11px;
+  border-radius: var(--radius-l);
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.72);
   color: var(--text-primary);
-  font-size: var(--size-2xs);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .pin-detail-meta {
@@ -79,7 +85,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 11px 0;
+  padding: 13px 0;
   border-bottom: 1px solid var(--stroke);
 }
 
@@ -89,12 +95,13 @@
 
 .pin-detail-label {
   font-family: var(--font-mono);
-  font-size: var(--size-xs);
-  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--text-dim);
 }
 
 .pin-detail-value {
   color: var(--text-strong);
-  font-size: var(--size-s);
+  font-size: 0.88rem;
 }

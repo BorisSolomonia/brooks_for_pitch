@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fetchNotifications, markNotificationRead } from "../lib/api";
-import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS } from "../lib/frontendConfig";
+import { MOTION_SETTINGS } from "../lib/frontendConfig";
 import type { AppNotification } from "../lib/types";
 import "../styles/NotificationsPanel.css";
 
@@ -82,10 +82,7 @@ export function NotificationsPanel({ isOpen, token, onClose, onNotificationRead 
                 <h2>Notifications</h2>
               </div>
               <button className="modal-close" onClick={onClose} aria-label="Close" type="button">
-                <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <span className="material-symbols-outlined">close</span>
               </button>
             </header>
 

@@ -22,7 +22,7 @@ sed -E -i '/^[A-Z_]+_DB_URL=/{
   s#[?&]$##g;
 }' "$env_file"
 
-for svc in AUTH SOCIAL LISTS PINS MODERATION; do
+for svc in AUTH SOCIAL LISTS PINS MODERATION NOTIFICATIONS; do
   url="$(get_env "${svc}_DB_URL")"
   user="$(get_env "${svc}_DB_USER")"
   pass="$(get_env "${svc}_DB_PASSWORD")"
@@ -78,6 +78,9 @@ required_keys=(
   REDIS_PORT
   REDIS_PASSWORD
   REDIS_CACHE_TTL_SECONDS
+  NOTIFICATIONS_DB_URL
+  NOTIFICATIONS_DB_USER
+  NOTIFICATIONS_DB_PASSWORD
   INTERNAL_SERVICE_NAME
   INTERNAL_SERVICE_KEY
   BROOKS_BUCKET_SIZE_DEG

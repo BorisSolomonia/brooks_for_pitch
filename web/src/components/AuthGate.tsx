@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useSpotlight } from "../hooks/useSpotlight";
 import { MOTION_SETTINGS } from "../lib/frontendConfig";
 import { fadeSlideUpProps, staggerContainer } from "./MotionWrappers";
 
@@ -13,7 +12,6 @@ type AuthGateProps = {
 
 export default function AuthGate({ isLoading, onLogin, onRegister, error }: AuthGateProps) {
   const [status, setStatus] = useState<"idle" | "working">("idle");
-  const spotlight = useSpotlight<HTMLElement>();
 
   const handleLogin = async () => {
     if (status === "working") {
@@ -33,7 +31,6 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
 
   return (
     <div className="auth-gate">
-      <div className="fairy-lights" aria-hidden="true" />
       <motion.div
         className="auth-shell"
         initial="initial"
@@ -67,9 +64,7 @@ export default function AuthGate({ isLoading, onLogin, onRegister, error }: Auth
         </motion.section>
 
         <motion.aside
-          className="auth-panel glow-border spotlight-target"
-          ref={spotlight.ref}
-          onMouseMove={spotlight.onMouseMove}
+          className="auth-panel"
           {...fadeSlideUpProps}
           transition={{ ...fadeSlideUpProps.transition, delay: 0.12 }}
         >

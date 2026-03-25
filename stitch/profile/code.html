@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Brooks - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f6f3ee",
+              "surface-container-highest": "#e4e3da",
+              "surface": "#fcf9f5",
+              "tertiary-fixed-dim": "#edd6be",
+              "on-primary-fixed": "#27453c",
+              "secondary-fixed": "#e5e2de",
+              "primary-fixed-dim": "#badccf",
+              "on-secondary": "#fcf8f4",
+              "surface-container": "#f0eee8",
+              "primary-fixed": "#c8eadd",
+              "on-background": "#32332d",
+              "inverse-on-surface": "#9e9d99",
+              "secondary-container": "#e5e2de",
+              "surface-container-high": "#eae8e1",
+              "tertiary-dim": "#61503d",
+              "inverse-surface": "#0e0e0c",
+              "error-dim": "#4e0309",
+              "on-primary-fixed-variant": "#436258",
+              "tertiary": "#6d5c49",
+              "surface-bright": "#fcf9f5",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "on-surface-variant": "#5f5f59",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "primary": "#46645b",
+              "on-secondary-container": "#52524f",
+              "primary-dim": "#3a584f",
+              "on-secondary-container": "#52524f",
+              "inverse-primary": "#d6f8eb",
+              "on-tertiary-container": "#63523f",
+              "on-surface": "#32332d",
+              "surface-dim": "#dbdad1",
+              "on-primary-container": "#39584e",
+              "secondary": "#605f5c",
+              "surface-tint": "#46645b",
+              "outline": "#7b7b74",
+              "tertiary-fixed": "#fce4cb",
+              "background": "#fcf9f5",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed": "#403f3d",
+              "secondary-dim": "#545350",
+              "surface-variant": "#e4e3da",
+              "on-tertiary": "#fff7f3",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "outline-variant": "#b3b2ab",
+              "error": "#9f403d",
+              "on-error-container": "#752121"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf9f5;
+            color: #32332d;
+            font-family: 'Manrope', sans-serif;
+        }
+        .serif-text { font-family: 'Newsreader', serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f5]/80 dark:bg-[#32332d]/80 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-[#46645b] dark:text-[#fcf9f5] hover:bg-[#fcf9f5] transition-colors duration-300 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-serif text-2xl italic text-[#32332d] dark:text-[#fcf9f5]">Brooks</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="close up professional headshot of a mature man with a kind expression and silver hair in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgmU0FOztvBDh-F35RRI1f2pIFtYW54CdsodR3cnOds57s93PiOUuQMQ56Se18vIX6d7ygfScelFCM8wAo3cjG2NO2IUIxkY60ChSkZCvAdLDEfPyxAmYImqjTQ0VHBS9v_RH0rGvq5_1xVyxgAvqoFlp0-OVkN2v0uXXO7Qw7ANgmzVyeZSirkQ3cpTa_lBRCZHIubWnqX-pWNNQbWyw38uQ8a6BmD-tuF9Yosxos3xhKeLgt1LF0nb2_fxe1m0w9i26_9pikPuW2"/>
+</div>
+</header>
+<main class="pt-24 pb-32 max-w-4xl mx-auto px-6">
+<!-- Hero Section: Digital Archivist Aesthetic -->
+<section class="relative mb-16">
+<div class="flex flex-col md:flex-row md:items-end gap-8 md:gap-12">
+<!-- Profile Image with Intentional Asymmetry -->
+<div class="relative">
+<div class="w-48 h-64 bg-surface-container-highest rounded-xl overflow-hidden rotate-[-2deg] shadow-sm">
+<img class="w-full h-full object-cover" data-alt="artistic portrait of an older gentleman with distinguished features wearing a linen shirt against a warm textured wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK555ZRz21S-mxE88cEJlK956ft52NMxgPkDCRkOJoQIXv2B8LQdX0_PE4zLUYg8Z0f6lA0iw1w2ubkzrZP6RgmjaHAWndE4rMH6pOgDZiM58jqaaZcnLGfrMhhBw8krrR3-y-I8EzuaOqVAOm8p_tfbXbrPeLy1K4NSPpltI6dGSMouKUBrTOopd825whPZzqkr4sEs4H99G-2C-ETKUAPfLj0oJ2o4GBwoSfnVjFgNMkU4sawmxAmiNGt2ftINiQfAX9wF1IGgh1"/>
+</div>
+<div class="absolute -bottom-4 -right-4 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex-1 space-y-4">
+<div class="space-y-1">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-tertiary">Curator of Moments</span>
+<h2 class="font-headline text-5xl md:text-6xl font-light text-on-background">Arthur Brooks</h2>
+<p class="font-body text-secondary text-lg">@a_brooks_archivist</p>
+</div>
+<p class="font-body text-on-surface max-w-md leading-relaxed">
+                        Preserving the textures of everyday life. Collector of quiet afternoons, handwritten notes, and the way light hits the Seine in October.
+                    </p>
+<div class="flex gap-4 pt-4">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body font-semibold flex items-center gap-2 hover:bg-primary-dim transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+                            Edit Profile
+                        </button>
+<button class="bg-surface-container-highest text-on-surface px-8 py-3 rounded-xl font-body font-semibold hover:opacity-80 transition-all">
+                            Share Archive
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Grid: Tonal Layering -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center">
+<span class="font-headline text-3xl text-primary">1.2k</span>
+<span class="font-label text-xs uppercase tracking-widest text-tertiary mt-1">Memories</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center">
+<span class="font-headline text-3xl text-primary">482</span>
+<span class="font-label text-xs uppercase tracking-widest text-tertiary mt-1">Followers</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center">
+<span class="font-headline text-3xl text-primary">15</span>
+<span class="font-label text-xs uppercase tracking-widest text-tertiary mt-1">Collections</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center">
+<span class="font-headline text-3xl text-primary">12</span>
+<span class="font-label text-xs uppercase tracking-widest text-tertiary mt-1">Countries</span>
+</div>
+</section>
+<!-- Navigation Tabs -->
+<nav class="flex justify-center gap-12 border-b border-outline-variant/10 mb-12">
+<button class="pb-4 border-b-2 border-primary text-primary font-body font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-xl" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+                Memories
+            </button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body flex items-center gap-2">
+<span class="material-symbols-outlined text-xl" data-icon="map">map</span>
+                Map
+            </button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body flex items-center gap-2">
+<span class="material-symbols-outlined text-xl" data-icon="info">info</span>
+                About
+            </button>
+</nav>
+<!-- Featured Memories Strip -->
+<div class="mb-12">
+<div class="flex justify-between items-end mb-6">
+<h3 class="font-headline text-2xl">Recent Artifacts</h3>
+<a class="text-primary font-label text-sm uppercase tracking-widest hover:underline" href="#">View All</a>
+</div>
+<div class="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
+<div class="min-w-[280px] bg-surface-container-lowest p-4 rounded-xl shadow-sm group">
+<div class="h-48 rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="vintage leather-bound journal and an old fountain pen on a weathered wooden desk with soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCRWi35M_2Rm-yJ4A-KNOpI3QOTPdFHG8M3pTbCCz6xc_Sq05_T7Yrx2JHZqKAfQpeR0whpvhbopaxyG0BaTkrfGECHQi1attb6Egc6EQp9fxUc4h8Bed9U-dRddO2mbH3DO_wDlNKalpsyunNZ9fmU2fUI9v5FGJgGmuiadjZf-dBIA1S8ujT4hkcEKpYYBmycB86cixOwPhdBbr2oq3Z9nn8T438sJ8PrvkwDR4DWcSi7eQpunNx7HxbXtIDmMvpl8fvKxokGntv"/>
+</div>
+<span class="font-label text-[10px] text-tertiary uppercase tracking-tighter">Paris, FR • Oct 2023</span>
+<h4 class="font-body font-semibold text-on-surface mt-1">The Left Bank Diary</h4>
+</div>
+<div class="min-w-[280px] bg-surface-container-lowest p-4 rounded-xl shadow-sm group">
+<div class="h-48 rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="dramatic view of the Golden Gate Bridge at sunset with fog rolling in between the red suspension cables" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv6q5xG_CLaz1HhBmeps6he7pM5WPIbqBcO7ycGHuRIBc8c33CL4r8yLlW0BMmByPWobYaSlC4HF3BMyiocA7t7cOTR93nMPTb6T5bC0VD15cz7YuxZ2n6AsMQI8Lf7UXmH4bg2LteG9ulQ7VT-yq2mKWFrCLs8M3b2Vk0PVL2wsOo38IwcAOiUr3JgI8-Rzd6EgdXAjwVw7r7aPU9FDHDIlwiuYI-AWDFRUi4sNBthFkfL8tNC9f10R-iowIWxRbjrUhj9dHLtNQz"/>
+</div>
+<span class="font-label text-[10px] text-tertiary uppercase tracking-tighter">California, US • Aug 2023</span>
+<h4 class="font-body font-semibold text-on-surface mt-1">Golden Gate Fog</h4>
+</div>
+<div class="min-w-[280px] bg-surface-container-lowest p-4 rounded-xl shadow-sm group">
+<div class="h-48 rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="black and white portrait of an artist in their studio surrounded by unfinished canvases and paint splattered floors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFSp6CSVn02GpiFcU28Cmth2PZKIBQYPrVP5kadh8QLJ1gWIAN3KyyzbDuSh1dJsdol0j2aZNL3gjpwVV9RKDSaQumR7Bv97LXR3WH2b7Yxsx8S2rcjZNxdp-QJuj9Qc5XagqXjJZZUNq0XWF5mUG-xN_xDroDbeX4VbJtf7AAOvXQ7yloj_a5QV3xdRS0FDO1h9XwvmdLsUhpBWmFvtJgHCjJpUxNYamZIj1SW_dQO1fIbmecEYPgen-T0CsTHSLB6qDQ7lIW9wji"/>
+</div>
+<span class="font-label text-[10px] text-tertiary uppercase tracking-tighter">London, UK • June 2023</span>
+<h4 class="font-body font-semibold text-on-surface mt-1">Studio Sessions</h4>
+</div>
+</div>
+</div>
+<!-- Mini Map Section -->
+<section class="bg-surface-container-low rounded-3xl p-8 mb-16 overflow-hidden relative">
+<div class="flex flex-col md:flex-row gap-8 items-center">
+<div class="md:w-1/2 space-y-4">
+<h3 class="font-headline text-3xl">Spatial Archives</h3>
+<p class="font-body text-secondary">Navigate through the physical places where memories were anchored. 12 cities across 3 continents.</p>
+<button class="text-primary font-body font-bold flex items-center gap-2 group">
+                        Open Full Atlas
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="md:w-1/2 w-full h-64 bg-surface-container-highest rounded-2xl overflow-hidden shadow-inner border border-outline-variant/10">
+<img class="w-full h-full object-cover opacity-60" data-alt="a minimalist topographic map illustration with subtle contour lines and soft earthy tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAticuF-7hgT0DJI0ASHIUVRqCq4CEina4Cf6Tng60AQNisiIcx0SZsRcLv2Cp9uwi9avWi3ICahqIiFB4PblLM-08PbUarQv5fTquuwS7l1n0TZi_3_UThFcr1zYp2QziUS0UBJnoTvuatV7tOuxSUXOj4f4VT0Ej4RQT_JaHbn-xoHMUCIFeGCKf_itFgKYzJc2t87OpBTOwRWLMongdtQiR3oQ5NOBqSqlmlcKZbJtIeG9iFYOWLaf2yAWmY8DgmQ9jFRBLR-m0d"/>
+<!-- Faux Pins -->
+<div class="absolute top-1/2 left-1/3 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(70,100,91,0.5)]"></div>
+<div class="absolute top-1/4 right-1/4 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(70,100,91,0.5)]"></div>
+<div class="absolute bottom-1/3 right-1/2 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(70,100,91,0.5)]"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-6 pt-2 bg-[#fcf9f5]/90 dark:bg-[#32332d]/90 backdrop-blur-lg shadow-[0_-4px_24px_rgba(50,51,45,0.04)] z-50">
+<a class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#46645b]/10 dark:bg-[#46645b]/30 text-[#46645b] dark:text-[#fcf9f5] rounded-full p-3 hover:opacity-80 transition-opacity ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</a>
+</nav>
+</body></html>

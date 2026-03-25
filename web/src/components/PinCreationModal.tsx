@@ -318,10 +318,7 @@ export function PinCreationModal({ isOpen, onClose, onSubmit, location, token }:
                 <h2 id={headingId}>Leave a memory</h2>
               </div>
               <button className="modal-close" onClick={onClose} aria-label="Close" type="button">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <span className="material-symbols-outlined">close</span>
               </button>
             </header>
 

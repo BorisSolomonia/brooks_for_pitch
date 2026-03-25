@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Brooks — Create a Memory</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;1,6..72,300&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#436258",
+              "on-secondary-container": "#52524f",
+              "tertiary-container": "#fce4cb",
+              "primary-fixed-dim": "#badccf",
+              "surface-bright": "#fcf9f5",
+              "outline": "#7b7b74",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "surface-container-highest": "#e4e3da",
+              "surface-container-low": "#f6f3ee",
+              "on-secondary-fixed-variant": "#5c5b58",
+              "on-surface-variant": "#5f5f59",
+              "surface-dim": "#dbdad1",
+              "on-tertiary-container": "#63523f",
+              "on-secondary": "#fcf8f4",
+              "on-tertiary": "#fff7f3",
+              "inverse-on-surface": "#9e9d99",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "inverse-surface": "#0e0e0c",
+              "primary": "#46645b",
+              "outline-variant": "#b3b2ab",
+              "on-error-container": "#752121",
+              "tertiary-fixed": "#fce4cb",
+              "error-dim": "#4e0309",
+              "surface-variant": "#e4e3da",
+              "tertiary-fixed-dim": "#edd6be",
+              "primary-fixed": "#c8eadd",
+              "secondary-container": "#e5e2de",
+              "surface-container": "#f0eee8",
+              "error": "#9f403d",
+              "on-primary-container": "#39584e",
+              "tertiary-dim": "#61503d",
+              "on-background": "#32332d",
+              "on-primary-fixed": "#27453c",
+              "on-secondary-fixed": "#403f3d",
+              "surface-tint": "#46645b",
+              "secondary-dim": "#545350",
+              "primary-dim": "#3a584f",
+              "error-container": "#fe8983",
+              "surface-container-high": "#eae8e1",
+              "secondary-fixed": "#e5e2de",
+              "on-surface": "#32332d",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "inverse-primary": "#d6f8eb",
+              "surface-container-lowest": "#ffffff",
+              "background": "#fcf9f5",
+              "surface": "#fcf9f5",
+              "tertiary": "#6d5c49",
+              "secondary": "#605f5c"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar Shell Implementation -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f5]/80 dark:bg-[#32332d]/80 backdrop-blur-md flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#46645b] dark:text-[#fcf9f5] hover:bg-[#fcf9f5] transition-colors duration-300 p-2 rounded-full">arrow_back</button>
+<h1 class="font-serif text-2xl italic text-[#32332d] dark:text-[#fcf9f5]">Brooks</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-label text-xs uppercase tracking-widest text-tertiary">Draft Saved</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a man with a kind expression, soft natural window lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7EPFlD9ojr2Mbpizj-T6hZ-w9F0mSQUGBZGjPUmrCxezJQ3XTRCWJVxoI0j0-o9ibwSyTMClNZMGld-YxYnHY-dhzJ_DJyauC9bzNuqU9m7bw0dim5V6_-LcP7K-gy_25JxrM0bNeYd-oYPFBZyNEEF9Mkg-sutfzndC6ZeijS4Td3UwD-nzaRrujzTpDS_UDgy5if3ugALwHvxogJJpXz87RdbwAY-MToFZz-fb_oe2AmsjOIvADCcZ_CQY_poAcF_O-MbtBwh3Q"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto min-h-screen">
+<!-- Context Header -->
+<header class="mb-12">
+<p class="font-label text-xs uppercase tracking-[0.2em] text-tertiary mb-2">New Entry</p>
+<h2 class="font-headline text-4xl text-on-surface leading-tight">Capture the moment</h2>
+<div class="flex items-center gap-2 mt-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="font-label text-sm tracking-wide">Highland Park, 4:12 PM</span>
+</div>
+</header>
+<form class="space-y-12">
+<!-- What Happened Section -->
+<section class="space-y-4">
+<label class="font-headline text-xl text-on-surface-variant block">What happened here?</label>
+<textarea class="w-full min-h-[160px] bg-surface-container-low border-b border-outline-variant/20 focus:border-primary border-t-0 border-x-0 focus:ring-0 text-lg font-body leading-relaxed resize-none p-4 placeholder:text-outline-variant/60" placeholder="Write your story..."></textarea>
+</section>
+<!-- Media Section -->
+<section class="space-y-6">
+<label class="font-label text-xs uppercase tracking-widest text-tertiary">Add Media
+<div class="grid grid-cols-4 gap-4">
+<button class="aspect-square flex flex-col items-center justify-center bg-surface-container-highest rounded-xl hover:bg-primary-container transition-colors group" type="button">
+<span class="material-symbols-outlined text-2xl mb-2 text-on-surface-variant group-hover:text-primary">photo_camera</span>
+<span class="font-label text-[10px] uppercase tracking-tighter">Photo</span>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center bg-surface-container-highest rounded-xl hover:bg-primary-container transition-colors group" type="button">
+<span class="material-symbols-outlined text-2xl mb-2 text-on-surface-variant group-hover:text-primary">videocam</span>
+<span class="font-label text-[10px] uppercase tracking-tighter">Video</span>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center bg-surface-container-highest rounded-xl hover:bg-primary-container transition-colors group" type="button">
+<span class="material-symbols-outlined text-2xl mb-2 text-on-surface-variant group-hover:text-primary">mic</span>
+<span class="font-label text-[10px] uppercase tracking-tighter">Audio</span>
+</button>
+<div class="aspect-square rounded-xl bg-surface-container border border-dashed border-outline-variant/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant">add</span>
+</div>
+</div>
+</label></section>
+<!-- Visibility & Discovery (Bento Style) -->
+<section class="space-y-8">
+<div class="flex items-baseline justify-between">
+<label class="font-headline text-xl text-on-surface-variant">Visibility &amp; Discovery</label>
+<span class="font-label text-[10px] text-tertiary uppercase">Who can see this?</span>
+</div>
+<!-- Visibility Toggle -->
+<div class="bg-surface-container-low p-1 rounded-full flex gap-1">
+<button class="flex-1 py-2 rounded-full font-label text-xs uppercase tracking-widest bg-primary text-on-primary" type="button">Private</button>
+<button class="flex-1 py-2 rounded-full font-label text-xs uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">Friends</button>
+<button class="flex-1 py-2 rounded-full font-label text-xs uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">Followers</button>
+<button class="flex-1 py-2 rounded-full font-label text-xs uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">Public</button>
+</div>
+<!-- Discovery Options Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="group relative flex flex-col p-6 rounded-xl bg-surface-container cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary">distance</span>
+<input checked="" class="rounded-sm border-outline-variant text-primary focus:ring-primary-dim" type="checkbox"/>
+</div>
+<span class="font-headline text-lg mb-1">Proximity-only</span>
+<span class="font-label text-xs text-on-surface-variant leading-relaxed">Only visible when someone is within 50 meters of this spot.</span>
+</label>
+<label class="group relative flex flex-col p-6 rounded-xl bg-surface-container cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-tertiary">visibility</span>
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary-dim" type="checkbox"/>
+</div>
+<span class="font-headline text-lg mb-1">Always visible</span>
+<span class="font-label text-xs text-on-surface-variant leading-relaxed">Visible on the map at any zoom level or distance.</span>
+</label>
+<label class="md:col-span-2 group relative flex items-center p-6 rounded-xl border border-outline-variant/20 hover:border-primary/40 transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-on-tertiary-container">history_edu</span>
+</div>
+<div class="flex-1">
+<span class="font-headline text-lg block">Reach-to-reveal</span>
+<span class="font-label text-xs text-on-surface-variant">Content remains blurred until a user physically visits this location.</span>
+</div>
+<input class="text-primary focus:ring-primary-dim" name="reveal" type="radio"/>
+</label>
+</div>
+</section>
+<!-- Time Logic Section -->
+<section class="space-y-6 pt-4">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary">schedule</span>
+<label class="font-headline text-xl text-on-surface-variant">Time Logic</label>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10">
+<p class="font-label text-xs text-on-surface-variant mb-4 uppercase tracking-widest">Available until...</p>
+<div class="flex flex-wrap gap-4">
+<div class="flex-1 min-w-[200px] relative">
+<input class="w-full bg-surface-container-low border-none rounded-lg p-3 font-body text-sm focus:ring-1 focus:ring-primary" type="date"/>
+</div>
+<div class="flex-1 min-w-[120px]">
+<select class="w-full bg-surface-container-low border-none rounded-lg p-3 font-body text-sm focus:ring-1 focus:ring-primary">
+<option>Never expires</option>
+<option>24 hours</option>
+<option>1 week</option>
+<option>Custom</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Final Actions -->
+<div class="pt-8 flex flex-col gap-4">
+<button class="w-full py-5 bg-primary text-on-primary rounded-xl font-body font-semibold text-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group" type="submit">
+<span>Create Memory</span>
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">push_pin</span>
+</button>
+<button class="w-full py-4 text-tertiary font-label text-xs uppercase tracking-widest hover:text-on-surface transition-colors" type="button">
+                    Discard Draft
+                </button>
+</div>
+</form>
+</main>
+<!-- BottomNavBar Shell (Suppressed contextually but defined for completeness in top-level navigation areas) -->
+<!-- On this screen, it is suppressed to favor the focused journey of pin creation -->
+<footer class="fixed bottom-0 left-0 w-full p-8 pointer-events-none">
+<div class="max-w-2xl mx-auto flex justify-end">
+<!-- Floating hint or indicator if needed, else empty for focus -->
+</div>
+</footer>
+<!-- Overlay Visual Archetype -->
+<div class="fixed inset-0 -z-10 pointer-events-none opacity-20">
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-container rounded-full blur-[120px]"></div>
+<div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary-container rounded-full blur-[100px]"></div>
+</div>
+</body></html>

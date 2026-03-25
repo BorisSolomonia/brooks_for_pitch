@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#436258",
+              "on-secondary-container": "#52524f",
+              "tertiary-container": "#fce4cb",
+              "primary-fixed-dim": "#badccf",
+              "surface-bright": "#fcf9f5",
+              "outline": "#7b7b74",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "surface-container-highest": "#e4e3da",
+              "surface-container-low": "#f6f3ee",
+              "on-secondary-fixed-variant": "#5c5b58",
+              "on-surface-variant": "#5f5f59",
+              "surface-dim": "#dbdad1",
+              "on-tertiary-container": "#63523f",
+              "on-secondary": "#fcf8f4",
+              "on-tertiary": "#fff7f3",
+              "inverse-on-surface": "#9e9d99",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "inverse-surface": "#0e0e0c",
+              "primary": "#46645b",
+              "outline-variant": "#b3b2ab",
+              "on-error-container": "#752121",
+              "tertiary-fixed": "#fce4cb",
+              "error-dim": "#4e0309",
+              "surface-variant": "#e4e3da",
+              "tertiary-fixed-dim": "#edd6be",
+              "primary-fixed": "#c8eadd",
+              "secondary-container": "#e5e2de",
+              "surface-container": "#f0eee8",
+              "error": "#9f403d",
+              "on-primary-container": "#39584e",
+              "tertiary-dim": "#61503d",
+              "on-background": "#32332d",
+              "on-primary-fixed": "#27453c",
+              "on-secondary-fixed": "#403f3d",
+              "surface-tint": "#46645b",
+              "secondary-dim": "#545350",
+              "primary-dim": "#3a584f",
+              "error-container": "#fe8983",
+              "surface-container-high": "#eae8e1",
+              "secondary-fixed": "#e5e2de",
+              "on-surface": "#32332d",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "inverse-primary": "#d6f8eb",
+              "surface-container-lowest": "#ffffff",
+              "background": "#fcf9f5",
+              "surface": "#fcf9f5",
+              "tertiary": "#6d5c49",
+              "secondary": "#605f5c"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f5]/80 dark:bg-[#32332d]/80 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer">menu</span>
+<h1 class="font-serif text-2xl italic text-[#32332d] dark:text-[#fcf9f5]">Brooks</h1>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-8">
+<a class="text-[#46645b] font-semibold font-label text-sm tracking-wide" href="#">Explore</a>
+<a class="text-[#6d5c49] hover:text-[#46645b] transition-colors font-label text-sm tracking-wide" href="#">Map</a>
+<a class="text-[#6d5c49] hover:text-[#46645b] transition-colors font-label text-sm tracking-wide" href="#">Journal</a>
+</nav>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="portrait of a middle-aged man with a thoughtful expression in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7NGW2tE00W1TSNIO1oV-z7IYNx3fHhb1L8mJ_Rdhz5lOv7eSiDmUM1Izp7KYrtwTz7E2KYyuyem5w0NGEO4z5xWEwHlsr2L-D4-J-HnZS6QyBa5i7hbbJNrEoAL9u3gQqZ33wedIyXTBEOK2S48tnqGyqBges-Xo16C6lSw8HJMfeSi-kcQ_Vk3ZHK2JsIrm5dEPks0TjjYGy8-clUZ4z0ijrrvG1hufGPpXKjPC5npdvR1QUeFINqdWrGHUSrxB-lq8Zj62ZDzBu"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+<!-- Section Header -->
+<header class="mb-12 space-y-2">
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="font-label text-xs uppercase tracking-[0.2em]">Nearby in</span>
+</div>
+<h2 class="font-headline text-5xl md:text-6xl text-on-surface leading-tight">Savannah Historic District</h2>
+</header>
+<!-- Discovery Feed: Asymmetric Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-y-16 md:gap-x-12">
+<!-- Large Featured Memory -->
+<article class="md:col-span-8 group">
+<div class="relative overflow-hidden rounded-xl aspect-[16/10] mb-6 bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="atmospheric view of a cobblestone street in Savannah at dusk with hanging moss and warm street lamps" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1r9qniLMLaQsvKsW3XeZX8sI5qLQsK8OQYJVBIET92WqicyTnEguASRR37pUtWkXR0iYgDTsjAGKHeIXS70jSUwMfwBFGPZKiwhWwhG4nqI9KljAKrbeSeinJa6zkUg4SM0VshRk2gbUOJQzIDX1yTFZb-Uvt-AMa92zWE6MKI6a4QnHs_dHWmQ4vEx97GvC4qsbf8Iff3fepaEsWLa0MNQkh_PqFggX-XzZr0UGLZdZeBj6h6TxHxPNS1Cfr_6RahWTZFSeXriCs"/>
+<div class="absolute top-4 right-4 bg-surface/80 backdrop-blur p-2 rounded-full">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">photo_library</span>
+</div>
+</div>
+<div class="max-w-2xl">
+<div class="flex items-center gap-3 mb-3">
+<span class="font-label text-xs uppercase tracking-widest text-tertiary">Posted 2 hours ago • Friends</span>
+</div>
+<h3 class="font-headline text-3xl mb-4 group-hover:text-primary transition-colors">The Hidden Courtyard of Jones St.</h3>
+<p class="font-body text-on-surface-variant leading-relaxed text-lg">
+                        We found this iron gate slightly ajar. Beyond it lay a world of ferns and forgotten stone benches where the city sounds just... faded away. A perfect place for a secret.
+                    </p>
+</div>
+</article>
+<!-- Secondary Memory (Sidebar style) -->
+<article class="md:col-span-4 self-center">
+<div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+<div class="relative aspect-square overflow-hidden rounded-lg">
+<img class="w-full h-full object-cover" data-alt="misty morning lake landscape with soft pastel colors and a wooden pier reaching into the water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Y5_D0SswJ9SXcon4NmNNOhZ6JsY8-VZCKIU-97RUPHXFfwUa0MWox5-soPALkDhKkwp3gLEERLdn6JBLXAPENjQ1sAiYJKTixoZbqgR7R3YcJZ7dzLPbQ1MVKzUSJ18Zpu7tFh7P-z47_9vk4DJiEKcRwLOks8MfYgF7dpZEhnPjZmX10T3p0WJ_qs-L65L9H6dmX12-bxLUCP1qTFByUf5UmJOo3p1XH_Zg53D-Fb6cStkznm1S7UKK8LWRcpFOYBhyA5mWDdWs"/>
+<div class="absolute inset-0 bg-black/10"></div>
+<div class="absolute bottom-4 left-4">
+<span class="material-symbols-outlined text-surface text-3xl">volume_up</span>
+</div>
+</div>
+<div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-tertiary">Audio Memory</span>
+<h3 class="font-headline text-2xl mt-2">Morning at Forsyth Park</h3>
+<p class="font-body text-sm text-on-surface-variant mt-3 leading-relaxed">
+                            "The birds here have a different song before the tourists arrive. Listen to the fountain's rhythm..."
+                        </p>
+</div>
+</div>
+</article>
+<!-- Row 2: Standard Bento Cards -->
+<article class="md:col-span-4 group">
+<div class="relative overflow-hidden rounded-xl aspect-[4/5] mb-4 bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="vintage leather-bound book lying on an aged wooden desk with dust motes dancing in a sunbeam" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzZDt4KOiA_axSHmd8otmesMIftF7hoT2yzFYNmprkvQTlkSsuHCAflHQr2TeDzItbJTowZF13z8LLVr6Wrf3Eo4Pt_gFUv1Ly9HcI1YWXMbvCIyEG_LrVBgk3Iz2sljCmR4btM9_x3y0ZTNB5PaHw224PmfCj6ZoOObIeKNJrUbGhn7Hqazv1JzK-3RxPrkJ5nLueSDhThXyZAvmktOMO2CeWJjlmQC054Tic0RLLaSZDnPD29O01b-H3K9zCqKcxBcN8guXnszSn"/>
+<div class="absolute bottom-4 left-4 bg-primary/90 text-on-primary px-3 py-1 rounded-full text-[10px] font-label uppercase tracking-widest">
+                        Private
+                    </div>
+</div>
+<h3 class="font-headline text-xl">The Mercer House Shadows</h3>
+<span class="font-label text-xs text-tertiary mt-1 block">Yesterday • Personal Archival</span>
+</article>
+<article class="md:col-span-8 flex flex-col md:flex-row gap-8 items-center bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<div class="w-full md:w-1/2 aspect-video overflow-hidden rounded-xl">
+<img class="w-full h-full object-cover" data-alt="wide shot of dramatic mountains under a moody overcast sky with patches of snow on the peaks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuOHYs1YTB5AdA2xLuG61BJkK4WDhxl9600dwazn15634SQBzfKoc3CRytfEFV-0uHqvTID5Hgpw4Skp89QWkGUbfJfHc_tji-It6gLYhKl4ogGEIPS4_UqaWAkMhk6iSQG1Mef2Uszz-67ER8gGuUTORYFHlcqTxq1beNpvt_Sbc-R77OjpSza5fkU2tfWRY-sjzzwsIZ5rF-3K7ufPcVbN6Nquvxfo7pUDlGmVtyLhHNQpSj5-syReNDP4u-Xq-78nf5aRKePSwE"/>
+</div>
+<div class="w-full md:w-1/2 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">videocam</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-tertiary">Video Fragment</span>
+</div>
+<h3 class="font-headline text-3xl">Across the Salt Marshes</h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+                        The wind was so strong it nearly took the phone. But look at how the grass moves—like a green ocean flowing inland.
+                    </p>
+<button class="text-primary font-label text-xs uppercase tracking-widest border-b border-primary/30 pb-1 hover:border-primary transition-all">
+                        Experience Memory
+                    </button>
+</div>
+</article>
+<!-- Row 3: Smaller archival entries -->
+<div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+<article class="space-y-4">
+<div class="aspect-[3/2] rounded-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" data-alt="close up of an old storefront with gold leaf lettering on the glass and reflection of city street" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDzimEyt99GWo_bApky1G5TdUYDdL9PHulW5-w6hHr9i_1g-gxsn9zaJTNlPuBqDhadmonyMIRHL9Dd8WOzqj27M39NTj1mcmpwqL1v_ML2TF5T3Zo3yVQqTU9Nt1A3JKbyMonR9MIS7QJp9CC1pbHm-pfDzESUFD44UdlmEfosXc_wl6iTDRujci7la7-9TU-912DP5djY8V3ve9jaLVrBprEuw00XdioT3vQ4hMFwSGwGSwA6qHwmpeRgq0qwlroiGUijU-scznK"/>
+</div>
+<div>
+<h4 class="font-headline text-xl">E. Shaver, Bookseller</h4>
+<p class="font-label text-xs text-tertiary mt-1">3 days ago • Shared with Curators</p>
+</div>
+</article>
+<article class="space-y-4">
+<div class="aspect-[3/2] rounded-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="modern art gallery interior with white walls and a single large abstract painting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0DmEAJuMNUt3plp--t-mqTDdw-MaPOl2IW_FB_5bdRd_G8256LDjw8l18W_rThHxwZTAMJBRPADz1v0YZJgx1wRd674RjwiNmOZHr67gQbMMi8zBarEIdh77O9HIB1SCAZ7OjJfm-aQaBPj94fsELyfOszQ-D98blpPB85Tyy7hdwi8H4T_Crk-AOhcLHj1AOc91V0NqNw_FkOGGHG0opxpG7clKe28V-iovA9zsxEgw371-l8XKDnvBCA0RMEMveQzkaKzbtc0GC"/>
+</div>
+<div>
+<h4 class="font-headline text-xl">The SCAD Museum Light</h4>
+<p class="font-label text-xs text-tertiary mt-1">Last Tuesday • Public</p>
+</div>
+</article>
+<article class="space-y-4">
+<div class="aspect-[3/2] rounded-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="a quiet residential street with classic row houses and blooming jasmine vines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOT0lap59z4VFaBIBKSeRnKXmwA34KV83ZupJ1D6HyR-om3E3KMlMf7FwLcJKN7lnMfNTZL__Th_h7Gf7dnRQcz8AFAugcD8l9zKBgU3F1dPDZU3QrwnkZXJvXR1KwwX9HGbdLEkb0J7wJOC7wrML9C2vAogKQ5abxf5RWNzrA-SAAZ3tpPxKkbs1KfaBqnyM1UvSh60uVj3rkJUGZ2jd27Y7P7O-8ezedOVSsrWXehWrvmHQ2fiV83sElLyRisXMWgDB6dswGh9Dr"/>
+</div>
+<div>
+<h4 class="font-headline text-xl">Wanderings on Gaston</h4>
+<p class="font-label text-xs text-tertiary mt-1">1 week ago • Friends</p>
+</div>
+</article>
+</div>
+</div>
+<!-- Pagination/Load More -->
+<div class="mt-20 flex justify-center">
+<button class="px-12 py-4 bg-primary text-on-primary rounded-xl font-label text-sm uppercase tracking-[0.2em] shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all active:scale-95">
+                Retrieve Older Memories
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-[#fcf9f5]/90 dark:bg-[#32332d]/90 backdrop-blur-lg z-50 shadow-[0_-4px_24px_rgba(50,51,45,0.04)]">
+<button class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#46645b]/10 dark:bg-[#46645b]/30 text-[#46645b] dark:text-[#fcf9f5] rounded-full p-4 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#6d5c49] p-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</nav>
+<!-- Contextual FAB (Only for Home/Explore) -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/20 z-40 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+</body></html>

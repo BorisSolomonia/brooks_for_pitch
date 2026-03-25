@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${NOTIFICATIONS_DB_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/notifications_db}}
-    username: ${NOTIFICATIONS_DB_USER:${DATABASE_USER:notifications_user}}
-    password: ${NOTIFICATIONS_DB_PASSWORD:${DATABASE_PASSWORD:}}
+    url: ${NOTIFICATIONS_DB_URL}
+    username: ${NOTIFICATIONS_DB_USER}
+    password: ${NOTIFICATIONS_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate

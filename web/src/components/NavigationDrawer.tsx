@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { drawerProps, fadeSlideUpProps } from "./MotionWrappers";
-import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS, type MapProvider } from "../lib/frontendConfig";
+import { MOTION_SETTINGS, type MapProvider } from "../lib/frontendConfig";
 import type { PinViewScope } from "../lib/types";
 import "../styles/NavigationDrawer.css";
 
@@ -64,10 +64,7 @@ export function NavigationDrawer({
                 <h2>Controls</h2>
               </div>
               <button className="drawer-close" onClick={onClose} aria-label="Close menu">
-                <svg width={ICON_SIZES.shell} height={ICON_SIZES.shell} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -83,10 +80,7 @@ export function NavigationDrawer({
                   type="button"
                   onClick={onCreatePin}
                 >
-                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
+                  <span className="material-symbols-outlined">edit_note</span>
                   Leave a memory
                 </button>
               </motion.section>
@@ -102,10 +96,7 @@ export function NavigationDrawer({
                   type="button"
                   onClick={() => onPinViewChange("home")}
                 >
-                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                  </svg>
+                  <span className="material-symbols-outlined">home</span>
                   Home
                 </button>
                 <button
@@ -113,10 +104,7 @@ export function NavigationDrawer({
                   type="button"
                   onClick={() => onPinViewChange("mine")}
                 >
-                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
+                  <span className="material-symbols-outlined">location_on</span>
                   My pins
                 </button>
                 <button
@@ -124,12 +112,7 @@ export function NavigationDrawer({
                   type="button"
                   onClick={() => onPinViewChange("friends")}
                 >
-                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
+                  <span className="material-symbols-outlined">group</span>
                   Friends' pins
                 </button>
                 <button
@@ -137,12 +120,7 @@ export function NavigationDrawer({
                   type="button"
                   onClick={onOpenPeople}
                 >
-                  <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                    <circle cx="9" cy="8" r="3" />
-                    <path d="M4 19c1.1-3 3.3-4.5 6.7-4.5 3.1 0 5.4 1.5 6.4 4.5" />
-                    <path d="M18 8v6" />
-                    <path d="M15 11h6" />
-                  </svg>
+                  <span className="material-symbols-outlined">person_search</span>
                   People
                 </button>
               </motion.section>
@@ -158,12 +136,10 @@ export function NavigationDrawer({
                   onClick={() => onMapProviderChange("leaflet")}
                   type="button"
                 >
-                  <span className="theme-icon">LF</span>
+                  <span className="material-symbols-outlined theme-icon">map</span>
                   Leaflet
                   {currentMapProvider === "leaflet" ? (
-                    <svg className="check-icon" width={ICON_SIZES.small} height={ICON_SIZES.small} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.strong}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <span className="material-symbols-outlined check-icon">done</span>
                   ) : null}
                 </button>
                 <button
@@ -171,12 +147,10 @@ export function NavigationDrawer({
                   onClick={() => onMapProviderChange("google")}
                   type="button"
                 >
-                  <span className="theme-icon">GM</span>
+                  <span className="material-symbols-outlined theme-icon">travel_explore</span>
                   Google maps
                   {currentMapProvider === "google" ? (
-                    <svg className="check-icon" width={ICON_SIZES.small} height={ICON_SIZES.small} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.strong}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <span className="material-symbols-outlined check-icon">done</span>
                   ) : null}
                 </button>
               </motion.section>
@@ -184,11 +158,7 @@ export function NavigationDrawer({
 
             <footer className="drawer-footer">
               <button className="drawer-item sign-out" onClick={onSignOut} type="button">
-                <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell}>
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
+                <span className="material-symbols-outlined">logout</span>
                 Sign out
               </button>
             </footer>

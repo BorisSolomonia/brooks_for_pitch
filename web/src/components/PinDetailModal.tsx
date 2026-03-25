@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeSlideUpProps } from "./MotionWrappers";
-import { ICON_SIZES, ICON_STROKES, MOTION_SETTINGS } from "../lib/frontendConfig";
+import { MOTION_SETTINGS } from "../lib/frontendConfig";
 import type { MapPin } from "../lib/types";
 import "../styles/PinDetailModal.css";
 
@@ -48,10 +48,7 @@ export function PinDetailModal({ pin, onClose, onOpenProfile }: PinDetailModalPr
             <div className="modal-header">
               <h2>Pin</h2>
               <button className="modal-close" onClick={onClose} aria-label="Close">
-                <svg width={ICON_SIZES.medium} height={ICON_SIZES.medium} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ICON_STROKES.shell} strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <motion.div

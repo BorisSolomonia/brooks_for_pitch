@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Brooks | Leave memories on places</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f6f3ee",
+              "surface-container-highest": "#e4e3da",
+              "surface": "#fcf9f5",
+              "tertiary-fixed-dim": "#edd6be",
+              "on-primary-fixed": "#27453c",
+              "secondary-fixed": "#e5e2de",
+              "primary-fixed-dim": "#badccf",
+              "on-secondary": "#fcf8f4",
+              "surface-container": "#f0eee8",
+              "primary-fixed": "#c8eadd",
+              "on-background": "#32332d",
+              "inverse-on-surface": "#9e9d99",
+              "secondary-container": "#e5e2de",
+              "surface-container-high": "#eae8e1",
+              "tertiary-dim": "#61503d",
+              "inverse-surface": "#0e0e0c",
+              "error-dim": "#4e0309",
+              "on-primary-fixed-variant": "#436258",
+              "tertiary": "#6d5c49",
+              "surface-bright": "#fcf9f5",
+              "secondary-fixed-dim": "#d7d4d0",
+              "on-tertiary-fixed-variant": "#6d5c49",
+              "on-surface-variant": "#5f5f59",
+              "on-error": "#fff7f6",
+              "primary-container": "#c8eadd",
+              "primary": "#46645b",
+              "on-secondary-fixed-variant": "#5c5b58",
+              "error-container": "#fe8983",
+              "tertiary-container": "#fce4cb",
+              "primary-dim": "#3a584f",
+              "on-secondary-container": "#52524f",
+              "inverse-primary": "#d6f8eb",
+              "on-tertiary-container": "#63523f",
+              "on-surface": "#32332d",
+              "surface-dim": "#dbdad1",
+              "on-primary-container": "#39584e",
+              "secondary": "#605f5c",
+              "surface-tint": "#46645b",
+              "outline": "#7b7b74",
+              "tertiary-fixed": "#fce4cb",
+              "background": "#fcf9f5",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed": "#403f3d",
+              "secondary-dim": "#545350",
+              "surface-variant": "#e4e3da",
+              "on-tertiary": "#fff7f3",
+              "on-primary": "#defff2",
+              "on-tertiary-fixed": "#4f402e",
+              "outline-variant": "#b3b2ab",
+              "error": "#9f403d",
+              "on-error-container": "#752121"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .serif-italic { font-family: 'Newsreader'; font-style: italic; }
+        .text-ink { color: #32332d; }
+        .bg-canvas { background-color: #fcf9f5; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-canvas text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed antialiased overflow-hidden">
+<div class="relative min-h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Background/Hero Image Section -->
+<div class="relative w-full md:w-1/2 h-64 md:h-screen overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-90" data-alt="Dreamy handheld film photograph of a coastal landscape at dusk with soft grain and hazy warm light reflecting on water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDruDEcXyNa9REEpoXAgwEb2Dmz88lIx7sqZiUqspwC71k_Ck4X6lJu8Pp_ZHl4bWdRe5MG2gFM2WQ1sqgJ69gnvbSeqAU2hXq4-DZMJAEFCbXQkXN_2uB2MXIGcUP_nO_oYrgGspaWkHmCJz4EiDIF_yaiDw6B2VBBywjze4HbHdt1a5Dc-4BQQXWnvbSLkaK0frSHAEv50WCBYY4WgbsFxpxX7kInR_WPtTPoemyT6aQSGvCvRusRtkph3LLhtjsEAxNYxJIq8l90"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background"></div>
+<!-- Branding Overlay for Mobile -->
+<div class="absolute top-8 left-8 md:hidden">
+<span class="font-headline text-3xl italic tracking-tight text-on-surface">Brooks</span>
+</div>
+</div>
+<!-- Content Canvas -->
+<main class="flex-1 flex flex-col justify-center px-8 md:px-24 py-12 md:py-0 relative z-10 bg-surface">
+<!-- Logo - Desktop -->
+<div class="hidden md:block absolute top-12 left-24">
+<span class="font-headline text-3xl italic tracking-tight text-ink">Brooks</span>
+</div>
+<div class="max-w-md w-full space-y-12">
+<!-- Hero Statement -->
+<header class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase text-tertiary">A Digital Archive</span>
+<h1 class="font-headline text-5xl md:text-7xl leading-[1.1] text-ink font-light">
+                        Leave memories <br/>
+<span class="serif-italic">on places.</span>
+</h1>
+<p class="font-body text-lg text-on-surface-variant leading-relaxed max-w-[340px] pt-4">
+                        Brooks is a privacy-first social map where people leave digital memories at real places, discoverable on their own terms.
+                    </p>
+</header>
+<!-- Actions -->
+<div class="space-y-8">
+<div class="flex flex-col gap-4">
+<!-- Primary Action -->
+<button class="group relative flex items-center justify-between w-full bg-primary text-on-primary py-5 px-8 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 ease-in-out">
+<span class="font-body font-semibold tracking-wide">Sign in</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Secondary Action -->
+<button class="flex items-center justify-center w-full py-5 px-8 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-300 font-body font-medium">
+                            Create account
+                        </button>
+</div>
+<!-- Trust/Privacy Anchor -->
+<div class="flex items-start gap-4 pt-4">
+<div class="bg-primary-container/30 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="encrypted">encrypted</span>
+</div>
+<p class="font-label text-xs text-on-surface-variant leading-relaxed">
+                            Encryption by default. Your location data and memories are stored with archival-grade privacy protocols.
+                        </p>
+</div>
+</div>
+<!-- Subtle Navigation Footer -->
+<footer class="pt-8 flex gap-6">
+<a class="font-label text-[10px] uppercase tracking-widest text-tertiary hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-tertiary hover:text-primary transition-colors" href="#">Manifesto</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-tertiary hover:text-primary transition-colors" href="#">Support</a>
+</footer>
+</div>
+</main>
+<!-- Decorative Floating "Artifact" Element -->
+<div class="hidden lg:block absolute bottom-12 right-12 max-w-[200px] pointer-events-none opacity-40">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-2xl space-y-3 transform -rotate-3 border border-outline-variant/10">
+<div class="h-24 w-full bg-surface-container-highest rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Vintage style polaroid of a mountain range with soft blurry edges" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB14Ih7AcG8FPeOIwBeXXv7xitYVTxnHhUYo9Oscl6LwAN4lVWa4WPRn1iwR6iiVnoT230QUUUkTd8mvzXY8tWS_qjHJqbgUe0TOxT4_u5UVhWmx9onepCRc1TCVUq6QrTtnUucIiOHju5Eeike03J_XFO4iX11qXOi6ESbMzOA_PxWpNjrz_-78t1SvC869X29X_HMrFVZh7XCZ5wogimkOGq_ccF2Nnd5rg2Z8eUsmbSPKvItE0kewX0gqi-LARX0ZzToXUDcSuv-"/>
+</div>
+<div class="space-y-1">
+<div class="h-1 w-12 bg-on-surface-variant/20 rounded-full"></div>
+<div class="h-1 w-20 bg-on-surface-variant/10 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label text-[8px] text-tertiary uppercase tracking-tighter">Sept 12, 1994</span>
+<span class="material-symbols-outlined text-[10px] text-primary" data-icon="location_on">location_on</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>
